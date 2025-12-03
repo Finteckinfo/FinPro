@@ -6,7 +6,7 @@
 
 FinERP is a secure, blockchain-based Enterprise Resource Planning system built on EVM-compatible networks. It combines smart contract-powered escrow payments, integrated DEX functionality, and gasless transactions into a professional Web3 ERP experience.
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 ```
 FinERP/
@@ -32,31 +32,31 @@ FinERP/
 - **Project Management** - Create, fund, and manage projects with escrow
 - **Dashboard** - Real-time project tracking and token balances
 
-## 🚀 Key Features
+## Key Features
 
-### 💰 Token Economics
+### Token Economics
 - **FIN Token**: 100,000,000 total supply, 1:1 peg with USDT
 - **DEX Integration**: Built-in swapping with 0.3% fee structure
 - **Gasless Transactions**: Gelato Network integration for fee-less swaps
 
-### 🔐 Security Features
+### Security Features
 - **Multi-sig Approvals**: Required for payments >10,000 FIN
 - **Time-locked Refunds**: 24-hour employer refund protection
 - **Upgradeable Contracts**: UUPS proxy pattern for bug fixes
 - **Pausable Functionality**: Emergency stop mechanisms
 
-### 🌐 Network Support
+### Network Support
 - **Ethereum Mainnet** - Production environment
 - **Polygon** - Low-cost alternative
 - **Sepolia** - Testnet for development
 
-## 📋 Prerequisites
+## Prerequisites
 
 - Node.js 18+
 - MetaMask browser extension
 - Git
 
-## 🔧 Quick Start
+## Quick Start
 
 ### 1. Clone the Repository
 ```bash
@@ -83,7 +83,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-## ⚙️ Configuration
+## Configuration
 
 ### Environment Variables
 
@@ -108,7 +108,7 @@ VITE_DEX_CONTRACT_ADDRESS=0x...
 VITE_GELATO_RELAY_API_KEY=your_gelato_key
 ```
 
-## 🚀 Deployment
+## Deployment
 
 ### Smart Contracts
 ```bash
@@ -127,7 +127,7 @@ npm run preview  # Test production build locally
 # Deploy to Vercel, Netlify, or your preferred hosting
 ```
 
-## 🧪 Testing
+## Testing
 
 ### Smart Contracts
 ```bash
@@ -143,17 +143,17 @@ npm run lint              # ESLint checks
 npm run test              # Vitest unit tests
 ```
 
-## 📊 User Journey
+## User Journey
 
-1. **🔗 Connect Wallet** - MetaMask integration, ERC20 wallet only
-2. **📊 Dashboard** - View projects, balances, and recent activity
-3. **📝 Create Project** - Fund escrow with FIN tokens
-4. **👥 Manage Tasks** - Allocate FIN amounts to team members
-5. **🔄 DEX Swap** - Exchange FIN ↔ USDT/USDC with gasless transactions
-6. **💰 Payment Release** - Multi-sig approvals for large payments
-7. **↩️ Refunds** - Time-locked employer refunds
+1. **Connect Wallet** - MetaMask integration, ERC20 wallet only
+2. **Dashboard** - View projects, balances, and recent activity
+3. **Create Project** - Fund escrow with FIN tokens
+4. **Manage Tasks** - Allocate FIN amounts to team members
+5. **DEX Swap** - Exchange FIN ↔ USDT/USDC with gasless transactions
+6. **Payment Release** - Multi-sig approvals for large payments
+7. **Refunds** - Time-locked employer refunds
 
-## 🔐 Security
+## Security
 
 - All contracts audited and follow OpenZeppelin best practices
 - Multi-signature requirements for large transactions
@@ -161,7 +161,7 @@ npm run test              # Vitest unit tests
 - Emergency pause functionality
 - Comprehensive test coverage (>95%)
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -169,17 +169,17 @@ npm run test              # Vitest unit tests
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 📞 Support
+## Support
 
 - **Issues**: [GitHub Issues](https://github.com/Finteckinfo/FinERP/issues)
 - **Documentation**: [Wiki](https://github.com/Finteckinfo/FinERP/wiki)
 - **Discussions**: [GitHub Discussions](https://github.com/Finteckinfo/FinERP/discussions)
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Built on **OpenZeppelin** contracts
 - Gasless transactions powered by **Gelato Network**
