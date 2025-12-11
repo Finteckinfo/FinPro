@@ -14,10 +14,96 @@
 }
 
 .v-btn {
-  text-transform: capitalize;
+  text-transform: none !important; // Changed from capitalize to none for sleek look
   letter-spacing: $btn-letter-spacing;
+  font-weight: 500 !important; // Medium weight for better readability
+  border-radius: 8px !important; // Sleek rounded corners
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important; // Smooth transitions
+  min-height: 40px !important; // Better touch targets
+  padding: 0 20px !important; // Comfortable padding
+  
+  // Hover effects
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  }
+  
+  // Active state
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  // Disabled state
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+  
+  // Responsive sizing
+  @media (max-width: 768px) {
+    min-height: 44px !important; // Larger touch targets on mobile
+    padding: 0 16px !important;
+    font-size: 0.875rem !important;
+  }
+  
+  @media (max-width: 480px) {
+    min-height: 40px !important;
+    padding: 0 12px !important;
+    font-size: 0.8125rem !important;
+  }
 }
+
+// Icon buttons
+.v-btn--icon {
+  min-width: 40px !important;
+  min-height: 40px !important;
+  
+  @media (max-width: 768px) {
+    min-width: 44px !important;
+    min-height: 44px !important;
+  }
+}
+
 .v-btn--icon.v-btn--density-default {
   width: calc(var(--v-btn-height) + 6px);
   height: calc(var(--v-btn-height) + 6px);
+}
+
+// Primary button styling
+.v-btn--variant-elevated,
+.v-btn--variant-flat {
+  &.v-btn--density-default {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+  }
+}
+
+// Outlined buttons
+.v-btn--variant-outlined {
+  border-width: 1.5px !important;
+  
+  &:hover {
+    border-width: 2px !important;
+  }
+}
+
+// Text buttons
+.v-btn--variant-text {
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+  }
+}
+
+// Dark theme adjustments
+.dark-theme {
+  .v-btn--variant-text {
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1) !important;
+    }
+  }
 }
