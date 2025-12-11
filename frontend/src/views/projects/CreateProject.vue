@@ -429,7 +429,7 @@
               
               <div v-if="currentStep === 'settings'" class="d-flex flex-column align-end" style="gap: 8px;">
                 <v-alert
-                  v-if="sizBalance < 1"
+                  v-if="finBalance < 1"
                   type="info"
                   variant="tonal"
                   density="compact"
@@ -440,8 +440,8 @@
                   </template>
                   <div class="d-flex flex-column" style="gap: 8px;">
                     <div>
-                      Minimum 0.00 SIZ required to create a project.
-                      <span class="ml-1">Current: {{ sizBalance.toFixed(2) }} SIZ</span>
+                      Minimum 0.00 FIN required to create a project.
+                      <span class="ml-1">Current: {{ finBalance.toFixed(2) }} FIN</span>
                     </div>
                     <div v-if="balanceError" class="text-error text-caption">{{ balanceError }}</div>
                     <div class="d-flex align-center" style="gap: 8px;">
@@ -459,7 +459,7 @@
                         variant="outlined"
                         size="small"
                         :loading="balanceLoading"
-                        @click="loadWalletSIZBalance()"
+                        @click="loadWalletFINBalance()"
                       >
                         <v-icon start>mdi-refresh</v-icon>
                         Refresh Balance

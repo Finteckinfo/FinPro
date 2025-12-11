@@ -68,7 +68,7 @@
                   class="siz-logo-small"
                 />
                 <span class="earning-value">
-                  {{ formatAmount(parseFloat(walletBalance.formattedAmount)) }} SIZ
+                  {{ formatAmount(parseFloat(walletBalance.formattedBalance || '0')) }} {{ walletBalance.symbol || 'FIN' }}
                 </span>
               </div>
               <span v-else-if="walletBalanceError" class="earning-value error-text">
@@ -204,6 +204,7 @@ const walletBalanceError = ref<string | null>(null);
 // Get wallet from MetaMask
 const { user: walletUser, isConnected, chainId } = useMetaMaskWallet();
 const walletAddress = computed(() => walletUser.value?.address || '');
+const isWalletConnected = computed(() => isConnected.value && !!walletAddress.value);
 
 // Load wallet balance
 const loadWalletBalance = async () => {

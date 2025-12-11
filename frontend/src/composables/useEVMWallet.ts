@@ -3,6 +3,9 @@ import { ethers } from 'ethers';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { EthereumProvider } from '@walletconnect/ethereum-provider';
 
+// Type for EthereumProvider instance
+type EthereumProviderInstance = InstanceType<typeof EthereumProvider>;
+
 export type WalletType = 'metamask' | 'walletconnect' | 'coinbase' | 'injected';
 
 export interface WalletUser {
@@ -46,7 +49,7 @@ export const SUPPORTED_CHAINS = {
 };
 
 // WalletConnect provider instance
-let walletConnectProvider: EthereumProvider | null = null;
+let walletConnectProvider: EthereumProviderInstance | null = null;
 
 export function useEVMWallet() {
   // Computed properties
@@ -443,7 +446,14 @@ export function useEVMWallet() {
           if (projectId) {
             walletConnectProvider = await EthereumProvider.init({
               projectId,
-              chains: [1, 137, 11155111]
+              chains: [1, 137, 11155111],
+              showQrModal: false, // Don't show modal on reconnect
+              metadata: {
+                name: 'FinERP',
+                description: 'Enterprise Resource Planning on EVM',
+                url: window.location.origin,
+                icons: [`${window.location.origin}/favicon.ico`]
+              }
             });
             if (walletConnectProvider.session) {
               const accounts = walletConnectProvider.accounts;

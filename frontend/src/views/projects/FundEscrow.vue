@@ -65,8 +65,8 @@
                   <div class="detail-row">
                     <span class="label">Asset:</span>
                     <div class="value-with-actions">
-                      <SIZCOINBadge :amount="0" show-link />
-                      <span class="ml-2 text-caption">ID: {{ SIZCOIN_CONFIG.ASSET_ID }}</span>
+                      <FINBadge :amount="0" />
+                      <span class="ml-2 text-caption">FIN Token</span>
                     </div>
                   </div>
 
@@ -199,7 +199,7 @@
                         suffix="SIZ"
                         variant="outlined"
                         class="mb-4"
-                        hint="Enter the amount of SIZCOIN to send from your wallet"
+                        hint="Enter the amount of FIN tokens to send from your wallet"
                         persistent-hint
                       >
                         <template v-slot:append-inner>
@@ -242,7 +242,7 @@
                   <!-- Manual Confirmation -->
                   <v-window-item value="manual">
                     <p class="text-body-2 mb-4">
-                      If you've already sent SIZCOIN to the escrow address, enter the transaction hash below to confirm the deposit.
+                      If you've already sent FIN tokens to the escrow address, enter the transaction hash below to confirm the deposit.
                     </p>
 
                     <v-text-field
@@ -251,7 +251,7 @@
                       placeholder="Enter Algorand transaction hash"
                       variant="outlined"
                       class="mb-2"
-                      hint="The TX hash from your wallet after sending SIZCOIN"
+                      hint="The TX hash from your wallet after sending FIN tokens"
                       persistent-hint
                     />
 
@@ -334,7 +334,7 @@
                   <div class="help-step">
                     <div class="step-number">1</div>
                     <div class="step-content">
-                      <strong>Send SIZCOIN</strong>
+                      <strong>Send FIN Tokens</strong>
                       <p>Use your connected wallet or send manually to the escrow address</p>
                     </div>
                   </div>
@@ -426,7 +426,7 @@
             <p class="text-caption mt-2">QR Code: {{ escrowData?.escrowAddress }}</p>
           </div>
           <p class="text-body-2 mt-4">
-            Scan this QR code with your Algorand wallet to send SIZCOIN to the escrow address.
+            Send FIN tokens to the escrow address using your EVM wallet.
           </p>
         </v-card-text>
         <v-card-actions>
@@ -446,10 +446,10 @@
         <v-card-text>
           <v-alert type="success" variant="tonal" class="mb-4">
             <div class="text-body-2">
-              <strong>Amount Received:</strong> {{ formatAmount(lastDepositAmount) }} SIZ
+              <strong>Amount Received:</strong> {{ formatAmount(lastDepositAmount) }} FIN
             </div>
             <div class="text-body-2 mt-2">
-              <strong>New Balance:</strong> {{ formatAmount(currentBalance) }} SIZ
+              <strong>New Balance:</strong> {{ formatAmount(currentBalance) }} FIN
             </div>
             <div class="text-body-2 mt-2">
               <strong>Transaction:</strong> 
@@ -481,25 +481,25 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useWallet } from '@txnlab/use-wallet-vue';
-import algosdk from 'algosdk';
+import { useEVMWallet } from '@/composables/useEVMWallet';
+import { ethers } from 'ethers';
 import { RetroGrid } from '@/components/ui/retro-grid';
-import { SIZCOINBadge } from '@/components/shared/SIZCOINBadge';
+import { FINBadge } from '@/components/shared/FINBadge';
 import {
   getEscrowBalance,
   depositToEscrow,
   getEscrowTransactions,
   getEscrowFundingNeeded,
-  SIZCOIN_CONFIG,
-  sizToMicroUnits,
   getExplorerUrl
 } from '@/services/paymentService';
 import { projectApi } from '@/services/projectApi';
+import { getFinTokenAddress } from '@/lib/finTokenConfig';
 
 // Router & Wallet
 const router = useRouter();
 const route = useRoute();
-const { activeAccount, signTransactions } = useWallet();
+const { user: walletUser, isConnected, signer, chainId } = useEVMWallet();
+const activeAccount = computed(() => walletUser.value ? { address: walletUser.value.address } : null);
 
 // Props
 const projectId = computed(() => route.params.id as string);
@@ -535,7 +535,7 @@ const lastDepositAmount = ref(0);
 const lastTxHash = ref('');
 
 // Computed
-const isWalletConnected = computed(() => !!activeAccount.value);
+const isWalletConnected = computed(() => isConnected.value && !!activeAccount.value);
 const connectedWalletAddress = computed(() => activeAccount.value?.address || '');
 const projectName = computed(() => projectData.value?.name || 'Project');
 
@@ -597,9 +597,9 @@ const loadEscrowData = async () => {
   }
 };
 
-// Send SIZCOIN from connected wallet
+// Send FIN tokens from connected wallet
 const sendFromWallet = async () => {
-  if (!activeAccount.value || sendAmount.value <= 0) {
+  if (!activeAccount.value || !signer.value || sendAmount.value <= 0) {
     alert('Please connect wallet and enter amount');
     return;
   }
@@ -607,49 +607,37 @@ const sendFromWallet = async () => {
   try {
     sending.value = true;
 
-    // Get Algorand client
-    const network = localStorage.getItem('algorand_network') || 'testnet';
-    const nodeUrl = network === 'mainnet'
-      ? 'https://mainnet-api.algonode.cloud'
-      : 'https://testnet-api.algonode.cloud';
-
-    const algodClient = new algosdk.Algodv2('', nodeUrl, '');
-    const params = await algodClient.getTransactionParams().do();
-
-    // Create SIZCOIN transfer transaction
-    const txn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-      sender: activeAccount.value.address,
-      receiver: escrowData.value.escrowAddress,
-      assetIndex: SIZCOIN_CONFIG.ASSET_ID,
-      amount: sizToMicroUnits(sendAmount.value),
-      note: new TextEncoder().encode(`Funding project ${projectId.value}`),
-      suggestedParams: params
-    });
-
-    // Sign transaction with user's wallet
-    const encodedTxn = algosdk.encodeUnsignedTransaction(txn);
-    const signedTxns = await signTransactions([encodedTxn]);
-
-    // Submit to blockchain
-    if (!signedTxns || !signedTxns[0]) {
-      throw new Error('Failed to sign transaction');
+    // Get FIN token address for current chain
+    const tokenAddress = getFinTokenAddress(chainId.value);
+    if (!tokenAddress) {
+      throw new Error('FIN token not configured for this network');
     }
-    
-    const response = await algodClient.sendRawTransaction(signedTxns[0]).do();
-    const txId = response.txid;
-    console.log('Transaction submitted:', txId);
 
-    // Wait for confirmation (4 rounds)
-    await algosdk.waitForConfirmation(algodClient, txId, 4);
-    console.log('Transaction confirmed:', txId);
+    // ERC20 ABI for transfer
+    const erc20Abi = [
+      'function transfer(address to, uint256 amount) returns (bool)'
+    ];
+
+    const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, signer.value);
+    
+    // Convert amount to token units (assuming 18 decimals)
+    const amount = ethers.parseUnits(sendAmount.value.toString(), 18);
+
+    // Send transaction
+    const tx = await tokenContract.transfer(escrowData.value.escrowAddress, amount);
+    console.log('Transaction submitted:', tx.hash);
+
+    // Wait for confirmation
+    const receipt = await tx.wait();
+    console.log('Transaction confirmed:', receipt.hash);
 
     // Confirm with backend
-    const result = await depositToEscrow(projectId.value, txId, sendAmount.value);
+    const result = await depositToEscrow(projectId.value, receipt.hash, sendAmount.value);
 
     if (result.verified) {
       // Success!
       lastDepositAmount.value = result.amount;
-      lastTxHash.value = txId;
+      lastTxHash.value = receipt.hash;
       showSuccess.value = true;
 
       // Reload balance
@@ -659,8 +647,8 @@ const sendFromWallet = async () => {
     }
 
   } catch (err: any) {
-    console.error('Failed to send SIZCOIN:', err);
-    alert(`Failed to send SIZCOIN: ${err.message || 'Unknown error'}`);
+    console.error('Failed to send FIN tokens:', err);
+    alert(`Failed to send FIN tokens: ${err.message || 'Unknown error'}`);
   } finally {
     sending.value = false;
   }

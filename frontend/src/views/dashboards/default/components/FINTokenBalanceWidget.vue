@@ -91,10 +91,10 @@
             />
           </div>
           <div class="text-h3 font-weight-bold mb-2" style="color: var(--erp-accent-green);">
-            {{ tokenBalance.formattedAmount }}
+            {{ tokenBalance.formattedBalance }}
           </div>
           <div class="text-body-2 text-medium-emphasis">
-            {{ tokenBalance.unitName }} Tokens
+            {{ tokenBalance.symbol || 'FIN' }} Tokens
           </div>
         </div>
 
@@ -107,7 +107,7 @@
           </div>
           <div class="token-detail-item">
             <span class="token-detail-label">Asset ID:</span>
-            <span class="token-detail-value token-detail-value-mono">{{ tokenBalance.assetId }}</span>
+            <span class="token-detail-value token-detail-value-mono">{{ tokenBalance.contractAddress }}</span>
           </div>
           <div class="token-detail-item">
             <span class="token-detail-label">Wallet Address:</span>
@@ -137,7 +137,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
 import { useMetaMaskWallet } from '@/composables/useMetaMaskWallet';
-import { getFINTokenBalance, type FINTokenBalance } from '@/services/finTokenService';
+import { getFINTokenBalance, getFINTokenAddress, getRPCUrl, type FINTokenBalance } from '@/services/finTokenService';
 
 // State
 const loading = ref(false);
@@ -149,6 +149,7 @@ const { user: walletUser, isConnected, chainId, provider } = useMetaMaskWallet()
 
 // Computed
 const walletAddress = computed(() => walletUser.value?.address || '');
+const isWalletConnected = computed(() => isConnected.value && !!walletAddress.value);
 
 const networkLabel = computed(() => {
   const chain = chainId.value;

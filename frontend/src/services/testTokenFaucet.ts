@@ -13,7 +13,7 @@
 import { ethers } from 'ethers';
 import { useEVMWallet } from '@/composables/useEVMWallet';
 import { sendGaslessTransaction } from './gaslessService';
-import { getFINTokenAddress } from '@/lib/finTokenConfig';
+import { getFINTokenAddress } from '@/services/finTokenService';
 
 export interface FaucetRequest {
   address: string;

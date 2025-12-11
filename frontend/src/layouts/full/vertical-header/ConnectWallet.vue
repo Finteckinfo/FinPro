@@ -192,61 +192,32 @@ async function postWalletToExternalDB(walletAddress: string) {
   }
 }
 
-// Connect wallet using useWallet hook
-async function connectWallet(walletId: WalletId) {
-  if (!wallets.value || !Array.isArray(wallets.value)) {
-    console.error('[ConnectWallet] Wallets not available');
-    toastMsg.value = 'Wallets are not ready yet. Please try again.';
-    showToast.value = true;
-    setTimeout(() => { showToast.value = false; toastMsg.value = ''; }, 3000);
-    return;
-  }
-
-  const wallet = wallets.value.find(w => w.id === walletId);
-  if (!wallet) {
-    console.error('[ConnectWallet] Wallet not found:', walletId);
-    toastMsg.value = 'Wallet provider not found.';
-    showToast.value = true;
-    setTimeout(() => { showToast.value = false; toastMsg.value = ''; }, 3000);
-    return;
-  }
-
+// Connect wallet using EVM wallet hook (removed old Algorand code)
+async function connectWallet(walletType: 'metamask' | 'walletconnect' | 'coinbase') {
   try {
-    console.log('[ConnectWallet] Attempting to connect wallet:', walletId);
-    await wallet.connect();
-    console.log('[ConnectWallet] Wallet connected successfully');
+    const { connectMetaMask, connectWalletConnect, connectCoinbase } = useEVMWallet();
+    let success = false;
     
-    // Wait a bit for activeAccount to update
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    // Sync to walletManager (watch should handle this, but ensure it's synced)
-    if (activeAccount.value?.address) {
-      walletManagerAccount.value = { address: activeAccount.value.address };
-      console.log('[ConnectWallet] Synced wallet to walletManager after connection');
-      
-      // Post wallet address to external database after successful connection
-      console.log('🔍 [Wallet] Wallet connected, posting address to external DB:', activeAccount.value.address);
-      await postWalletToExternalDB(activeAccount.value.address);
-    } else {
-      console.log('⚠️ [Wallet] Wallet connected but no active account address available');
+    if (walletType === 'metamask') {
+      success = await connectMetaMask();
+    } else if (walletType === 'walletconnect') {
+      success = await connectWalletConnect();
+    } else if (walletType === 'coinbase') {
+      success = await connectCoinbase();
     }
     
-    isWalletModalOpen.value = false;
-    toastMsg.value = 'Wallet connected successfully!';
-    showToast.value = true;
-    setTimeout(() => { showToast.value = false; toastMsg.value = ''; }, 3000);
+    if (success && activeAccount.value?.address) {
+      walletManagerAccount.value = { address: activeAccount.value.address };
+      console.log('[ConnectWallet] Synced wallet to walletManager after connection');
+      await postWalletToExternalDB(activeAccount.value.address);
+      isWalletModalOpen.value = false;
+      toastMsg.value = 'Wallet connected successfully!';
+      showToast.value = true;
+      setTimeout(() => { showToast.value = false; toastMsg.value = ''; }, 3000);
+    }
   } catch (err: any) {
     console.error('Wallet connect error:', err);
-
-    const canceled =
-      err?.data?.type === 'CONNECT_MODAL_CLOSED' ||
-      err?.message?.includes('cancelled') ||
-      err?.message === 'Operation Cancelled' ||
-      err?.message?.includes('User rejected');
-
-    toastMsg.value = canceled
-      ? 'Wallet connection was cancelled.'
-      : err?.message || 'Failed to connect wallet. Try again.';
+    toastMsg.value = err?.message || 'Failed to connect wallet. Try again.';
     showToast.value = true;
     setTimeout(() => { showToast.value = false; toastMsg.value = ''; }, 3000);
   }
@@ -301,7 +272,7 @@ async function connectManualWallet() {
 async function handleDisconnect() {
   if (activeWallet.value) {
     try {
-      await activeWallet.value.disconnect();
+      await disconnectWallet();
       console.log('[ConnectWallet] Wallet disconnected via hook');
     } catch (err) {
       console.error('[ConnectWallet] Error disconnecting via hook:', err);
@@ -444,29 +415,24 @@ const shortenAddress = (address: string) => {
 
           <v-divider class="my-4"></v-divider>
 
-          <!-- Provider Wallets -->
+          <!-- Provider Wallets (EVM) -->
           <section>
-            <h6 class="mb-3 text-subtitle-1 font-weight-medium">Other Wallet Providers</h6>
-            <div v-if="!wallets || wallets.length === 0" class="text-center py-4">
-              <p class="text-body-2 text-medium-emphasis">No wallet providers available</p>
-            </div>
-            <div v-else class="wallet-action-btn__group">
+            <h6 class="mb-3 text-subtitle-1 font-weight-medium">EVM Wallet Providers</h6>
+            <div class="wallet-action-btn__group">
               <v-btn
-                v-for="wallet in wallets"
-                :key="wallet.id"
                 class="wallet-action-btn mb-2"
                 block
                 elevation="0"
                 variant="outlined"
                 color="primary"
                 :style="walletButtonStyle"
-                @click="connectWallet(wallet.id)"
+                @click="connectWallet('metamask')"
               >
                 <div class="wallet-action-btn__icon" :style="walletIconStyle">
-                  <v-img :src="wallet.metadata?.icon" alt="wallet logo" />
+                  <v-img src="/images/wallets/metamask.svg" alt="MetaMask logo" />
                 </div>
                 <div class="wallet-action-btn__body">
-                  <span class="wallet-action-btn__title">{{ wallet.metadata?.name || 'Unknown Wallet' }}</span>
+                  <span class="wallet-action-btn__title">MetaMask</span>
                   <span class="wallet-action-btn__subtitle">Tap to connect</span>
                 </div>
                 <v-icon class="wallet-action-btn__chevron">mdi-chevron-right</v-icon>

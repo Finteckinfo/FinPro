@@ -185,9 +185,12 @@ Open your site and test:
 
 ### Submodule Error Still Appears
 **Fix:**
-1. Make sure you completed Step 1 (git push)
-2. In Netlify: **Site settings** → **Build & deploy** → **Environment**
-3. Uncheck **"Install Git submodules"**
+1. Make sure you completed Step 1 (git push) with the latest fix
+2. In Netlify: **Site settings** → **Build & deploy** → **Build settings**
+3. Scroll down to **"Advanced build settings"**
+4. Find **"Install Git submodules"** and make sure it's **UNCHECKED** (disabled)
+5. Click **"Save"**
+6. Go to **Deploys** tab → **Trigger deploy** → **Deploy site**
 
 ### WalletConnect Not Working
 **Fix:**

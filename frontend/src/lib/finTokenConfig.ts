@@ -37,3 +37,8 @@ export function getFinTokenAddress(chainId: number): string {
       return '';
   }
 }
+
+// Alias with uppercase FIN for compatibility
+export function getFINTokenAddress(chainId: number): string {
+  return getFinTokenAddress(chainId);
+}

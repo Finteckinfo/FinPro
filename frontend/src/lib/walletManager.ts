@@ -53,3 +53,8 @@ export function removeManualWallet() {
   logger.debug('removeManualWallet called');
   activeAccount.value = null;
 }
+
+// Alias for compatibility with useSSOWallet
+export function clearWalletConnection() {
+  removeManualWallet();
+}
