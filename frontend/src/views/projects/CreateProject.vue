@@ -449,7 +449,7 @@
                         color="primary"
                         variant="elevated"
                         size="small"
-                        :href="import.meta.env.VITE_SSO_PRIMARY_DOMAIN || '#'"
+                        :href="ssoDomain || '#'"
                         target="_blank"
                       >
                         <v-icon start>mdi-open-in-new</v-icon>
@@ -595,6 +595,7 @@ const priorityLevels = ref<Array<{title: string, value: string}>>([
 ]);
 // API base URL
 const API_BASE = import.meta.env.VITE_BACKEND_URL;
+const ssoDomain = import.meta.env.VITE_SSO_PRIMARY_DOMAIN || '';
 
 // Computed properties
 const canProceedToNext = computed(() => {
