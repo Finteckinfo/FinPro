@@ -84,11 +84,7 @@
         <div class="text-center mb-4">
           <!-- FIN Logo -->
           <div class="fin-logo-container mb-3">
-            <img 
-              src="/images/finerp-logo.png" 
-              alt="FIN Logo" 
-              class="fin-logo"
-            />
+            <v-icon size="80" color="primary">mdi-coin</v-icon>
           </div>
           <div class="text-h3 font-weight-bold mb-2" style="color: var(--erp-accent-green);">
             {{ tokenBalance.formattedBalance }}
