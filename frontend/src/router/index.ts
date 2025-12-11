@@ -1,14 +1,23 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import MainRoutes from './MainRoutes';
 import PublicRoutes from './PublicRoutes';
-import { useMetaMaskWallet } from '@/composables/useMetaMaskWallet';
+import { useEVMWallet } from '@/composables/useEVMWallet';
+import { activeAccount } from '@/lib/walletManager';
 
-// MetaMask Wallet Authentication
-const { isConnected, user } = useMetaMaskWallet();
+// EVM Wallet Authentication (supports multiple wallets)
+const { isConnected } = useEVMWallet();
 
-// Check for wallet connection
+// Check for wallet connection (EVM wallet or manual wallet)
 function hasWalletConnection(): boolean {
-  return isConnected.value && !!user.value?.address;
+  // Check EVM wallet connection
+  if (isConnected.value) {
+    return true;
+  }
+  // Check manual wallet connection
+  if (activeAccount.value && activeAccount.value.address) {
+    return true;
+  }
+  return false;
 }
 
 export const router = createRouter({
@@ -29,7 +38,7 @@ router.beforeEach(async (to, from, next) => {
     return;
   }
 
-  const publicPages = ['/login', '/register', '/error'];
+  const publicPages = ['/login', '/register', '/error', '/'];
   const isPublicPage = publicPages.includes(to.path);
   const authRequired = !isPublicPage && to.matched.some((record) => record.meta.requiresAuth);
 
