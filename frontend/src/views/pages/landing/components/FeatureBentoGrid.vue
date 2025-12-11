@@ -71,51 +71,72 @@ const features: Feature[] = [
 }
 
 .feature-card {
-  background-color: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  background-color: var(--erp-card-bg, #ffffff);
+  border: 1px solid var(--erp-border, #e2e8f0);
+  border-radius: 12px;
   padding: 2rem;
-  transition: border-color 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
 }
 
 .dark-theme .feature-card {
-  background-color: #1a1a1a;
-  border-color: #2f2f2f;
+  background-color: var(--erp-card-bg, #1e293b);
+  border-color: var(--erp-border, #334155);
 }
 
 .feature-card:hover {
-  border-color: #d1d5db;
+  border-color: var(--erp-accent-green, #5BC85B);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
 .dark-theme .feature-card:hover {
-  border-color: #4b5563;
+  border-color: var(--erp-accent-green, #5BC85B);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
 .feature-icon {
   margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background-color: var(--erp-accent-light, rgba(91, 200, 91, 0.1));
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover .feature-icon {
+  background-color: var(--erp-accent-green, #5BC85B);
+  transform: scale(1.1);
+}
+
+.feature-card:hover .feature-icon :deep(.v-icon) {
+  color: #ffffff !important;
 }
 
 .feature-title {
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0 0 0.75rem 0;
-  color: #1a1a1a;
+  color: var(--erp-heading, #0f172a);
   letter-spacing: -0.01em;
 }
 
 .dark-theme .feature-title {
-  color: #ffffff;
+  color: var(--erp-heading, #ffffff);
 }
 
 .feature-description {
   font-size: 0.9375rem;
-  line-height: 1.6;
-  color: #4b5563;
+  line-height: 1.7;
+  color: var(--erp-text-secondary, #4a5568);
   margin: 0;
 }
 
 .dark-theme .feature-description {
-  color: #9ca3af;
+  color: var(--erp-text-secondary, #cbd5e1);
 }
 
 @media (max-width: 768px) {
@@ -126,6 +147,29 @@ const features: Feature[] = [
 
   .feature-card {
     padding: 1.5rem;
+  }
+
+  .feature-title {
+    font-size: 1.125rem;
+  }
+
+  .feature-description {
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .features-grid {
+    gap: 1.25rem;
+  }
+
+  .feature-card {
+    padding: 1.25rem;
+  }
+
+  .feature-icon {
+    width: 40px;
+    height: 40px;
   }
 }
 </style>

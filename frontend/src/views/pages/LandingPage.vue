@@ -84,13 +84,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useMetaMaskWallet } from '@/composables/useMetaMaskWallet'
+import { useEVMWallet } from '@/composables/useEVMWallet'
 import LandingBackground from '@/components/ui/LandingBackground.vue'
 import FeatureBentoGrid from '@/views/pages/landing/components/FeatureBentoGrid.vue'
 
 const router = useRouter()
 const featuresSection = ref<HTMLElement | null>(null)
-const { isConnected, connect } = useMetaMaskWallet()
+const { isConnected, connect } = useEVMWallet()
 
 const goToCreateProject = async () => {
   const isWalletConnected = isConnected.value;
@@ -127,21 +127,22 @@ const scrollToFeatures = () => {
 </script>
 
 <style lang="scss" scoped>
-/* Navigation */
+/* Navigation - Sleek siz.land style */
 .main-nav {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 100;
-  background-color: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid #e5e7eb;
+  background-color: var(--erp-header-bg, rgba(255, 255, 255, 0.95));
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--erp-border, #e2e8f0);
+  transition: all 0.3s ease;
 }
 
 .dark-theme .main-nav {
-  background-color: rgba(10, 10, 10, 0.95);
-  border-bottom-color: #1f1f1f;
+  background-color: var(--erp-header-bg, rgba(30, 41, 59, 0.95));
+  border-bottom-color: var(--erp-border, #334155);
 }
 
 .nav-container {
@@ -155,13 +156,19 @@ const scrollToFeatures = () => {
 
 .logo-text {
   font-size: 1.5rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: #1a1a1a;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  background: linear-gradient(45deg, #5BC85B, #34D399);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  transition: all 0.3s ease;
 }
 
-.dark-theme .logo-text {
-  color: #ffffff;
+.logo-text:hover {
+  transform: scale(1.02);
+  filter: brightness(1.1);
 }
 
 .nav-links {
@@ -171,22 +178,37 @@ const scrollToFeatures = () => {
 }
 
 .nav-links a {
-  color: #4b5563;
+  color: var(--erp-text-secondary, #4a5568);
   text-decoration: none;
   font-size: 0.95rem;
-  transition: color 0.2s;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  padding: 0.5rem 0;
+  position: relative;
 }
 
 .dark-theme .nav-links a {
-  color: #d1d5db;
+  color: var(--erp-text-secondary, #cbd5e1);
 }
 
 .nav-links a:hover {
-  color: #1a1a1a;
+  color: var(--erp-accent-green, #5BC85B);
+  transform: translateY(-1px);
 }
 
-.dark-theme .nav-links a:hover {
-  color: #ffffff;
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--erp-accent-green, #5BC85B);
+  transition: width 0.3s ease;
+}
+
+.nav-links a:hover::after {
+  width: 100%;
 }
 
 .nav-button {
@@ -210,29 +232,38 @@ const scrollToFeatures = () => {
 
 .hero-title {
   font-size: 4.5rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.04em;
   margin-bottom: 1.5rem;
-  color: #1a1a1a;
+  color: var(--erp-heading, #0f172a);
   line-height: 1.1;
+  background: linear-gradient(45deg, #5BC85B, #34D399);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
 }
 
 .dark-theme .hero-title {
-  color: #ffffff;
+  background: linear-gradient(45deg, #5BC85B, #34D399);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .hero-subtitle {
   font-size: 1.25rem;
-  line-height: 1.6;
-  color: #4b5563;
+  line-height: 1.7;
+  color: var(--erp-text-secondary, #4a5568);
   margin-bottom: 3rem;
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
+  font-weight: 400;
 }
 
 .dark-theme .hero-subtitle {
-  color: #9ca3af;
+  color: var(--erp-text-secondary, #cbd5e1);
 }
 
 .hero-actions {
@@ -246,38 +277,52 @@ const scrollToFeatures = () => {
 .secondary-button {
   text-transform: none !important;
   font-weight: 500 !important;
-  padding: 0.75rem 2rem !important;
-  border-radius: 6px !important;
+  padding: 0.875rem 2rem !important;
+  border-radius: 8px !important;
+  min-height: 48px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  font-size: 1rem !important;
 }
 
 .primary-button {
-  background-color: #1a1a1a !important;
+  background-color: var(--erp-accent-green, #5BC85B) !important;
   color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(91, 200, 91, 0.3) !important;
 }
 
-.dark-theme .primary-button {
-  background-color: #ffffff !important;
-  color: #1a1a1a !important;
+.primary-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(91, 200, 91, 0.4) !important;
+  background-color: #4ab84a !important;
 }
 
 .secondary-button {
-  border-color: #d1d5db !important;
-  color: #1a1a1a !important;
+  border: 1.5px solid var(--erp-border, #e2e8f0) !important;
+  color: var(--erp-text-primary, #1a202c) !important;
+  background-color: transparent !important;
 }
 
 .dark-theme .secondary-button {
-  border-color: #4b5563 !important;
-  color: #ffffff !important;
+  border-color: var(--erp-border, #334155) !important;
+  color: var(--erp-text-primary, #ffffff) !important;
+}
+
+.secondary-button:hover {
+  border-color: var(--erp-accent-green, #5BC85B) !important;
+  color: var(--erp-accent-green, #5BC85B) !important;
+  transform: translateY(-2px);
+  background-color: rgba(91, 200, 91, 0.05) !important;
 }
 
 /* Features Section */
 .features-section {
   padding: 6rem 2rem;
-  background-color: #f9fafb;
+  background-color: var(--erp-page-bg, #f8fafc);
+  transition: background-color 0.3s ease;
 }
 
 .dark-theme .features-section {
-  background-color: #0f0f0f;
+  background-color: var(--erp-page-bg, #0f172a);
 }
 
 .features-container {
@@ -287,27 +332,28 @@ const scrollToFeatures = () => {
 
 .section-title {
   font-size: 2.5rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.02em;
   text-align: center;
   margin-bottom: 4rem;
-  color: #1a1a1a;
+  color: var(--erp-heading, #0f172a);
 }
 
 .dark-theme .section-title {
-  color: #ffffff;
+  color: var(--erp-heading, #ffffff);
 }
 
 /* Footer */
 .landing-footer {
-  background-color: #ffffff;
-  border-top: 1px solid #e5e7eb;
+  background-color: var(--erp-card-bg, #ffffff);
+  border-top: 1px solid var(--erp-border, #e2e8f0);
   padding: 4rem 2rem 2rem;
+  transition: all 0.3s ease;
 }
 
 .dark-theme .landing-footer {
-  background-color: #0a0a0a;
-  border-top-color: #1f1f1f;
+  background-color: var(--erp-card-bg, #1e293b);
+  border-top-color: var(--erp-border, #334155);
 }
 
 .footer-container {
@@ -332,22 +378,22 @@ const scrollToFeatures = () => {
 
 .footer-logo-text {
   font-size: 1.25rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: #1a1a1a;
-}
-
-.dark-theme .footer-logo-text {
-  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  background: linear-gradient(45deg, #5BC85B, #34D399);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
 }
 
 .footer-tagline {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--erp-text-tertiary, #6b7280);
 }
 
 .dark-theme .footer-tagline {
-  color: #9ca3af;
+  color: var(--erp-text-tertiary, #94a3b8);
 }
 
 .footer-links {
@@ -357,78 +403,85 @@ const scrollToFeatures = () => {
 }
 
 .footer-links a {
-  color: #6b7280;
+  color: var(--erp-text-tertiary, #6b7280);
   text-decoration: none;
   font-size: 0.875rem;
-  transition: color 0.2s;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
 .dark-theme .footer-links a {
-  color: #9ca3af;
+  color: var(--erp-text-tertiary, #94a3b8);
 }
 
 .footer-links a:hover {
-  color: #1a1a1a;
-}
-
-.dark-theme .footer-links a:hover {
-  color: #ffffff;
+  color: var(--erp-accent-green, #5BC85B);
+  transform: translateX(2px);
 }
 
 .footer-bottom {
   padding-top: 2rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--erp-border, #e2e8f0);
   text-align: center;
 }
 
 .dark-theme .footer-bottom {
-  border-top-color: #1f1f1f;
+  border-top-color: var(--erp-border, #334155);
 }
 
 .footer-copyright {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--erp-text-tertiary, #6b7280);
   margin: 0;
 }
 
 .dark-theme .footer-copyright {
-  color: #9ca3af;
+  color: var(--erp-text-tertiary, #94a3b8);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
   .nav-container {
-    padding: 1rem;
+    padding: 1rem 1.5rem;
   }
 
   .nav-links {
     gap: 1rem;
+    font-size: 0.875rem;
   }
 
   .hero-section {
     padding: 6rem 1.5rem 3rem;
+    min-height: calc(100vh - 80px);
   }
 
   .hero-title {
     font-size: 3rem;
+    line-height: 1.1;
   }
 
   .hero-subtitle {
     font-size: 1.125rem;
+    line-height: 1.6;
   }
 
   .hero-actions {
     flex-direction: column;
     align-items: stretch;
+    gap: 0.75rem;
   }
 
   .primary-button,
   .secondary-button {
-    width: 100%;
+    width: 100% !important;
+    min-height: 48px !important;
+    padding: 0.875rem 1.5rem !important;
+    font-size: 0.9375rem !important;
   }
 
   .section-title {
     font-size: 2rem;
+    margin-bottom: 3rem;
   }
 
   .features-section {
@@ -437,6 +490,7 @@ const scrollToFeatures = () => {
 
   .footer-content {
     flex-direction: column;
+    gap: 2rem;
   }
 
   .footer-links {
@@ -446,16 +500,45 @@ const scrollToFeatures = () => {
 }
 
 @media (max-width: 480px) {
+  .nav-container {
+    padding: 0.875rem 1rem;
+  }
+
+  .nav-links {
+    gap: 0.75rem;
+  }
+
+  .hero-section {
+    padding: 5rem 1rem 2rem;
+  }
+
   .hero-title {
     font-size: 2.5rem;
   }
 
   .hero-subtitle {
     font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .primary-button,
+  .secondary-button {
+    min-height: 44px !important;
+    padding: 0.75rem 1.25rem !important;
+    font-size: 0.875rem !important;
   }
 
   .section-title {
     font-size: 1.75rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .features-section {
+    padding: 3rem 1rem;
+  }
+
+  .landing-footer {
+    padding: 3rem 1rem 1.5rem;
   }
 }
 </style>

@@ -390,32 +390,7 @@ const shortenAddress = (address: string) => {
 
         <!-- Not Connected State - Wallet Options -->
         <div v-else>
-          <!-- Siz Wallet Option (First and Primary) -->
-          <section class="mb-4">
-            <h6 class="mb-3 text-subtitle-1 font-weight-medium">Recommended</h6>
-            <v-btn
-              class="wallet-action-btn wallet-action-btn--primary mb-3"
-              block
-              elevation="0"
-              color="success"
-              variant="tonal"
-              :style="walletPrimaryButtonStyle"
-              @click="showCreateWallet = true; isWalletModalOpen = false"
-            >
-              <div class="wallet-action-btn__icon" :style="walletIconStyle">
-                <v-img src="/wallets/siz.png" alt="Siz Wallet logo" />
-              </div>
-              <div class="wallet-action-btn__body">
-                <span class="wallet-action-btn__title">Siz Wallet</span>
-                <span class="wallet-action-btn__subtitle">Create or connect your Siz wallet</span>
-              </div>
-              <v-icon class="wallet-action-btn__chevron" color="success">mdi-chevron-right</v-icon>
-            </v-btn>
-          </section>
-
-          <v-divider class="my-4"></v-divider>
-
-          <!-- Provider Wallets (EVM) -->
+          <!-- EVM Wallets Section -->
           <section>
             <h6 class="mb-3 text-subtitle-1 font-weight-medium">EVM Wallet Providers</h6>
             <div class="wallet-action-btn__group">

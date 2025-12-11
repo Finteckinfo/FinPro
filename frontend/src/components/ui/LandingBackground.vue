@@ -27,13 +27,14 @@ const showThemeToggle = computed(() => props.showThemeToggle);
 .landing-page {
   min-height: 100vh;
   position: relative;
-  background-color: #ffffff;
-  color: #1a1a1a;
+  background-color: var(--theme-page-bg, #ffffff);
+  color: var(--theme-text-color, #1a202c);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .landing-page.dark-theme {
-  background-color: #0a0a0a;
-  color: #ffffff;
+  background-color: var(--theme-page-bg, #0f172a);
+  color: var(--theme-text-color, #f8fafc);
 }
 
 .theme-toggle-container {
