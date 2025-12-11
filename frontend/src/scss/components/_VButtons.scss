@@ -1,5 +1,5 @@
 //
-// Light Buttons
+// Sleek Buttons with Glowing Effects
 //
 
 .v-btn {
@@ -14,18 +14,33 @@
 }
 
 .v-btn {
-  text-transform: none !important; // Changed from capitalize to none for sleek look
+  text-transform: none !important;
   letter-spacing: $btn-letter-spacing;
-  font-weight: 500 !important; // Medium weight for better readability
-  border-radius: 8px !important; // Sleek rounded corners
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important; // Smooth transitions
-  min-height: 40px !important; // Better touch targets
-  padding: 0 20px !important; // Comfortable padding
+  font-weight: 500 !important;
+  border-radius: 10px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  min-height: 44px !important;
+  padding: 0 24px !important;
+  position: relative;
+  overflow: hidden;
+  
+  // Glowing effect for primary buttons
+  &.v-btn--variant-elevated,
+  &.v-btn--variant-flat {
+    &.v-theme--dark {
+      box-shadow: var(--erp-glow-green) !important;
+      
+      &:hover {
+        box-shadow: 0 0 30px rgba(91, 200, 91, 0.6), 0 0 60px rgba(91, 200, 91, 0.4), 0 0 90px rgba(91, 200, 91, 0.2) !important;
+        transform: translateY(-2px) scale(1.02);
+      }
+    }
+  }
   
   // Hover effects
   &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2) !important;
   }
   
   // Active state
@@ -39,30 +54,62 @@
     opacity: 0.5;
     cursor: not-allowed;
     transform: none !important;
+    box-shadow: none !important;
   }
   
   // Responsive sizing
   @media (max-width: 768px) {
-    min-height: 44px !important; // Larger touch targets on mobile
+    min-height: 48px !important;
+    padding: 0 20px !important;
+    font-size: 0.9375rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  @media (max-width: 480px) {
+    min-height: 44px !important;
     padding: 0 16px !important;
     font-size: 0.875rem !important;
   }
   
-  @media (max-width: 480px) {
-    min-height: 40px !important;
-    padding: 0 12px !important;
-    font-size: 0.8125rem !important;
+  // Glowing border effect
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
+    padding: 2px;
+    background: linear-gradient(135deg, rgba(91, 200, 91, 0.5), rgba(91, 200, 91, 0.2));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  &:hover::before {
+    opacity: 1;
   }
 }
 
 // Icon buttons
 .v-btn--icon {
-  min-width: 40px !important;
-  min-height: 40px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  border-radius: 10px !important;
   
   @media (max-width: 768px) {
-    min-width: 44px !important;
-    min-height: 44px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+  }
+  
+  &.v-theme--dark {
+    &:hover {
+      box-shadow: var(--erp-glow-green) !important;
+    }
   }
 }
 
@@ -71,24 +118,43 @@
   height: calc(var(--v-btn-height) + 6px);
 }
 
-// Primary button styling
+// Primary button styling with glow
 .v-btn--variant-elevated,
 .v-btn--variant-flat {
   &.v-btn--density-default {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     
     &:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+    
+    &.v-theme--dark {
+      box-shadow: var(--erp-glow-green) !important;
+      
+      &:hover {
+        box-shadow: 0 0 30px rgba(91, 200, 91, 0.6), 0 0 60px rgba(91, 200, 91, 0.4) !important;
+      }
     }
   }
 }
 
-// Outlined buttons
+// Outlined buttons with glow
 .v-btn--variant-outlined {
-  border-width: 1.5px !important;
+  border-width: 2px !important;
+  
+  &.v-theme--dark {
+    border-color: rgba(91, 200, 91, 0.5) !important;
+    box-shadow: 0 0 10px rgba(91, 200, 91, 0.2) !important;
+    
+    &:hover {
+      border-color: rgba(91, 200, 91, 0.8) !important;
+      box-shadow: 0 0 20px rgba(91, 200, 91, 0.4) !important;
+      background-color: rgba(91, 200, 91, 0.1) !important;
+    }
+  }
   
   &:hover {
-    border-width: 2px !important;
+    border-width: 2.5px !important;
   }
 }
 
@@ -97,13 +163,8 @@
   &:hover {
     background-color: rgba(0, 0, 0, 0.05) !important;
   }
-}
-
-// Dark theme adjustments
-.dark-theme {
-  .v-btn--variant-text {
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.1) !important;
-    }
+  
+  &.v-theme--dark:hover {
+    background-color: rgba(91, 200, 91, 0.1) !important;
   }
 }

@@ -5,7 +5,7 @@
   font-family: 'Poppins', sans-serif;
 }
 
-/* Unified Theme System - Single Light and Dark Mode */
+/* Unified Theme System - Carbon Black with Glowing Effects */
 
 /* Font Configuration - Sleek, modern typography */
 * {
@@ -44,13 +44,14 @@
   --erp-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --erp-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --erp-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --erp-glow-green: 0 0 20px rgba(91, 200, 91, 0.3), 0 0 40px rgba(91, 200, 91, 0.2);
 }
 
-/* Dark Mode - Sleek, modern dark design */
+/* Dark Mode - Polished Carbon Black with Starry Background */
 .dark-theme {
   --theme-page-bg: #0a0a0a;
   --theme-text-color: #f8fafc;
-  --theme-text-primary: #f8fafc;
+  --theme-text-primary: #ffffff;
   --theme-text-secondary: #cbd5e1;
   --theme-text-tertiary: #94a3b8;
   --theme-text-muted: #64748b;
@@ -60,22 +61,99 @@
   --theme-secondary-color: #010d2e;
   --theme-accent-green: #5BC85B;
   
-  /* ERP-specific variables for dark mode */
-  --erp-text: #f8fafc;
-  --erp-text-primary: #f8fafc;
+  /* ERP-specific variables for dark mode - Carbon Black */
+  --erp-text: #ffffff;
+  --erp-text-primary: #ffffff;
   --erp-text-secondary: #cbd5e1;
   --erp-text-tertiary: #94a3b8;
   --erp-text-muted: #64748b;
   --erp-heading: #ffffff;
-  --erp-card-bg: #1a1a1a;
-  --erp-border: #2d2d2d;
+  --erp-card-bg: rgba(26, 26, 26, 0.8);
+  --erp-border: rgba(91, 200, 91, 0.2);
   --erp-accent-green: #5BC85B;
-  --erp-hover-bg: #252525;
-  --erp-accent-light: rgba(91, 200, 91, 0.15);
-  --erp-surface: #1a1a1a;
-  --erp-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --erp-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
-  --erp-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
+  --erp-hover-bg: rgba(91, 200, 91, 0.1);
+  --erp-accent-light: rgba(91, 200, 91, 0.2);
+  --erp-surface: rgba(26, 26, 26, 0.95);
+  --erp-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --erp-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6), 0 2px 4px -1px rgba(0, 0, 0, 0.5);
+  --erp-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.7), 0 4px 6px -2px rgba(0, 0, 0, 0.6);
+  --erp-glow-green: 0 0 20px rgba(91, 200, 91, 0.5), 0 0 40px rgba(91, 200, 91, 0.3), 0 0 60px rgba(91, 200, 91, 0.1);
+  --erp-glow-blue: 0 0 20px rgba(59, 130, 246, 0.4), 0 0 40px rgba(59, 130, 246, 0.2);
+  --erp-glow-purple: 0 0 20px rgba(147, 51, 234, 0.4), 0 0 40px rgba(147, 51, 234, 0.2);
+}
+
+/* Apply theme to body and html */
+html.dark-theme,
+body.dark-theme {
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%) !important;
+  background-color: #0a0a0a !important;
+  color: var(--theme-text-color) !important;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Starry background overlay */
+html.dark-theme::before,
+body.dark-theme::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(2px 2px at 20% 30%, white, transparent),
+    radial-gradient(2px 2px at 60% 70%, white, transparent),
+    radial-gradient(1px 1px at 50% 50%, white, transparent),
+    radial-gradient(1px 1px at 80% 10%, white, transparent),
+    radial-gradient(2px 2px at 90% 40%, white, transparent),
+    radial-gradient(1px 1px at 33% 60%, white, transparent),
+    radial-gradient(2px 2px at 10% 80%, white, transparent);
+  background-repeat: repeat;
+  background-size: 200% 200%;
+  animation: starfield 200s linear infinite;
+  opacity: 0.4;
+  z-index: 0;
+  pointer-events: none;
+}
+
+@keyframes starfield {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 10000px 5000px;
+  }
+}
+
+/* Glowing particles */
+html.dark-theme::after,
+body.dark-theme::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(91, 200, 91, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(91, 200, 91, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 60% 40%, rgba(147, 51, 234, 0.06) 0%, transparent 50%);
+  animation: pulse-glow 8s ease-in-out infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
 }
 
 /* Apply theme to body and html */
@@ -107,11 +185,13 @@ body.dark-theme {
 
 /* Force immediate dark theme application - but NOT banner elements */
 .dark-theme {
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%) !important;
   background-color: #0a0a0a !important;
 }
 
 .dark-theme .login-page,
 .dark-theme .login-container {
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%) !important;
   background-color: #0a0a0a !important;
 }
 
