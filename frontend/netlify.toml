@@ -6,14 +6,6 @@
   # Directory to publish (Vite outputs to 'dist')
   publish = "dist"
   # Node version for build
-# Netlify Configuration for FinERP Frontend
-
-[build]
-  # Build command
-  command = "npm run build"
-  # Directory to publish (Vite outputs to 'dist')
-  publish = "dist"
-  # Node version for build
   [build.environment]
     NODE_VERSION = "18"
     # VITE_* variables are intentionally public (embedded in client-side code)
