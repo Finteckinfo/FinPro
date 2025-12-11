@@ -12,23 +12,23 @@
   --erp-page-bg: #f3f4f6;
   --erp-surface: #f3f4f6;
   --erp-card-bg: #ffffff;
-  --erp-accent-green: #6ec207;
+  --erp-accent-green: #5BC85B;
   --erp-accent-indigo: #615fff;
   --erp-text: #101828;
   --erp-border: #e5e7eb; /* light border for separators */
 }
 
 .dark-theme {
-  /* Dark mode */
-  --erp-header-bg: #101828; /* topnav + page area */
-  --erp-sidebar-bg: #1e2939; /* sidenav + dropdowns */
-  --erp-page-bg: #101828;
-  --erp-surface: #1e2939;
-  --erp-card-bg: #101828;
-  --erp-accent-green: #6ec207;
+  /* Dark mode - Carbon Black Theme */
+  --erp-header-bg: rgba(26, 26, 26, 0.95); /* topnav + page area */
+  --erp-sidebar-bg: rgba(26, 26, 26, 0.9); /* sidenav + dropdowns */
+  --erp-page-bg: #0a0a0a;
+  --erp-surface: rgba(26, 26, 26, 0.95);
+  --erp-card-bg: rgba(26, 26, 26, 0.8);
+  --erp-accent-green: #5BC85B;
   --erp-accent-indigo: #615fff;
   --erp-text: #ffffff;
-  --erp-border: #243041; /* subtle dark border */
+  --erp-border: rgba(91, 200, 91, 0.2); /* glowing green border */
 }
 
 /* Utilities for header/sidebar without using primary/secondary */

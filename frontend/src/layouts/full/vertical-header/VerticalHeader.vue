@@ -100,11 +100,6 @@ function searchbox() {
       <NetworkSelector />
     </div>
 
-    <!-- Theme Toggle - Always visible, label hidden on mobile -->
-    <div class="theme-toggle-wrapper">
-      <ThemeToggle :show-label="false" size="small" />
-    </div>
-
     <!-- ---------------------------------------------- -->
     <!-- Notification -->
     <!-- ---------------------------------------------- -->
@@ -118,6 +113,11 @@ function searchbox() {
         <NotificationDD />
       </v-sheet>
     </v-menu>
+
+    <!-- Theme Toggle - Positioned after notifications, before profile -->
+    <div class="theme-toggle-wrapper mr-2">
+      <ThemeToggle :show-label="false" size="small" />
+    </div>
 
     <!-- ---------------------------------------------- -->
     <!-- User Profile -->
@@ -158,7 +158,6 @@ function searchbox() {
     margin: 0 0.25rem;
   }
   
-  /* Make the theme toggle button smaller on mobile */
   .theme-toggle-wrapper :deep(.theme-toggle-btn) {
     padding: 0.25rem;
   }
@@ -168,7 +167,6 @@ function searchbox() {
     height: 36px;
   }
   
-  /* Hide the label text on mobile */
   .theme-toggle-wrapper :deep(.theme-label) {
     display: none;
   }
@@ -176,7 +174,7 @@ function searchbox() {
 
 @media (max-width: 480px) {
   .theme-toggle-wrapper {
-    margin: 0;
+    margin: 0 0.125rem;
   }
   
   .theme-toggle-wrapper :deep(.toggle-icon-container) {

@@ -42,9 +42,9 @@ const { isDark } = useTheme();
               class="page-content-card" 
               elevation="0" 
               :style="{ 
-                backgroundColor: isDark ? 'rgba(26, 26, 26, 0.85)' : 'var(--erp-sidebar-bg)',
-                border: isDark ? '1px solid rgba(91, 200, 91, 0.3)' : '1px solid var(--erp-border)',
-                boxShadow: isDark ? 'var(--erp-shadow-lg), 0 0 30px rgba(91, 200, 91, 0.2)' : 'var(--erp-shadow-md)'
+                backgroundColor: isDark ? 'var(--erp-card-bg)' : 'var(--erp-card-bg)',
+                border: '1px solid var(--erp-border)',
+                boxShadow: 'var(--erp-shadow-sm)'
               }"
             >
               <RouterView />
@@ -143,13 +143,13 @@ const { isDark } = useTheme();
   bottom: 24px;
   right: 24px;
   z-index: 9998;
-  box-shadow: 0 0 20px rgba(91, 200, 91, 0.4) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
   transition: all 0.3s ease;
 }
 
 .customizer-btn:hover {
-  box-shadow: 0 0 30px rgba(91, 200, 91, 0.6), 0 0 50px rgba(91, 200, 91, 0.3) !important;
-  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+  transform: scale(1.05);
 }
 
 @media (max-width: 768px) {

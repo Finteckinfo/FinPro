@@ -63,7 +63,7 @@ html {
   }
 }
 
-// Global improvements for sleek UI
+// Global improvements for clean UI
 * {
   box-sizing: border-box;
 }
@@ -73,12 +73,11 @@ html {
   scroll-behavior: smooth;
 }
 
-// Better focus states with glow
+// Better focus states
 *:focus-visible {
   outline: 2px solid var(--erp-accent-green);
   outline-offset: 2px;
   border-radius: 4px;
-  box-shadow: 0 0 10px rgba(91, 200, 91, 0.5);
 }
 
 // Responsive images
@@ -87,16 +86,10 @@ img {
   height: auto;
 }
 
-// Better form inputs with glow
+// Better form inputs
 .v-field {
-  border-radius: 10px !important;
-  transition: all 0.3s ease;
-  
-  &.v-theme--dark {
-    &:focus-within {
-      box-shadow: 0 0 15px rgba(91, 200, 91, 0.3) !important;
-    }
-  }
+  border-radius: 8px !important;
+  transition: all 0.2s ease;
   
   input, textarea {
     font-size: 0.9375rem !important;
@@ -123,37 +116,28 @@ img {
   }
 }
 
-// Better list items with glow
+// Better list items
 .v-list-item {
-  border-radius: 10px !important;
+  border-radius: 8px !important;
   margin-bottom: 0.25rem;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   
   &:hover {
     background-color: var(--erp-hover-bg) !important;
-    transform: translateX(4px);
-  }
-  
-  &.v-theme--dark:hover {
-    box-shadow: 0 0 10px rgba(91, 200, 91, 0.2) !important;
+    transform: translateX(2px);
   }
 }
 
-// Improved chips with glow
+// Improved chips
 .v-chip {
-  border-radius: 8px !important;
+  border-radius: 6px !important;
   font-weight: 500 !important;
   font-size: 0.8125rem !important;
   padding: 0.25rem 0.75rem !important;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   
-  &.v-theme--dark {
-    box-shadow: 0 0 8px rgba(91, 200, 91, 0.2) !important;
-    
-    &:hover {
-      box-shadow: 0 0 15px rgba(91, 200, 91, 0.4) !important;
-      transform: scale(1.05);
-    }
+  &:hover {
+    transform: scale(1.05);
   }
   
   @media (max-width: 768px) {
@@ -162,21 +146,16 @@ img {
   }
 }
 
-// Better dialogs with glow
+// Better dialogs
 .v-dialog {
   .v-card {
-    border-radius: 20px !important;
-    
-    &.v-theme--dark {
-      box-shadow: var(--erp-shadow-lg), 0 0 40px rgba(91, 200, 91, 0.3) !important;
-      border: 1px solid rgba(91, 200, 91, 0.3) !important;
-    }
+    border-radius: 16px !important;
   }
 }
 
 // Improved tables
 .v-table {
-  border-radius: 16px !important;
+  border-radius: 12px !important;
   overflow: hidden;
   
   th {
@@ -189,39 +168,26 @@ img {
   td {
     font-size: 0.9375rem !important;
   }
-  
-  &.v-theme--dark {
-    box-shadow: 0 0 20px rgba(91, 200, 91, 0.1) !important;
-  }
 }
 
-// Better tooltips with glow
+// Better tooltips
 .v-tooltip .v-overlay__content {
   border-radius: 8px !important;
   padding: 0.5rem 0.75rem !important;
   font-size: 0.8125rem !important;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
-// Improved navigation drawer with glow
+// Improved navigation drawer
 .v-navigation-drawer {
   border-right: 1px solid var(--erp-border) !important;
-  
-  &.v-theme--dark {
-    box-shadow: 0 0 30px rgba(91, 200, 91, 0.1) !important;
-  }
 }
 
-// Better app bar with glow
+// Better app bar
 .v-app-bar {
   border-bottom: 1px solid var(--erp-border) !important;
-  backdrop-filter: blur(20px);
-  background-color: rgba(var(--erp-card-bg), 0.95) !important;
-  
-  &.v-theme--dark {
-    box-shadow: 0 0 20px rgba(91, 200, 91, 0.1) !important;
-    border-bottom-color: rgba(91, 200, 91, 0.2) !important;
-  }
+  backdrop-filter: blur(10px);
+  background-color: var(--erp-header-bg) !important;
 }
 
 // Responsive typography
@@ -241,13 +207,6 @@ img {
   h4 { font-size: 1rem !important; }
   h5 { font-size: 0.9375rem !important; }
   h6 { font-size: 0.8125rem !important; }
-}
-
-// Glowing text effect for headings in dark mode
-.v-theme--dark {
-  h1, h2, h3, h4, h5, h6 {
-    text-shadow: 0 0 10px rgba(91, 200, 91, 0.3), 0 0 20px rgba(91, 200, 91, 0.1);
-  }
 }
 
 // Responsive grid improvements

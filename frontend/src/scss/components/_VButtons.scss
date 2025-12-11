@@ -1,5 +1,5 @@
 //
-// Sleek Buttons with Glowing Effects
+// Clean Buttons - Matching siz.land Design
 //
 
 .v-btn {
@@ -17,30 +17,16 @@
   text-transform: none !important;
   letter-spacing: $btn-letter-spacing;
   font-weight: 500 !important;
-  border-radius: 10px !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border-radius: 8px !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
   min-height: 44px !important;
-  padding: 0 24px !important;
+  padding: 0 20px !important;
   position: relative;
-  overflow: hidden;
   
-  // Glowing effect for primary buttons
-  &.v-btn--variant-elevated,
-  &.v-btn--variant-flat {
-    &.v-theme--dark {
-      box-shadow: var(--erp-glow-green) !important;
-      
-      &:hover {
-        box-shadow: 0 0 30px rgba(91, 200, 91, 0.6), 0 0 60px rgba(91, 200, 91, 0.4), 0 0 90px rgba(91, 200, 91, 0.2) !important;
-        transform: translateY(-2px) scale(1.02);
-      }
-    }
-  }
-  
-  // Hover effects
+  // Hover effects - Clean and subtle
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
   }
   
   // Active state
@@ -57,10 +43,10 @@
     box-shadow: none !important;
   }
   
-  // Responsive sizing
+  // Responsive sizing - Full width on mobile
   @media (max-width: 768px) {
     min-height: 48px !important;
-    padding: 0 20px !important;
+    padding: 0 18px !important;
     font-size: 0.9375rem !important;
     width: 100% !important;
     max-width: 100% !important;
@@ -71,45 +57,22 @@
     padding: 0 16px !important;
     font-size: 0.875rem !important;
   }
-  
-  // Glowing border effect
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: inherit;
-    padding: 2px;
-    background: linear-gradient(135deg, rgba(91, 200, 91, 0.5), rgba(91, 200, 91, 0.2));
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-  
-  &:hover::before {
-    opacity: 1;
-  }
 }
 
 // Icon buttons
 .v-btn--icon {
-  min-width: 44px !important;
-  min-height: 44px !important;
-  border-radius: 10px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  border-radius: 8px !important;
   
   @media (max-width: 768px) {
-    min-width: 48px !important;
-    min-height: 48px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
   }
   
-  &.v-theme--dark {
-    &:hover {
-      box-shadow: var(--erp-glow-green) !important;
-    }
+  @media (max-width: 480px) {
+    min-width: 40px !important;
+    min-height: 40px !important;
   }
 }
 
@@ -118,43 +81,28 @@
   height: calc(var(--v-btn-height) + 6px);
 }
 
-// Primary button styling with glow
+// Primary button styling
 .v-btn--variant-elevated,
 .v-btn--variant-flat {
   &.v-btn--density-default {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     
     &:hover {
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-    }
-    
-    &.v-theme--dark {
-      box-shadow: var(--erp-glow-green) !important;
-      
-      &:hover {
-        box-shadow: 0 0 30px rgba(91, 200, 91, 0.6), 0 0 60px rgba(91, 200, 91, 0.4) !important;
-      }
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
   }
 }
 
-// Outlined buttons with glow
+// Outlined buttons
 .v-btn--variant-outlined {
-  border-width: 2px !important;
-  
-  &.v-theme--dark {
-    border-color: rgba(91, 200, 91, 0.5) !important;
-    box-shadow: 0 0 10px rgba(91, 200, 91, 0.2) !important;
-    
-    &:hover {
-      border-color: rgba(91, 200, 91, 0.8) !important;
-      box-shadow: 0 0 20px rgba(91, 200, 91, 0.4) !important;
-      background-color: rgba(91, 200, 91, 0.1) !important;
-    }
-  }
+  border-width: 1.5px !important;
   
   &:hover {
-    border-width: 2.5px !important;
+    border-width: 2px !important;
+  }
+  
+  @media (max-width: 768px) {
+    border-width: 2px !important;
   }
 }
 
@@ -165,6 +113,6 @@
   }
   
   &.v-theme--dark:hover {
-    background-color: rgba(91, 200, 91, 0.1) !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
   }
 }

@@ -122,19 +122,18 @@ const handleToggle = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  border: 2px solid;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid;
   border-color: var(--erp-border);
   background: var(--erp-surface);
   overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .theme-toggle-btn:hover .toggle-icon-container {
   border-color: var(--erp-accent-green);
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
   transform: scale(1.05);
 }
 
@@ -183,47 +182,11 @@ const handleToggle = () => {
 
 /* SVG Animations */
 .sun-svg {
-  animation: sunPulse 2s ease-in-out infinite;
   color: #fbbf24;
-  filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.5));
 }
 
 .moon-svg {
-  animation: moonFloat 3s ease-in-out infinite;
   color: #818cf8;
-  filter: drop-shadow(0 0 8px rgba(129, 140, 248, 0.5));
-}
-
-@keyframes sunPulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-}
-
-@keyframes moonFloat {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-3px);
-  }
-}
-
-/* Sun rays rotation */
-.sun-icon.active .sun-svg {
-  animation: sunPulse 2s ease-in-out infinite, sunRotate 20s linear infinite;
-}
-
-@keyframes sunRotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 /* Theme Label */
