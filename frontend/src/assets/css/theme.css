@@ -14,9 +14,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Light Mode (Default) - Sleek, modern design */
+/* Light Mode (Default) - Clean, modern design with softer whites */
 :root {
-  --theme-page-bg: #ffffff;
+  --theme-page-bg: #fafafa;
   --theme-text-color: #1a202c;
   --theme-text-primary: #1a202c;
   --theme-text-secondary: #4a5568;
@@ -46,7 +46,7 @@
   --erp-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --erp-header-bg: #ffffff;
   --erp-sidebar-bg: #ffffff;
-  --erp-page-bg: #f8fafc;
+  --erp-page-bg: #f5f5f5;
 }
 
 /* Dark Mode - Clean dark theme matching siz.land */

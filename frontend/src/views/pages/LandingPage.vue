@@ -4,7 +4,7 @@
     <nav class="main-nav">
       <div class="nav-container">
         <div class="nav-logo">
-          <span class="logo-text">FINERP</span>
+            <span class="logo-text">FinERP</span>
         </div>
         <div class="nav-links">
           <a href="#features" @click.prevent="scrollToFeatures">Features</a>
@@ -23,7 +23,7 @@
     <!-- Hero Section -->
     <section class="hero-section">
       <div class="hero-container">
-        <h1 class="hero-title">FINERP</h1>
+        <h1 class="hero-title">FinERP</h1>
         <p class="hero-subtitle">
           Professional Web3 ERP system for remote teams with secure FIN token escrow payments 
           and blockchain-based project management.
@@ -62,7 +62,7 @@
       <div class="footer-container">
         <div class="footer-content">
           <div class="footer-brand">
-            <span class="footer-logo-text">FINERP</span>
+            <span class="footer-logo-text">FinERP</span>
             <p class="footer-tagline">Professional Web3 Project Management</p>
           </div>
           <div class="footer-links">
@@ -73,7 +73,7 @@
         </div>
         <div class="footer-bottom">
           <p class="footer-copyright">
-            © {{ new Date().getFullYear() }} FINERP. All rights reserved.
+            © {{ new Date().getFullYear() }} FinERP. All rights reserved.
           </p>
         </div>
       </div>

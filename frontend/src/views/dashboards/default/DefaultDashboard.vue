@@ -209,8 +209,8 @@ const navigateToProjectsList = () => {
   router.push('/projects');
 };
 
-const navigateToCreateProject = () => {
-  router.push('/projects/create');
+const navigateToInvitations = () => {
+  router.push('/invitations');
 };
 
 const viewProjectDetails = (projectId: string) => {
@@ -923,9 +923,24 @@ onMounted(() => {
           <p class="text-body-1 text-medium-emphasis mb-4">
             Start by creating your first project or joining an existing one
           </p>
-          <v-btn color="primary" variant="flat" @click="navigateToCreateProject">
-            Create Your First Project
-          </v-btn>
+          <div class="d-flex justify-center align-center gap-3 flex-wrap">
+            <v-btn 
+              color="primary" 
+              variant="flat" 
+              @click="navigateToCreateProject"
+              class="dashboard-action-btn"
+            >
+              Create a Project
+            </v-btn>
+            <v-btn 
+              color="secondary" 
+              variant="outlined" 
+              @click="navigateToInvitations"
+              class="dashboard-action-btn"
+            >
+              Join a Project
+            </v-btn>
+          </div>
         </div>
 
         <!-- Sample Data Notice -->
@@ -1477,6 +1492,21 @@ onMounted(() => {
 /* Invite Message Styling */
 .invite-message {
   border-left: 3px solid rgb(var(--v-theme-info));
+}
+
+/* Dashboard Action Buttons - Sized to text, side by side */
+.dashboard-action-btn {
+  width: auto !important;
+  min-width: auto !important;
+  padding: 0.75rem 1.5rem !important;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .dashboard-action-btn {
+    width: 100% !important;
+    min-width: 100% !important;
+  }
 }
 
 /* Action Button Styling */

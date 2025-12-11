@@ -127,7 +127,7 @@
           <template v-slot:prepend>
             <v-icon>mdi-information</v-icon>
           </template>
-          No SIZ tokens found in this wallet. You may need to opt-in to the SIZ token.
+          No FIN tokens found in this wallet. Connect your wallet to view your balance.
         </v-alert>
       </div>
     </v-card-text>

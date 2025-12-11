@@ -8,7 +8,7 @@
           <v-icon size="48">mdi-cash-multiple</v-icon>
         </div>
         <h1 class="hero-title">Payments & Earnings</h1>
-        <p class="hero-subtitle">Manage your SIZCOIN transactions and track earnings</p>
+        <p class="hero-subtitle">Manage your FIN token transactions and track earnings</p>
       </div>
     </div>
 

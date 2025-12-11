@@ -140,7 +140,7 @@
             <div class="tutorial-step">
               <h3 class="text-h4 font-weight-bold mb-4 text-center">💰 How Payments Work</h3>
               <p class="text-body-1 mb-6 text-center mx-auto" style="max-width: 700px;">
-                Understanding the payment flow with SIZCOIN escrow system
+                Understanding the payment flow with FIN token escrow system
               </p>
 
               <v-timeline side="end" density="compact" class="mt-6">
@@ -164,8 +164,8 @@
                 <div class="d-flex align-items-start">
                   <v-icon color="info" class="mr-3" size="32">mdi-information</v-icon>
                   <div>
-                    <h4 class="font-weight-bold mb-2">SIZCOIN (SIZ)</h4>
-                    <p class="text-body-2 mb-2">All payments are made in SIZCOIN, our native token on Algorand blockchain.</p>
+                    <h4 class="font-weight-bold mb-2">FIN Token</h4>
+                    <p class="text-body-2 mb-2">All payments are made in FIN tokens, our native token on EVM blockchains.</p>
                     <ul class="text-body-2 pl-4">
                       <li>Low transaction fees (fractions of a cent)</li>
                       <li>Instant settlement (4-5 seconds)</li>
@@ -181,9 +181,9 @@
           <!-- Step 5: Getting SIZCOIN -->
           <v-window-item :value="5">
             <div class="tutorial-step">
-              <h3 class="text-h4 font-weight-bold mb-4 text-center">🪙 Getting SIZCOIN</h3>
+              <h3 class="text-h4 font-weight-bold mb-4 text-center">🪙 Getting FIN Tokens</h3>
               <p class="text-body-1 mb-6 text-center mx-auto" style="max-width: 700px;">
-                Learn how to obtain SIZCOIN for payments and transactions
+                Learn how to obtain FIN tokens for payments and transactions
               </p>
 
               <v-row class="mt-6">
@@ -191,7 +191,7 @@
                   <v-card variant="tonal" color="success" class="pa-4 h-100 text-center">
                     <v-icon size="60" color="success" class="mb-3">mdi-briefcase-check</v-icon>
                     <h4 class="text-h6 font-weight-bold mb-2">Earn from Projects</h4>
-                    <p class="text-body-2">Complete tasks and get paid in SIZCOIN automatically when work is approved.</p>
+                    <p class="text-body-2">Complete tasks and get paid in FIN tokens automatically when work is approved.</p>
                   </v-card>
                 </v-col>
                 <v-col cols="12" md="4">
@@ -209,14 +209,14 @@
                   <v-card variant="tonal" color="info" class="pa-4 h-100 text-center">
                     <v-icon size="60" color="info" class="mb-3">mdi-account-convert</v-icon>
                     <h4 class="text-h6 font-weight-bold mb-2">Receive from Others</h4>
-                    <p class="text-body-2">Get SIZCOIN transfers from other users by sharing your wallet address.</p>
+                    <p class="text-body-2">Get FIN token transfers from other users by sharing your wallet address.</p>
                   </v-card>
                 </v-col>
               </v-row>
 
               <v-alert type="info" variant="tonal" class="mt-6">
                 <v-icon slot="prepend">mdi-lightbulb</v-icon>
-                <strong>Pro Tip:</strong> You need to opt-in to SIZCOIN before receiving it. This is a one-time action that happens automatically when you set up your wallet.
+                <strong>Pro Tip:</strong> FIN tokens are ERC20 tokens on EVM blockchains. Make sure you have enough gas (ETH/MATIC) to receive tokens.
               </v-alert>
             </div>
           </v-window-item>
@@ -318,7 +318,7 @@ const steps = [
   { title: 'Choose Path' },
   { title: 'Security' },
   { title: 'Payments' },
-  { title: 'Get SIZCOIN' },
+  { title: 'Get FIN Tokens' },
   { title: 'Ready!' }
 ]
 
@@ -359,7 +359,7 @@ const securityTips = [
 const paymentStages = [
   {
     title: 'Project Funded',
-    description: 'Project owner funds escrow account with SIZCOIN for all project payments',
+    description: 'Project owner funds escrow account with FIN tokens for all project payments',
     icon: 'mdi-cash-multiple',
     color: 'primary'
   },
@@ -377,7 +377,7 @@ const paymentStages = [
   },
   {
     title: 'Approval & Payment',
-    description: 'Manager approves task and SIZCOIN is instantly transferred to your wallet',
+    description: 'Manager approves task and FIN tokens are instantly transferred to your wallet',
     icon: 'mdi-wallet-plus',
     color: 'warning'
   }
@@ -386,7 +386,7 @@ const paymentStages = [
 const recap = [
   ' Wallets give you control and enable global payments',
   '🔒 Keep your recovery phrase secret and secure',
-  '💰 Get paid in SIZCOIN when tasks are approved',
+  '💰 Get paid in FIN tokens when tasks are approved',
   '🚀 Payments are instant and transparent on blockchain',
   '🛡️ Escrow system protects both owners and workers'
 ]

@@ -800,15 +800,15 @@ const approveAndPayTask = async () => {
     approving.value = true;
     
     // Import payment service
-    const { approveAndPayTask: approvePaymentAPI, SIZCOIN_CONFIG } = await import('@/services/paymentService');
+    const { approveAndPayTask: approvePaymentAPI } = await import('@/services/paymentService');
     
     // Call the approve and pay API
     const result = await approvePaymentAPI(props.task.id);
     
     if (result.success) {
-      // Check if employee was opted in
+      // Check if employee wallet is ready
       if (result.employeeOptedIn === false) {
-        console.warn('⚠️ Employee wallet not opted into SIZCOIN. Backend will handle opt-in.');
+        console.warn('⚠️ Employee wallet may need to accept FIN tokens. Backend will handle this.');
       }
       
       // Update task status to APPROVED and payment status
@@ -821,16 +821,16 @@ const approveAndPayTask = async () => {
       
       emit('task-updated', updatedTask);
       
-      // Show success message with asset info and oversight payments
+      // Show success message with transaction info
       let message = result.txHash 
-        ? `✅ ${result.message}\n\n🪙 SIZCOIN (Asset ${SIZCOIN_CONFIG.ASSET_ID})\n📝 TX: ${result.txHash.substring(0, 10)}...`
+        ? `✅ ${result.message}\n\n🪙 FIN Token\n📝 TX: ${result.txHash.substring(0, 10)}...`
         : `✅ ${result.message}`;
       
       // Add oversight payment info if present
       if (result.oversightPayments && result.oversightPayments.length > 0) {
         message += '\n\n💼 Manager Oversight Fees:';
         result.oversightPayments.forEach((oversight: any) => {
-          message += `\n  - ${oversight.managerName}: ${oversight.amount.toFixed(2)} SIZ (${(oversight.rate * 100).toFixed(1)}%)`;
+          message += `\n  - ${oversight.managerName}: ${oversight.amount.toFixed(2)} FIN (${(oversight.rate * 100).toFixed(1)}%)`;
         });
       }
       
@@ -848,15 +848,12 @@ const approveAndPayTask = async () => {
   } catch (error: any) {
     console.error('[TaskDetailModal] Failed to approve and pay:', error);
     
-    // Import SIZCOIN config for error messages
-    const { SIZCOIN_CONFIG } = await import('@/services/paymentService');
-    
-    // Show detailed error with SIZCOIN context
+    // Show detailed error
     const errorMsg = error.response?.data?.error || error.message || 'Unknown error';
-    const isOptInError = errorMsg.toLowerCase().includes('opt') || errorMsg.toLowerCase().includes('asset');
+    const isTokenError = errorMsg.toLowerCase().includes('token') || errorMsg.toLowerCase().includes('erc20');
     
-    const errorMessage = isOptInError
-      ? `❌ Payment Failed: Employee wallet must be opted into SIZCOIN (Asset ${SIZCOIN_CONFIG.ASSET_ID}).\n\n${errorMsg}`
+    const errorMessage = isTokenError
+      ? `❌ Payment Failed: Employee wallet must be able to receive FIN tokens.\n\n${errorMsg}`
       : `❌ Failed to approve task: ${errorMsg}`;
     
     alert(errorMessage);

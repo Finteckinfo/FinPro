@@ -171,7 +171,7 @@
         <div v-else class="empty-state">
           <v-icon size="48" color="grey-lighten-2">mdi-cash-clock</v-icon>
           <p class="text-body-2 text-medium-emphasis mt-2">
-            Complete tasks to start earning SIZCOIN
+            Complete tasks to start earning FIN
           </p>
         </div>
       </div>
