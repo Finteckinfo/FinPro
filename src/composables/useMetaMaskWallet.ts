@@ -1,4 +1,4 @@
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, getCurrentInstance } from 'vue';
 import { ethers } from 'ethers';
 import detectEthereumProvider from '@metamask/detect-provider';
 
@@ -32,6 +32,9 @@ const walletState = ref<WalletState>({
   chainId: 1
 });
 
+// Prevent duplicated initialization/listener wiring when composable is used outside components
+let hasBootstrapped = false;
+
 // Supported networks
 const SUPPORTED_CHAINS = {
   1: { name: 'Ethereum Mainnet', symbol: 'ETH' },
@@ -40,6 +43,8 @@ const SUPPORTED_CHAINS = {
 };
 
 export function useMetaMaskWallet() {
+  const hasComponentInstance = !!getCurrentInstance();
+
   // Computed properties
   const user = computed(() => walletState.value.user);
   const isConnected = computed(() => walletState.value.isConnected);
@@ -210,7 +215,10 @@ export function useMetaMaskWallet() {
   };
 
   // Watch for account changes
-  onMounted(async () => {
+  const bootstrap = async () => {
+    if (hasBootstrapped) return;
+    hasBootstrapped = true;
+
     if (typeof window !== 'undefined') {
       const ethereum = await detectEthereumProvider();
       if (ethereum) {
@@ -218,21 +226,28 @@ export function useMetaMaskWallet() {
           if (accounts.length === 0) {
             await disconnect();
           } else {
-            // Reinitialize with new account
             await initialize();
           }
         });
 
         ethereum.on('chainChanged', async (chainId: string) => {
           walletState.value.chainId = parseInt(chainId, 16);
-          // Reinitialize to update balance and other chain-specific data
           await initialize();
         });
       }
     }
 
     await initialize();
-  });
+  };
+
+  if (hasComponentInstance) {
+    onMounted(() => {
+      void bootstrap();
+    });
+  } else {
+    // Avoid Vue warning when called outside setup() (e.g. utils)
+    void bootstrap();
+  }
 
   return {
     // State

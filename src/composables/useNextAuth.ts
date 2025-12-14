@@ -1,4 +1,4 @@
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, getCurrentInstance } from 'vue';
 import { getCookie } from '@/utils/cookies';
 
 export interface NextAuthUser {
@@ -69,6 +69,8 @@ function parseJwt(token: string) {
  * Validates session from shared cookie
  */
 export function useNextAuth() {
+  const hasComponentInstance = !!getCurrentInstance();
+
   const validateSession = async (force = false) => {
     // Return if already validating
     if (isValidating.value) return;
@@ -215,11 +217,18 @@ export function useNextAuth() {
   };
 
   // PERFORMANCE: Only validate on mount if not already loaded from storage
-  onMounted(() => {
+  if (hasComponentInstance) {
+    onMounted(() => {
+      if (!isLoaded.value) {
+        validateSession();
+      }
+    });
+  } else {
+    // If used outside of a component (e.g. Pinia store), avoid Vue warning.
     if (!isLoaded.value) {
       validateSession();
     }
-  });
+  }
 
   // PERFORMANCE: Use visibility API instead of polling
   if (typeof window !== 'undefined') {
