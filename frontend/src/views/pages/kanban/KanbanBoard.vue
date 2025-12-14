@@ -492,13 +492,13 @@ const handleTaskMove = async (taskId: string, position: TaskPosition) => {
 
 const handleAddTask = (columnStatus: string) => {
   // Pre-fill the create task modal with the column status
-  createTaskDefaultStatus.value = columnStatus || 'PENDING';
+  createTaskDefaultStatus.value = (columnStatus as 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'APPROVED') || 'PENDING';
   showCreateTask.value = true;
 };
 
-const handleQuickAddTask = async (payload: { status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'APPROVED'; title: string }) => {
+const handleQuickAddTask = async (payload: { status: string; title: string }) => {
   if (!boardProjectId.value || !defaultDepartmentId.value) {
-    createTaskDefaultStatus.value = payload.status || 'PENDING';
+    createTaskDefaultStatus.value = (payload.status as 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'APPROVED') || 'PENDING';
     showCreateTask.value = true;
     return;
   }
@@ -508,13 +508,13 @@ const handleQuickAddTask = async (payload: { status: 'PENDING' | 'IN_PROGRESS' |
       departmentId: defaultDepartmentId.value,
       priority: 'MEDIUM'
     });
-    const col = columns[payload.status] || [];
+    const col = columns.value[payload.status as keyof typeof columns.value] || [];
     const order = Array.isArray(col) ? col.length : 0;
-    await kanbanApi.updateTaskPosition(created.id, { taskId: created.id, status: payload.status, order });
+    await kanbanApi.updateTaskPosition(created.id, { taskId: created.id, status: payload.status as any, order });
     await loadKanbanData(true);
   } catch (e) {
     console.error('[KanbanBoard] Quick add failed', e);
-    createTaskDefaultStatus.value = payload.status || 'PENDING';
+    createTaskDefaultStatus.value = (payload.status as 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'APPROVED') || 'PENDING';
     showCreateTask.value = true;
   }
 };
