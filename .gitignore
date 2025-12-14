@@ -45,3 +45,7 @@ typechain-types/
 .cache/
 temp/
 tmp/
+
+# Tooling caches
+.eslintcache
+frontend/.eslintcache

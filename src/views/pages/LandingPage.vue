@@ -1,5 +1,5 @@
 <template>
-  <LandingBackground>
+  <LandingBackground :show-theme-toggle="false">
     <!-- Navigation -->
     <nav class="main-nav">
       <div class="nav-container">
@@ -8,6 +8,7 @@
         </div>
         <div class="nav-links">
           <a href="#features" @click.prevent="scrollToFeatures">Features</a>
+          <ThemeToggle :show-label="false" size="small" class="nav-theme-toggle" />
           <v-btn
             variant="outlined"
             size="small"
@@ -86,6 +87,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMetaMaskWallet } from '@/composables/useMetaMaskWallet'
 import LandingBackground from '@/components/ui/LandingBackground.vue'
+import ThemeToggle from '@/components/shared/ThemeToggle.vue'
 import FeatureBentoGrid from '@/views/pages/landing/components/FeatureBentoGrid.vue'
 
 const router = useRouter()
@@ -170,6 +172,10 @@ const scrollToFeatures = () => {
   gap: 2rem;
 }
 
+.nav-theme-toggle {
+  display: inline-flex;
+}
+
 .nav-links a {
   color: #4b5563;
   text-decoration: none;
@@ -200,12 +206,16 @@ const scrollToFeatures = () => {
   align-items: center;
   justify-content: center;
   padding: 8rem 2rem 4rem;
+  position: relative;
+  z-index: 10;
+  pointer-events: none; /* Allow clicks to pass through the section */
 }
 
 .hero-container {
   max-width: 800px;
   width: 100%;
   text-align: center;
+  pointer-events: auto; /* Re-enable clicks for the container content */
 }
 
 .hero-title {
@@ -240,6 +250,9 @@ const scrollToFeatures = () => {
   gap: 1rem;
   justify-content: center;
   flex-wrap: wrap;
+  position: relative;
+  z-index: 20;
+  pointer-events: auto;
 }
 
 .primary-button,
@@ -248,6 +261,10 @@ const scrollToFeatures = () => {
   font-weight: 500 !important;
   padding: 0.75rem 2rem !important;
   border-radius: 6px !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  position: relative;
+  z-index: 30;
 }
 
 .primary-button {
