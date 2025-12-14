@@ -777,6 +777,8 @@ npx hardhat run scripts/deploy.ts --network sepolia  # Deploy
 
 ---
 
+**Authored by Llakterian**
+
 *Last Updated: December 2024*
 *Version: 1.0.0*
 

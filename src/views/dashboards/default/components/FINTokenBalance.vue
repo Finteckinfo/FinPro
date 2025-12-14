@@ -427,4 +427,112 @@ onMounted(() => {
   font-size: 0.75rem;
   color: #f59e0b;
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .wallet-widget {
+    padding: 16px;
+  }
+
+  .account-row {
+    padding: 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .account-avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .account-info {
+    width: 100%;
+  }
+
+  .account-address {
+    font-size: 0.85rem;
+  }
+
+  .network-badge {
+    font-size: 0.65rem;
+    padding: 1px 6px;
+  }
+
+  .balances-section {
+    gap: 10px;
+  }
+
+  .balance-item {
+    padding: 10px;
+  }
+
+  .balance-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .balance-icon.fin img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .balance-value {
+    font-size: 1rem;
+  }
+
+  .balance-usd {
+    font-size: 0.7rem;
+  }
+
+  .quick-actions {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .connect-prompt {
+    padding: 32px 16px;
+  }
+
+  .prompt-icon {
+    width: 56px;
+    height: 56px;
+  }
+}
+
+@media (max-width: 480px) {
+  .wallet-widget {
+    padding: 12px;
+  }
+
+  .account-row {
+    padding: 10px;
+  }
+
+  .balance-item {
+    padding: 8px;
+  }
+
+  .balance-value {
+    font-size: 0.9rem;
+  }
+
+  .balance-usd {
+    font-size: 0.65rem;
+  }
+
+  .testnet-notice {
+    font-size: 0.7rem;
+    padding: 6px;
+  }
+
+  .action-btn {
+    font-size: 0.85rem;
+  }
+}
 </style>

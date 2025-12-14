@@ -24,4 +24,4 @@ This folder contains **human-readable documentation** for the FinERP project (fr
 
 Some documents (especially the whitepaper) include **PLACEHOLDER** sections that need final numbers/decisions (allocation, vesting, governance, peg mechanism, legal positioning).
 
-
+**Authored by Llakterian**

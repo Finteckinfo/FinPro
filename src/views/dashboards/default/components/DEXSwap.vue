@@ -490,4 +490,90 @@ onMounted(() => {
   font-size: 0.75rem;
   color: #f59e0b;
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .dex-widget {
+    padding: 16px;
+  }
+
+  .token-row {
+    padding: 14px;
+  }
+
+  .token-input-group {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .token-selector {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .amount-input {
+    text-align: center;
+    font-size: 1.2rem;
+    padding: 8px;
+  }
+
+  .swap-direction {
+    margin: -10px 0;
+  }
+
+  .swap-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .rate-info {
+    flex-direction: column;
+    text-align: center;
+    gap: 4px;
+  }
+
+  .swap-action-btn {
+    height: 48px;
+    font-size: 1rem;
+  }
+
+  .connect-prompt {
+    padding: 32px 16px;
+  }
+
+  .prompt-icon {
+    width: 56px;
+    height: 56px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dex-widget {
+    padding: 12px;
+  }
+
+  .token-row {
+    padding: 12px;
+  }
+
+  .amount-input {
+    font-size: 1.1rem;
+    padding: 6px;
+  }
+
+  .token-selector {
+    padding: 6px 10px;
+    font-size: 0.9rem;
+  }
+
+  .swap-action-btn {
+    height: 46px;
+    font-size: 0.95rem;
+  }
+
+  .testnet-notice {
+    font-size: 0.7rem;
+    padding: 6px;
+  }
+}
 </style>

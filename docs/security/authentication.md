@@ -58,4 +58,6 @@ For Web3 flows, prefer using **wallet connection + signature-based login** rathe
    - **SSO-only**
    - **SSO + wallet linked**
 
+**Authored by Llakterian**
+
 

@@ -792,14 +792,83 @@ onMounted(() => {
   .dash-hero {
     padding: 24px;
   }
-  
+
   .hero-content {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .hero-text h1 {
     font-size: 1.5rem;
+  }
+}
+
+/* Button Responsiveness */
+@media (max-width: 768px) {
+  .connect-btn,
+  .create-btn {
+    width: 100%;
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+    padding: 10px 20px;
+  }
+
+  .hero-actions {
+    width: 100%;
+  }
+
+  .action-btn {
+    flex: 1;
+    min-height: 44px;
+    font-size: 0.85rem;
+  }
+
+  .project-actions {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .project-actions .v-btn {
+    width: 100%;
+    justify-content: center !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .connect-btn,
+  .create-btn {
+    font-size: 0.85rem;
+    padding: 8px 16px;
+    min-height: 44px;
+  }
+
+  .action-btn {
+    padding: 8px 12px;
+    min-height: 42px;
+    font-size: 0.8rem;
+  }
+
+  .stat-card {
+    padding: 16px;
+  }
+
+  .stat-value {
+    font-size: 1.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.7rem;
+  }
+}
+
+/* Ensure touch targets are at least 44px */
+@media (pointer: coarse) {
+  .connect-btn,
+  .create-btn,
+  .action-btn,
+  .project-actions .v-btn {
+    min-height: 44px !important;
+    min-width: 44px !important;
   }
 }
 </style>

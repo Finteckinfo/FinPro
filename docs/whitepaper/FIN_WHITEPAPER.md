@@ -201,6 +201,8 @@ You should decide and document:
    - a governance token?
 2. What is the **final distribution** and **vesting** plan?
 3. Is there a treasury? Who controls it (multisig signers)?
-4. If you claim a “peg”, what is the actual enforcement mechanism?
+4. If you claim a "peg", what is the actual enforcement mechanism?
+
+**Authored by Llakterian**
 
 

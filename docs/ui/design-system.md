@@ -73,4 +73,6 @@ FinERP uses CSS variables defined in `src/index.css` (e.g. `--erp-page-bg`, `--e
    - borders
    - card backgrounds
 
+**Authored by Llakterian**
+
 

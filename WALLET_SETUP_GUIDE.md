@@ -346,5 +346,7 @@ Once your wallet is connected:
 
 ---
 
+**Authored by Llakterian**
+
 *Need help? Check the main [WORKFLOW.md](./WORKFLOW.md) documentation or open an issue on GitHub.*
 
