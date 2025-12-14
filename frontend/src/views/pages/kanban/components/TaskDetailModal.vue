@@ -135,7 +135,7 @@
 
               <div v-if="localDetails.checklist.length === 0" class="text-medium-emphasis text-body-2 mb-3">
                 No checklist items yet
-              </div>
+                </div>
 
               <div class="checklist-items">
                 <div
@@ -169,8 +169,8 @@
                   >
                     <v-icon size="18">mdi-close</v-icon>
                   </v-btn>
-                </div>
               </div>
+            </div>
 
               <div class="d-flex align-center gap-2 mt-3">
                 <v-text-field
@@ -202,7 +202,7 @@
                   :key="a.id"
                   :title="a.name"
                   :subtitle="a.url"
-                  @click="() => window.open(a.url, '_blank')"
+                  @click="openAttachment(a.url)"
                 >
                   <template #prepend>
                     <v-icon>mdi-paperclip</v-icon>
@@ -1019,6 +1019,12 @@ const addAttachment = () => {
   newAttachmentName.value = '';
   newAttachmentUrl.value = '';
   persistLocalDetails(props.task.id);
+};
+
+const openAttachment = (url: string) => {
+  if (typeof window !== 'undefined') {
+    window.open(url, '_blank');
+  }
 };
 
 const toggleLabel = (tagId: string) => {

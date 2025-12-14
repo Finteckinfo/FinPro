@@ -198,7 +198,7 @@
           v-for="column in columnConfigs"
           :key="column.id"
           :column="column"
-          :tasks="(columns as any)[column.status] || []"
+          :tasks="columns[column.status] || []"
           :all-tasks="allTasks"
           :selected-tasks="selectedTasks"
           :user-permissions="userPermissions"
@@ -450,12 +450,11 @@ const columnConfigs = computed(() => DEFAULT_COLUMNS);
 
 // All tasks flattened (for fallback metadata lookup in KanbanColumn when dataTransfer fails)
 const allTasks = computed<KanbanTask[]>(() => {
-  const cols = columns as { PENDING: KanbanTask[]; IN_PROGRESS: KanbanTask[]; COMPLETED: KanbanTask[]; APPROVED: KanbanTask[] };
   return [
-    ...(cols.PENDING || []),
-    ...(cols.IN_PROGRESS || []),
-    ...(cols.COMPLETED || []),
-    ...(cols.APPROVED || []),
+    ...(columns.value.PENDING || []),
+    ...(columns.value.IN_PROGRESS || []),
+    ...(columns.value.COMPLETED || []),
+    ...(columns.value.APPROVED || []),
   ];
 });
 
@@ -493,13 +492,13 @@ const handleTaskMove = async (taskId: string, position: TaskPosition) => {
 
 const handleAddTask = (columnStatus: string) => {
   // Pre-fill the create task modal with the column status
-  createTaskDefaultStatus.value = (columnStatus as any) || 'PENDING';
+  createTaskDefaultStatus.value = columnStatus || 'PENDING';
   showCreateTask.value = true;
 };
 
-const handleQuickAddTask = async (payload: { status: string; title: string }) => {
+const handleQuickAddTask = async (payload: { status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'APPROVED'; title: string }) => {
   if (!boardProjectId.value || !defaultDepartmentId.value) {
-    createTaskDefaultStatus.value = (payload.status as any) || 'PENDING';
+    createTaskDefaultStatus.value = payload.status || 'PENDING';
     showCreateTask.value = true;
     return;
   }
@@ -509,13 +508,13 @@ const handleQuickAddTask = async (payload: { status: string; title: string }) =>
       departmentId: defaultDepartmentId.value,
       priority: 'MEDIUM'
     });
-    const col = (columns as any).value?.[payload.status] || [];
+    const col = columns[payload.status] || [];
     const order = Array.isArray(col) ? col.length : 0;
-    await kanbanApi.updateTaskPosition(created.id, { taskId: created.id, status: payload.status as any, order });
+    await kanbanApi.updateTaskPosition(created.id, { taskId: created.id, status: payload.status, order });
     await loadKanbanData(true);
   } catch (e) {
     console.error('[KanbanBoard] Quick add failed', e);
-    createTaskDefaultStatus.value = (payload.status as any) || 'PENDING';
+    createTaskDefaultStatus.value = payload.status || 'PENDING';
     showCreateTask.value = true;
   }
 };
