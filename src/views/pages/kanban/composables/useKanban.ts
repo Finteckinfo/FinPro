@@ -46,26 +46,43 @@ export function useKanban() {
   });
 
   const filteredColumns = computed(() => {
-    if (!kanbanData.value?.columns) return {};
-    
-    const filtered: Record<string, KanbanTask[]> = {};
+    if (!kanbanData.value?.columns) return {
+      PENDING: [],
+      IN_PROGRESS: [],
+      COMPLETED: [],
+      APPROVED: []
+    };
+
+    const filtered: {
+      PENDING: KanbanTask[];
+      IN_PROGRESS: KanbanTask[];
+      COMPLETED: KanbanTask[];
+      APPROVED: KanbanTask[];
+    } = {
+      PENDING: [],
+      IN_PROGRESS: [],
+      COMPLETED: [],
+      APPROVED: []
+    };
+
     const cols = kanbanData.value.columns;
-    
-    Object.keys(cols).forEach(status => {
+
+    // Process each column
+    Object.keys(filtered).forEach(status => {
       const tasks = cols[status as keyof typeof cols] || [];
-      
+
       // Apply search filter
       let filteredTasks: KanbanTask[] = [...tasks];
       if (filters.value.search) {
         const searchLower = filters.value.search.toLowerCase();
-        filteredTasks = filteredTasks.filter((task: KanbanTask) => 
+        filteredTasks = filteredTasks.filter((task: KanbanTask) =>
           task.title.toLowerCase().includes(searchLower) ||
           task.description?.toLowerCase().includes(searchLower) ||
           task.assignedUser?.email.toLowerCase().includes(searchLower) ||
           task.department.name.toLowerCase().includes(searchLower)
         );
       }
-      
+
       // Apply due date filter
       if (filters.value.dueDateRange) {
         const { start, end } = filters.value.dueDateRange;
@@ -82,10 +99,10 @@ export function useKanban() {
       if (!filters.value.includeArchived) {
         filteredTasks = filteredTasks.filter((task: KanbanTask) => !task.archivedAt);
       }
-      
-      filtered[status] = filteredTasks;
+
+      filtered[status as keyof typeof filtered] = filteredTasks;
     });
-    
+
     return filtered;
   });
 

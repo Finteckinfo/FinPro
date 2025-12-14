@@ -202,7 +202,7 @@
                   :key="a.id"
                   :title="a.name"
                   :subtitle="a.url"
-                  @click="() => window.open(a.url, '_blank')"
+                  @click="openAttachment(a.url)"
                 >
                   <template #prepend>
                     <v-icon>mdi-paperclip</v-icon>
@@ -1027,6 +1027,12 @@ const addAttachment = () => {
   newAttachmentName.value = '';
   newAttachmentUrl.value = '';
   persistLocalDetails(props.task.id);
+};
+
+const openAttachment = (url: string) => {
+  if (typeof window !== 'undefined') {
+    window.open(url, '_blank');
+  }
 };
 
 const toggleLabel = (tagId: string) => {
