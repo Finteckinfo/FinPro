@@ -103,6 +103,17 @@
             :loading="projectPickerLoading"
             hide-details="auto"
           />
+
+          <!-- Supabase-only: create first project -->
+          <div v-if="isSupabaseOnly && !projectPickerLoading && projectOptions.length === 0" class="mt-4">
+            <v-alert type="info" variant="tonal" class="mb-3">
+              No projects found in Supabase yet. Create your first project to start a board.
+            </v-alert>
+            <v-btn color="primary" variant="flat" @click="showCreateProject = true">
+              <v-icon start>mdi-plus</v-icon>
+              Create Project
+            </v-btn>
+          </div>
         </v-card-text>
         <v-card-actions>
           <v-spacer />
@@ -111,6 +122,40 @@
         </v-card-actions>
       </v-card>
     </div>
+
+    <!-- Supabase-only Create Project Modal -->
+    <v-dialog v-model="showCreateProject" max-width="520" persistent>
+      <v-card :style="{ background: 'var(--erp-card-bg)', border: '1px solid var(--erp-border)', color: 'var(--erp-text)' }">
+        <v-card-title class="text-h5">Create Project</v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="newProjectTitle"
+            label="Project name"
+            variant="outlined"
+            hide-details="auto"
+            autofocus
+          />
+          <v-textarea
+            v-model="newProjectDescription"
+            label="Description (optional)"
+            variant="outlined"
+            rows="3"
+            hide-details="auto"
+            class="mt-3"
+          />
+          <v-alert v-if="createProjectError" type="error" variant="tonal" class="mt-3">
+            {{ createProjectError }}
+          </v-alert>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn variant="text" @click="closeCreateProject" :disabled="creatingProject">Cancel</v-btn>
+          <v-spacer />
+          <v-btn color="primary" @click="createProjectInSupabase" :loading="creatingProject" :disabled="!newProjectTitle.trim()">
+            Create
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <!-- Loading State -->
     <div v-if="loading" class="loading-container">
@@ -256,6 +301,7 @@ import BulkActionsModal from './components/BulkActionsModal.vue';
 import { RetroGrid } from '@/components/ui/retro-grid';
 import KanbanAnalytics from './components/KanbanAnalytics.vue';
 import { useTheme } from '@/composables/useTheme';
+import { supabase } from '@/services/supabase';
 
 // Project = Board (Trello-like). Require ?projectId=...
 const {
@@ -296,16 +342,29 @@ const projectPickerLoading = ref(false);
 const projectPickerError = ref<string | null>(null);
 const projectOptions = ref<Array<{ title: string; value: string }>>([]);
 const selectedProjectId = ref<string | null>(null);
+const showCreateProject = ref(false);
+const creatingProject = ref(false);
+const createProjectError = ref<string | null>(null);
+const newProjectTitle = ref('');
+const newProjectDescription = ref('');
+
+const isSupabaseOnly = computed(() => !!supabase && !import.meta.env.VITE_BACKEND_URL);
 
 const loadProjectPicker = async () => {
   projectPickerLoading.value = true;
   projectPickerError.value = null;
   try {
-    const projectsResponse = await projectApi.getUserProjectsSimple();
-    const projects = Array.isArray(projectsResponse)
-      ? projectsResponse
-      : (projectsResponse?.projects || projectsResponse?.data || []);
-    projectOptions.value = (projects || []).map((p: any) => ({ title: p.name, value: p.id }));
+    if (isSupabaseOnly.value && supabase) {
+      const { data, error } = await supabase.from('projects').select('id,title,created_at').order('created_at', { ascending: false });
+      if (error) throw error;
+      projectOptions.value = (data || []).map((p: any) => ({ title: p.title, value: p.id }));
+    } else {
+      const projectsResponse = await projectApi.getUserProjectsSimple();
+      const projects = Array.isArray(projectsResponse)
+        ? projectsResponse
+        : (projectsResponse?.projects || projectsResponse?.data || []);
+      projectOptions.value = (projects || []).map((p: any) => ({ title: p.name, value: p.id }));
+    }
   } catch (e: any) {
     projectPickerError.value = e?.message || 'Failed to load projects';
     projectOptions.value = [];
@@ -317,6 +376,43 @@ const loadProjectPicker = async () => {
 const openSelectedBoard = () => {
   if (!selectedProjectId.value) return;
   router.push({ path: '/kanban', query: { projectId: selectedProjectId.value } });
+};
+
+const closeCreateProject = () => {
+  showCreateProject.value = false;
+  creatingProject.value = false;
+  createProjectError.value = null;
+  newProjectTitle.value = '';
+  newProjectDescription.value = '';
+};
+
+const createProjectInSupabase = async () => {
+  if (!isSupabaseOnly.value || !supabase) return;
+  const title = newProjectTitle.value.trim();
+  if (!title) return;
+  creatingProject.value = true;
+  createProjectError.value = null;
+  try {
+    const { data, error } = await supabase
+      .from('projects')
+      .insert([{
+        title,
+        description: newProjectDescription.value.trim() || null,
+        status: 'active'
+      }])
+      .select()
+      .single();
+    if (error) throw error;
+
+    await loadProjectPicker();
+    selectedProjectId.value = data.id;
+    closeCreateProject();
+    router.push({ path: '/kanban', query: { projectId: data.id } });
+  } catch (e: any) {
+    createProjectError.value = e?.message || 'Failed to create project in Supabase';
+  } finally {
+    creatingProject.value = false;
+  }
 };
 
 const loadBoardContext = async () => {
