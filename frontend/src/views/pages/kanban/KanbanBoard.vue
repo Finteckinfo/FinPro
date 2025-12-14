@@ -1,7 +1,7 @@
 <template>
   <div class="kanban-board">
     <!-- Skip to content link for accessibility -->
-    <a href="#kanban-columns" class="skip-to-content">Skip to Board</a>
+    <a href="#kanban-columns" class="skip-to-content">Skip to Kanban Board</a>
     
     <!-- Hero Section with Retro Grid -->
     <div class="kanban-hero">
@@ -10,8 +10,10 @@
         <div class="hero-icon">
           <v-icon size="48">mdi-view-column</v-icon>
         </div>
-        <h1 class="hero-title">Boards</h1>
-        <p class="hero-subtitle">Visual task management with escrow-safe approvals</p>
+        <h1 class="hero-title">{{ boardTitle }}</h1>
+        <p class="hero-subtitle">
+          {{ boardProjectId ? 'Visual task management for this project.' : 'Cross-project view of your workflow.' }}
+        </p>
       </div>
     </div>
     
@@ -83,7 +85,7 @@
     <!-- Project Picker (required) -->
     <div v-if="!boardProjectId" class="project-picker">
       <v-card elevation="0" class="picker-card">
-        <v-card-title class="text-h5">{{ boardTitle }}</v-card-title>
+        <v-card-title class="text-h5">Select a project board</v-card-title>
         <v-card-text>
           <p class="text-body-2 text-medium-emphasis mb-4">
             Each FinERP project has its own board. Choose a project to continue.
@@ -191,15 +193,14 @@
       <div 
         class="columns-container"
         role="region"
-        aria-label="Board Lists"
+        aria-label="Kanban Board Columns"
         aria-live="polite"
       >
         <KanbanColumn
           v-for="column in columnConfigs"
           :key="column.id"
           :column="column"
-          :tasks="columns[column.status] || []"
-          :all-tasks="allTasks"
+          :tasks="(columns as any)[column.status] || []"
           :selected-tasks="selectedTasks"
           :user-permissions="userPermissions"
           @task-click="handleTaskClick"
@@ -286,8 +287,10 @@ import { useRoute, useRouter } from 'vue-router';
 import { useKanban } from './composables/useKanban';
 import { DEFAULT_COLUMNS } from './types/kanban';
 import type { KanbanTask, TaskPosition } from './types/kanban';
-import { projectApi, departmentApi, taskApi } from '@/services/projectApi';
+import { departmentApi, projectApi } from '@/services/projectApi';
+import { taskApi } from '@/services/projectApi';
 import { kanbanApi } from './services/kanbanApi';
+import { supabase, isSupabaseOnly } from '@/services/supabase';
 
 // Import kanban styles
 import './styles/kanban.css';
@@ -301,14 +304,14 @@ import BulkActionsModal from './components/BulkActionsModal.vue';
 import { RetroGrid } from '@/components/ui/retro-grid';
 import KanbanAnalytics from './components/KanbanAnalytics.vue';
 import { useTheme } from '@/composables/useTheme';
-import { supabase } from '@/services/supabase';
 
-// Project = Board. Require ?projectId=...
+// Kanban composable (no project ID needed for cross-project view)
 const {
   loading,
   error,
   columns,
   totalTasks,
+  projectSummary,
   userPermissions,
   selectedTasks,
   hasSelectedTasks,
@@ -327,16 +330,16 @@ const showBulkActions = ref(false);
 const showAnalytics = ref(false);
 const selectedTask = ref<KanbanTask | null>(null);
 const createTaskDefaultStatus = ref<'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'APPROVED'>('PENDING');
-
 const route = useRoute();
 const router = useRouter();
 
+// One board per project. If no projectId is provided, show project picker.
 const boardProjectId = computed(() => {
   const raw = route.query.projectId;
   return typeof raw === 'string' && raw.trim() ? raw : null;
 });
 
-const boardTitle = ref<string>('Choose a Project Board');
+const boardTitle = ref<string>('Kanban Board');
 const defaultDepartmentId = ref<string | null>(null);
 const projectPickerLoading = ref(false);
 const projectPickerError = ref<string | null>(null);
@@ -348,14 +351,54 @@ const createProjectError = ref<string | null>(null);
 const newProjectTitle = ref('');
 const newProjectDescription = ref('');
 
-const isSupabaseOnly = computed(() => !!supabase && !import.meta.env.VITE_BACKEND_URL);
+const loadBoardContext = async () => {
+  if (!boardProjectId.value) {
+    // No project selected: show project picker
+    boardTitle.value = 'Choose a Project Board';
+    defaultDepartmentId.value = null;
+    return;
+  }
+
+  // Filter Kanban to this project's board
+  await updateFilters({ projectIds: [boardProjectId.value] });
+
+  // Try to load project name for the header
+  try {
+    if (isSupabaseOnly && supabase) {
+      const { data } = await supabase.from('projects').select('id,title').eq('id', boardProjectId.value).maybeSingle();
+      boardTitle.value = data?.title ? `${data.title}` : 'Project Board';
+    } else {
+      const project = await projectApi.getProject(boardProjectId.value);
+      boardTitle.value = project?.name ? `${project.name}` : 'Project Board';
+    }
+  } catch {
+    boardTitle.value = 'Project Board';
+  }
+
+  // Get a default department (required by backend for task creation)
+  try {
+    if (isSupabaseOnly) {
+      defaultDepartmentId.value = 'general';
+    } else {
+      const depsResp = await departmentApi.getAccessibleDepartments(boardProjectId.value);
+      const deps = Array.isArray(depsResp) ? depsResp : (depsResp?.departments || depsResp?.data || []);
+      defaultDepartmentId.value = deps?.[0]?.id || null;
+    }
+  } catch {
+    defaultDepartmentId.value = null;
+  }
+};
+
+watch(boardProjectId, () => {
+  loadBoardContext();
+});
 
 const loadProjectPicker = async () => {
   projectPickerLoading.value = true;
   projectPickerError.value = null;
   try {
-    if (isSupabaseOnly.value && supabase) {
-      const { data, error } = await supabase.from('projects').select('id,title,created_at').order('created_at', { ascending: false });
+    if (isSupabaseOnly && supabase) {
+      const { data, error } = await supabase.from('projects').select('id,title').order('created_at', { ascending: false });
       if (error) throw error;
       projectOptions.value = (data || []).map((p: any) => ({ title: p.title, value: p.id }));
     } else {
@@ -387,76 +430,56 @@ const closeCreateProject = () => {
 };
 
 const createProjectInSupabase = async () => {
-  if (!isSupabaseOnly.value || !supabase) return;
+  console.log('[KanbanBoard] createProjectInSupabase called', { isSupabaseOnly, hasSupabase: !!supabase });
+  if (!isSupabaseOnly || !supabase) {
+    console.warn('[KanbanBoard] Supabase not available or not in Supabase-only mode');
+    createProjectError.value = 'Supabase not configured. Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.';
+    return;
+  }
   const title = newProjectTitle.value.trim();
-  if (!title) return;
+  if (!title) {
+    createProjectError.value = 'Project title is required';
+    return;
+  }
   creatingProject.value = true;
   createProjectError.value = null;
+  
+  const payload = {
+    title,
+    description: newProjectDescription.value.trim() || null,
+    status: 'active'
+  };
+  console.log('[KanbanBoard] Inserting project:', payload);
+  
   try {
     const { data, error } = await supabase
       .from('projects')
-      .insert([{
-        title,
-        description: newProjectDescription.value.trim() || null,
-        status: 'active'
-      }])
+      .insert([payload])
       .select()
       .single();
-    if (error) throw error;
+    
+    console.log('[KanbanBoard] Supabase insert response:', { data, error });
+    
+    if (error) {
+      console.error('[KanbanBoard] Supabase insert error:', error);
+      throw error;
+    }
 
+    console.log('[KanbanBoard] Project created successfully:', data);
     await loadProjectPicker();
     selectedProjectId.value = data.id;
     closeCreateProject();
     router.push({ path: '/kanban', query: { projectId: data.id } });
   } catch (e: any) {
+    console.error('[KanbanBoard] createProjectInSupabase error:', e);
     createProjectError.value = e?.message || 'Failed to create project in Supabase';
   } finally {
     creatingProject.value = false;
   }
 };
 
-const loadBoardContext = async () => {
-  if (!boardProjectId.value) {
-    boardTitle.value = 'Choose a Project Board';
-    defaultDepartmentId.value = null;
-    return;
-  }
-
-  await updateFilters({ projectIds: [boardProjectId.value] });
-
-  try {
-    const project = await projectApi.getProject(boardProjectId.value);
-    boardTitle.value = project?.name ? `${project.name}` : 'Project Board';
-  } catch {
-    boardTitle.value = 'Project Board';
-  }
-
-  try {
-    const depsResp = await departmentApi.getAccessibleDepartments(boardProjectId.value);
-    const deps = Array.isArray(depsResp) ? depsResp : (depsResp?.departments || depsResp?.data || []);
-    defaultDepartmentId.value = deps?.[0]?.id || null;
-  } catch {
-    defaultDepartmentId.value = null;
-  }
-};
-
-watch(boardProjectId, () => {
-  loadBoardContext();
-  if (!boardProjectId.value) loadProjectPicker();
-});
-
 // Column configurations
 const columnConfigs = computed(() => DEFAULT_COLUMNS);
-
-// All tasks flattened (for fallback metadata lookup in KanbanColumn when dataTransfer fails)
-const allTasks = computed<KanbanTask[]>(() => {
-  return [
-    ...(columns.value.PENDING || []),
-    ...(columns.value.IN_PROGRESS || []),
-    ...(columns.value.COMPLETED || []),
-    ...(columns.value.APPROVED || []),
-  ];
-});
 
 // Methods
 const handleTaskClick = (task: KanbanTask) => {
@@ -492,29 +515,60 @@ const handleTaskMove = async (taskId: string, position: TaskPosition) => {
 
 const handleAddTask = (columnStatus: string) => {
   // Pre-fill the create task modal with the column status
-  createTaskDefaultStatus.value = (columnStatus as 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'APPROVED') || 'PENDING';
+  createTaskDefaultStatus.value = (columnStatus as any) || 'PENDING';
   showCreateTask.value = true;
 };
 
 const handleQuickAddTask = async (payload: { status: string; title: string }) => {
+  // Inline add card from column footer.
+  // If we don't have a single-project board context, fall back to the full CreateTask modal.
   if (!boardProjectId.value || !defaultDepartmentId.value) {
-    createTaskDefaultStatus.value = (payload.status as 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'APPROVED') || 'PENDING';
+    createTaskDefaultStatus.value = (payload.status as any) || 'PENDING';
     showCreateTask.value = true;
     return;
   }
+
   try {
-    const created = await taskApi.createTask({
-      title: payload.title,
-      departmentId: defaultDepartmentId.value,
-      priority: 'MEDIUM'
-    });
-    const col = columns.value[payload.status as keyof typeof columns.value] || [];
-    const order = Array.isArray(col) ? col.length : 0;
-    await kanbanApi.updateTaskPosition(created.id, { taskId: created.id, status: payload.status as any, order });
-    await loadKanbanData(true);
+    if (isSupabaseOnly && supabase) {
+      const columnTasks = (columns.value as any)?.[payload.status] || [];
+      const order = Array.isArray(columnTasks) ? columnTasks.length : 0;
+      const { data: created, error } = await supabase
+        .from('tasks')
+        .insert([{
+          project_id: boardProjectId.value,
+          title: payload.title,
+          description: null,
+          status: String(payload.status || 'PENDING').toLowerCase(),
+          archived_at: null,
+          order
+        }])
+        .select()
+        .single();
+      if (error) throw error;
+      await loadKanbanData(true);
+    } else {
+      // Backend create requires departmentId; status isn't part of the create payload,
+      // so we create then position it into the target column.
+      const created = await taskApi.createTask({
+        title: payload.title,
+        departmentId: defaultDepartmentId.value,
+        priority: 'MEDIUM'
+      });
+
+      const columnTasks = (columns.value as any)?.[payload.status] || [];
+      const order = Array.isArray(columnTasks) ? columnTasks.length : 0;
+
+      await kanbanApi.updateTaskPosition(created.id, {
+        taskId: created.id,
+        status: payload.status as any,
+        order
+      });
+
+      await loadKanbanData(true);
+    }
   } catch (e) {
-    console.error('[KanbanBoard] Quick add failed', e);
-    createTaskDefaultStatus.value = (payload.status as 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'APPROVED') || 'PENDING';
+    console.error('[KanbanBoard] Quick add failed, falling back to modal', e);
+    createTaskDefaultStatus.value = (payload.status as any) || 'PENDING';
     showCreateTask.value = true;
   }
 };
@@ -559,6 +613,18 @@ const handleBulkActionsCompleted = () => {
 };
 
 const { isDark } = useTheme();
+
+onMounted(() => {
+  console.log('[KanbanBoard] Mounted. isSupabaseOnly:', isSupabaseOnly);
+  console.log('[KanbanBoard] supabase client:', supabase ? 'initialized' : 'NULL');
+  console.log('[KanbanBoard] VITE_SUPABASE_URL:', (import.meta as any).env?.VITE_SUPABASE_URL ? 'set' : 'MISSING');
+  console.log('[KanbanBoard] VITE_SUPABASE_ANON_KEY:', (import.meta as any).env?.VITE_SUPABASE_ANON_KEY ? 'set' : 'MISSING');
+  console.log('[KanbanBoard] VITE_BACKEND_URL:', (import.meta as any).env?.VITE_BACKEND_URL || 'not set (Supabase-only mode)');
+  loadBoardContext();
+  if (!boardProjectId.value) {
+    loadProjectPicker();
+  }
+});
 </script>
 
 <style scoped>
@@ -569,6 +635,17 @@ const { isDark } = useTheme();
   gap: 1.5rem;
   padding: clamp(1.5rem, 2vw, 2.5rem) clamp(1.25rem, 2vw, 2.25rem) 3rem;
   background: var(--erp-page-bg);
+}
+
+.project-picker {
+  width: 100%;
+}
+
+.picker-card {
+  background: var(--erp-card-bg);
+  border: 1px solid var(--erp-border);
+  border-radius: 16px;
+  box-shadow: var(--erp-shadow-sm);
 }
 
 /* Hero Section */
