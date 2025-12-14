@@ -10,14 +10,15 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 let supabase: SupabaseClient | null = null;
+const isSupabaseOnly = !!(supabaseUrl && supabaseAnonKey);
 
-if (supabaseUrl && supabaseAnonKey) {
+if (isSupabaseOnly) {
   supabase = createClient(supabaseUrl, supabaseAnonKey);
 } else {
   console.warn('Supabase environment variables not set. Database features will be disabled.');
 }
 
-export { supabase };
+export { supabase, isSupabaseOnly };
 
 // Database helper functions
 export const db = {

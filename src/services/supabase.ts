@@ -1,19 +1,224 @@
 /**
- * Supabase client (frontend)
- * - Uses VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
- * - Safe to import anywhere; will be null if not configured
+ * Supabase Database Service
+ * Provides database access using Supabase client
  */
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = (import.meta as any).env?.VITE_SUPABASE_URL as string | undefined;
-const supabaseAnonKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY as string | undefined;
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-export const supabase: SupabaseClient | null =
-  supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
+// Initialize Supabase client
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const isSupabaseConfigured = !!supabase;
+let supabase: SupabaseClient | null = null;
+const isSupabaseOnly = !!(supabaseUrl && supabaseAnonKey);
 
-export const isSupabaseOnly =
-  isSupabaseConfigured && !(import.meta as any).env?.VITE_BACKEND_URL;
+if (isSupabaseOnly) {
+  supabase = createClient(supabaseUrl, supabaseAnonKey);
+} else {
+  console.warn('Supabase environment variables not set. Database features will be disabled.');
+}
 
+export { supabase, isSupabaseOnly };
+
+// Database helper functions
+export const db = {
+  /**
+   * User operations
+   */
+  users: {
+    async getByEmail(email: string) {
+      if (!supabase) return { data: null, error: new Error('Supabase not configured') };
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', email)
+        .single();
+      return { data, error };
+    },
+
+    async getById(id: string) {
+      if (!supabase) return { data: null, error: new Error('Supabase not configured') };
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', id)
+        .single();
+      return { data, error };
+    },
+
+    async create(userData: {
+      email: string;
+      wallet_address?: string;
+      first_name?: string;
+      last_name?: string;
+    }) {
+      if (!supabase) return { data: null, error: new Error('Supabase not configured') };
+      const { data, error } = await supabase
+        .from('users')
+        .insert([userData])
+        .select()
+        .single();
+      return { data, error };
+    },
+
+    async update(id: string, updates: Partial<{
+      wallet_address: string;
+      first_name: string;
+      last_name: string;
+    }>) {
+      if (!supabase) return { data: null, error: new Error('Supabase not configured') };
+      const { data, error } = await supabase
+        .from('users')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      return { data, error };
+    },
+  },
+
+  /**
+   * Project operations
+   */
+  projects: {
+    async getByOwner(ownerId: string) {
+      if (!supabase) return { data: null, error: new Error('Supabase not configured') };
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('owner_id', ownerId)
+        .order('created_at', { ascending: false });
+      return { data, error };
+    },
+
+    async getById(id: string) {
+      if (!supabase) return { data: null, error: new Error('Supabase not configured') };
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('id', id)
+        .single();
+      return { data, error };
+    },
+
+    async create(projectData: {
+      owner_id: string;
+      title: string;
+      description?: string;
+      budget?: number;
+      escrow_address?: string;
+      status?: string;
+    }) {
+      if (!supabase) return { data: null, error: new Error('Supabase not configured') };
+      const { data, error } = await supabase
+        .from('projects')
+        .insert([{
+          ...projectData,
+          status: projectData.status || 'active',
+        }])
+        .select()
+        .single();
+      return { data, error };
+    },
+
+    async update(id: string, updates: Partial<{
+      title: string;
+      description: string;
+      budget: number;
+      status: string;
+      escrow_address: string;
+    }>) {
+      if (!supabase) return { data: null, error: new Error('Supabase not configured') };
+      const { data, error } = await supabase
+        .from('projects')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      return { data, error };
+    },
+
+    async delete(id: string) {
+      if (!supabase) return { data: null, error: new Error('Supabase not configured') };
+      const { error } = await supabase
+        .from('projects')
+        .delete()
+        .eq('id', id);
+      return { error };
+    },
+  },
+
+  /**
+   * Task operations
+   */
+  tasks: {
+    async getByProject(projectId: string) {
+      if (!supabase) return { data: null, error: new Error('Supabase not configured') };
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('project_id', projectId)
+        .order('created_at', { ascending: false });
+      return { data, error };
+    },
+
+    async getById(id: string) {
+      if (!supabase) return { data: null, error: new Error('Supabase not configured') };
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('id', id)
+        .single();
+      return { data, error };
+    },
+
+    async create(taskData: {
+      project_id: string;
+      title: string;
+      description?: string;
+      status?: string;
+      assigned_to?: string;
+      payment_amount?: number;
+      payment_status?: string;
+    }) {
+      if (!supabase) return { data: null, error: new Error('Supabase not configured') };
+      const { data, error } = await supabase
+        .from('tasks')
+        .insert([{
+          ...taskData,
+          status: taskData.status || 'pending',
+        }])
+        .select()
+        .single();
+      return { data, error };
+    },
+
+    async update(id: string, updates: Partial<{
+      title: string;
+      description: string;
+      status: string;
+      assigned_to: string;
+      payment_amount: number;
+      payment_status: string;
+    }>) {
+      if (!supabase) return { data: null, error: new Error('Supabase not configured') };
+      const { data, error } = await supabase
+        .from('tasks')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      return { data, error };
+    },
+
+    async delete(id: string) {
+      if (!supabase) return { data: null, error: new Error('Supabase not configured') };
+      const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('id', id);
+      return { error };
+    },
+  },
+};
 
