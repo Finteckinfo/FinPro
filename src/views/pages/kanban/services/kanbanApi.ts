@@ -193,7 +193,7 @@ export const kanbanApi = {
     }
 
     // If a single project is selected, prefer the project-specific endpoint
-    // (more Trello-like: one board per project). If the backend doesn't support it,
+    // (one board per project). If the backend doesn't support it,
     // fall back to the all-projects endpoint with projectIds filter.
     const singleProjectId =
       filters?.projectIds && filters.projectIds.length === 1 ? filters.projectIds[0] : null;

@@ -12,7 +12,7 @@
         </div>
         <h1 class="hero-title">{{ boardTitle }}</h1>
         <p class="hero-subtitle">
-          {{ boardProjectId ? 'A Trello-like board view for this project.' : 'Cross-project view of your workflow.' }}
+          {{ boardProjectId ? 'Visual task management for this project.' : 'Cross-project view of your workflow.' }}
         </p>
       </div>
     </div>
@@ -88,7 +88,7 @@
         <v-card-title class="text-h5">Select a project board</v-card-title>
         <v-card-text>
           <p class="text-body-2 text-medium-emphasis mb-4">
-            Each FinERP project has its own Trello-like board. Choose a project to continue.
+            Each FinERP project has its own board. Choose a project to continue.
           </p>
 
           <v-alert v-if="projectPickerError" type="error" variant="tonal" class="mb-3">
@@ -333,7 +333,7 @@ const createTaskDefaultStatus = ref<'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'A
 const route = useRoute();
 const router = useRouter();
 
-// Trello-like: one board per project (optional). If no projectId is provided, we show cross-project view.
+// One board per project. If no projectId is provided, show project picker.
 const boardProjectId = computed(() => {
   const raw = route.query.projectId;
   return typeof raw === 'string' && raw.trim() ? raw : null;
@@ -353,13 +353,13 @@ const newProjectDescription = ref('');
 
 const loadBoardContext = async () => {
   if (!boardProjectId.value) {
-    // No project selected: show picker (Trello-like “choose a board”)
+    // No project selected: show project picker
     boardTitle.value = 'Choose a Project Board';
     defaultDepartmentId.value = null;
     return;
   }
 
-  // Filter Kanban to this project (Trello-like “board”)
+  // Filter Kanban to this project's board
   await updateFilters({ projectIds: [boardProjectId.value] });
 
   // Try to load project name for the header
@@ -520,7 +520,7 @@ const handleAddTask = (columnStatus: string) => {
 };
 
 const handleQuickAddTask = async (payload: { status: string; title: string }) => {
-  // Trello-like inline add card.
+  // Inline add card from column footer.
   // If we don't have a single-project board context, fall back to the full CreateTask modal.
   if (!boardProjectId.value || !defaultDepartmentId.value) {
     createTaskDefaultStatus.value = (payload.status as any) || 'PENDING';

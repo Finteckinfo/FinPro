@@ -11,7 +11,7 @@
           <v-icon size="48">mdi-view-column</v-icon>
         </div>
         <h1 class="hero-title">Boards</h1>
-        <p class="hero-subtitle">Trello-style lists and cards, with escrow-safe approvals</p>
+        <p class="hero-subtitle">Visual task management with escrow-safe approvals</p>
       </div>
     </div>
     
@@ -86,7 +86,7 @@
         <v-card-title class="text-h5">{{ boardTitle }}</v-card-title>
         <v-card-text>
           <p class="text-body-2 text-medium-emphasis mb-4">
-            Each FinERP project has its own Trello-like board. Choose a project to continue.
+            Each FinERP project has its own board. Choose a project to continue.
           </p>
 
           <v-alert v-if="projectPickerError" type="error" variant="tonal" class="mb-3">
@@ -303,7 +303,7 @@ import KanbanAnalytics from './components/KanbanAnalytics.vue';
 import { useTheme } from '@/composables/useTheme';
 import { supabase } from '@/services/supabase';
 
-// Project = Board (Trello-like). Require ?projectId=...
+// Project = Board. Require ?projectId=...
 const {
   loading,
   error,

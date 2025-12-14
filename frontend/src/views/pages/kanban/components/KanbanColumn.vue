@@ -115,7 +115,7 @@
       </div>
     </div>
 
-    <!-- Add Card Footer (Trello-like inline composer) -->
+    <!-- Add Card Footer (inline composer) -->
     <div v-if="!collapsed && userPermissions.canCreateTasks" class="column-footer">
       <div v-if="!isAddingCard" class="add-card-cta">
         <v-btn
@@ -433,7 +433,7 @@ const handleDrop = async (event: DragEvent) => {
     const hasPayment = Number(draggedTaskMeta.paymentAmount || 0) > 0;
     const canApprove = !!draggedTaskMeta.canApprove;
 
-    // Only allow transition to APPROVED from COMPLETED (Trello-like "done -> approved")
+    // Only allow transition to APPROVED from COMPLETED (done -> approved workflow)
     if (fromStatus !== 'COMPLETED') {
       const toast = document.createElement('div');
       toast.textContent = '⚠️ Only completed tasks can be moved to Approved';

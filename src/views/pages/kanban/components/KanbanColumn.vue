@@ -130,7 +130,7 @@
         </v-btn>
       </div>
 
-      <!-- Trello-like inline composer -->
+      <!-- Inline card composer -->
       <div v-else class="add-card-composer">
         <v-textarea
           v-model="newCardTitle"

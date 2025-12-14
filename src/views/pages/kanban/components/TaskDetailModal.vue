@@ -116,7 +116,7 @@
               </div>
             </div>
 
-            <!-- Checklist Section (Trello-like items; stored locally, counts sync to backend when possible) -->
+            <!-- Checklist Section (stored locally, counts sync to backend when possible) -->
             <div class="content-section">
               <div class="d-flex align-center justify-space-between mb-2">
                 <h3 class="section-title mb-0">Checklist</h3>
@@ -328,7 +328,7 @@
           <!-- Sidebar -->
           <v-col cols="12" md="4">
             <div class="task-sidebar">
-              <!-- Quick Actions (Trello-like) -->
+              <!-- Quick Actions -->
               <div class="sidebar-section">
                 <h4 class="sidebar-title">Quick actions</h4>
                 <div class="quick-actions">
@@ -848,7 +848,7 @@ const drawerWidth = computed(() => (viewportWidth.value < 600 ? viewportWidth.va
 // Viewer identity (for local comments)
 const { user } = useNextAuth();
 
-// Trello-like details (localStorage fallback for missing APIs)
+// Card details (localStorage fallback for missing APIs)
 type LocalChecklistItem = { id: string; text: string; done: boolean };
 type LocalComment = { id: string; author: string; text: string; createdAt: string };
 type LocalAttachment = { id: string; name: string; url: string; createdAt: string };
