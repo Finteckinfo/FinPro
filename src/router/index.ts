@@ -6,8 +6,12 @@ import { useMetaMaskWallet } from '@/composables/useMetaMaskWallet';
 // MetaMask Wallet Authentication
 const { isConnected, user } = useMetaMaskWallet();
 
+// Dev bypass (for headless testing / no MetaMask)
+const DEV_BYPASS_AUTH = import.meta.env.VITE_DEV_BYPASS_AUTH === 'true';
+
 // Check for wallet connection
 function hasWalletConnection(): boolean {
+  if (DEV_BYPASS_AUTH) return true;
   return isConnected.value && !!user.value?.address;
 }
 

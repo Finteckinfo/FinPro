@@ -633,9 +633,6 @@ const handleDrop = (event: DragEvent) => {
   box-shadow: 0 16px 32px rgba(8, 15, 33, 0.35);
 }
 
-  background: color-mix(in srgb, var(--erp-page-bg) 85%, transparent);
-}
-
 .column-footer {
   padding: 0.5rem 0.75rem;
   background: var(--erp-surface);
