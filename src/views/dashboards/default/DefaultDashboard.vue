@@ -889,6 +889,7 @@ onMounted(() => {
               prepend-icon="mdi-plus" 
               @click="navigateToCreateProject"
               size="small"
+              class="erp-primary-cta"
             >
               Create New Project
             </v-btn>
@@ -923,7 +924,7 @@ onMounted(() => {
           <p class="text-body-1 text-medium-emphasis mb-4">
             Start by creating your first project or joining an existing one
           </p>
-          <v-btn color="primary" variant="flat" @click="navigateToCreateProject">
+          <v-btn color="primary" variant="flat" @click="navigateToCreateProject" class="erp-primary-cta">
             Create Your First Project
           </v-btn>
         </div>
@@ -1313,6 +1314,10 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.erp-primary-cta {
+  /* Ensure CTA text stays legible in BOTH themes regardless of Vuetify theme text defaults */
+  color: #ffffff !important;
+}
 .erp-dashboard {
   padding: 24px;
 }

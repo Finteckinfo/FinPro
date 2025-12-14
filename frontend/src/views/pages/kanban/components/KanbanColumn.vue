@@ -26,7 +26,7 @@
             size="small"
             variant="text"
             :aria-label="`Add task to ${column.title}`"
-            @click="$emit('add-task', column.status)"
+            @click="openAddCard"
           >
             <v-icon>mdi-plus</v-icon>
           </v-btn>
@@ -115,6 +115,44 @@
       </div>
     </div>
 
+    <!-- Add Card Footer (Trello-like inline composer) -->
+    <div v-if="!collapsed && userPermissions.canCreateTasks" class="column-footer">
+      <div v-if="!isAddingCard" class="add-card-cta">
+        <v-btn
+          variant="text"
+          block
+          class="justify-start text-none px-2"
+          color="medium-emphasis"
+          @click="openAddCard"
+        >
+          <v-icon start size="small">mdi-plus</v-icon>
+          Add a card
+        </v-btn>
+      </div>
+
+      <div v-else class="add-card-composer">
+        <v-textarea
+          v-model="newCardTitle"
+          auto-grow
+          rows="1"
+          max-rows="4"
+          variant="outlined"
+          density="compact"
+          hide-details
+          placeholder="Enter a title for this card..."
+          class="add-card-input"
+          @keydown.enter.exact.prevent="submitAddCard"
+          @keydown.esc.prevent="cancelAddCard"
+        />
+        <div class="composer-actions">
+          <v-btn color="primary" size="small" @click="submitAddCard">Add card</v-btn>
+          <v-btn variant="text" size="small" @click="cancelAddCard">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </div>
+      </div>
+    </div>
+
     <!-- Collapsed State -->
     <div v-if="collapsed" class="collapsed-content">
       <v-btn
@@ -184,6 +222,8 @@ interface Props {
     canDeleteTasks: boolean;
     canAssignTasks: boolean;
   };
+  /** All tasks across all columns — used as fallback when dataTransfer JSON fails */
+  allTasks?: KanbanTask[];
 }
 
 interface Emits {
@@ -191,6 +231,7 @@ interface Emits {
   (e: 'task-select', taskId: string): void;
   (e: 'task-move', taskId: string, position: TaskPosition): void;
   (e: 'add-task', status: string): void;
+  (e: 'quick-add-task', payload: { status: string; title: string }): void;
   (e: 'column-action', action: string, status: string): void;
 }
 
@@ -202,6 +243,8 @@ const collapsed = ref(false);
 const isDragOver = ref(false);
 const showColumnInfo = ref(false);
 const draggedTaskId = ref<string | null>(null);
+const isAddingCard = ref(false);
+const newCardTitle = ref('');
 
 // Computed
 const columnClasses = computed(() => ({
@@ -224,6 +267,25 @@ const getColumnIcon = (status: string) => {
 const toggleCollapse = () => {
   collapsed.value = !collapsed.value;
   emit('column-action', 'collapse', props.column.status);
+};
+
+const openAddCard = () => {
+  if (!props.userPermissions.canCreateTasks) return;
+  isAddingCard.value = true;
+  newCardTitle.value = '';
+};
+
+const cancelAddCard = () => {
+  isAddingCard.value = false;
+  newCardTitle.value = '';
+};
+
+const submitAddCard = () => {
+  const title = newCardTitle.value.trim();
+  if (!title) return;
+  emit('quick-add-task', { status: props.column.status, title });
+  isAddingCard.value = false;
+  newCardTitle.value = '';
 };
 
 const selectAllTasks = () => {
@@ -300,8 +362,21 @@ const handleDrop = async (event: DragEvent) => {
   const dataTransferTaskId = event.dataTransfer?.getData('text/plain');
   const taskId = draggedTaskId.value || dataTransferTaskId || null;
 
+  if (!taskId) {
+    console.warn('[KanbanColumn] Drop event but no dragged task ID - ignoring');
+    return;
+  }
+
   // Best-effort parse of dragged task metadata (permissions + finance fields)
-  let draggedTaskMeta: any = null;
+  let draggedTaskMeta: {
+    taskId: string;
+    status: string;
+    projectId: string;
+    paymentAmount: number;
+    paymentStatus: string;
+    canApprove: boolean;
+  } | null = null;
+
   try {
     const json = event.dataTransfer?.getData('application/json');
     if (json) draggedTaskMeta = JSON.parse(json);
@@ -309,21 +384,57 @@ const handleDrop = async (event: DragEvent) => {
     // ignore parse errors
   }
 
-  if (!taskId) {
-    console.warn('[KanbanColumn] Drop event but no dragged task ID - ignoring');
-    return;
+  // Fallback: if JSON transfer failed, look up task from allTasks or current column's tasks
+  if (!draggedTaskMeta && taskId) {
+    const fallbackTask = props.allTasks?.find(t => t.id === taskId) 
+                       || props.tasks.find(t => t.id === taskId);
+    if (fallbackTask) {
+      draggedTaskMeta = {
+        taskId: fallbackTask.id,
+        status: fallbackTask.status,
+        projectId: fallbackTask.projectId,
+        paymentAmount: fallbackTask.paymentAmount ?? 0,
+        paymentStatus: fallbackTask.paymentStatus ?? 'PENDING',
+        canApprove: !!fallbackTask.canApprove,
+      };
+      console.log('[KanbanColumn] Used fallback task metadata lookup:', draggedTaskMeta);
+    }
   }
 
   // Check if moving to APPROVED column:
   // Financial rule: paid tasks must be approved via "Approve & Pay" (so escrow release is executed),
   // not via drag-and-drop status changes that could bypass payment.
   if (props.column.status === 'APPROVED') {
-    const fromStatus = draggedTaskMeta?.status;
-    const hasPayment = Number(draggedTaskMeta?.paymentAmount || 0) > 0;
-    const canApprove = !!draggedTaskMeta?.canApprove;
+    // SECURITY: Require valid metadata for APPROVED moves to prevent bypassing escrow checks
+    // If we can't verify task metadata, we must reject the move to protect financial integrity
+    if (!draggedTaskMeta) {
+      console.warn('[KanbanColumn] Cannot move to APPROVED without task metadata - rejecting for safety');
+      const toast = document.createElement('div');
+      toast.textContent = '⚠️ Unable to verify task details. Please open the task to approve it.';
+      toast.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        background: #ef4444;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 9999;
+        font-size: 14px;
+        font-weight: 500;
+      `;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+      return;
+    }
+
+    const fromStatus = draggedTaskMeta.status;
+    const hasPayment = Number(draggedTaskMeta.paymentAmount || 0) > 0;
+    const canApprove = !!draggedTaskMeta.canApprove;
 
     // Only allow transition to APPROVED from COMPLETED (Trello-like "done -> approved")
-    if (fromStatus && fromStatus !== 'COMPLETED') {
+    if (fromStatus !== 'COMPLETED') {
       const toast = document.createElement('div');
       toast.textContent = '⚠️ Only completed tasks can be moved to Approved';
       toast.style.cssText = `
@@ -411,6 +522,21 @@ const handleDrop = async (event: DragEvent) => {
 </script>
 
 <style scoped>
+.add-card-composer {
+  padding: 0.5rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.add-card-input :deep(.v-field) {
+  background: var(--erp-card-bg);
+}
+
+.composer-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
 .kanban-column {
   width: 360px;
   min-width: 360px;

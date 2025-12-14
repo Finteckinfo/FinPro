@@ -30,6 +30,11 @@ export function useKanban() {
     return kanbanData.value.totalTasks;
   });
 
+  const projectSummary = computed(() => {
+    if (!kanbanData.value) return [];
+    return kanbanData.value.projectSummary || [];
+  });
+
   const userPermissions = computed(() => {
     if (!kanbanData.value) return {
       canCreateTasks: false,
@@ -349,13 +354,19 @@ export function useKanban() {
 
   // Watchers
   watch(() => filters.value, () => {
-    loadKanbanData(true);
+    // Enforce "project = board": do not load anything unless a projectId filter exists
+    if (filters.value.projectIds && filters.value.projectIds.length > 0) {
+      loadKanbanData(true);
+    }
   }, { deep: true });
 
   // Lifecycle
   onMounted(() => {
-    loadKanbanData();
-    connectWebSocket();
+    // Enforce "project = board": do not load anything unless a projectId filter exists
+    if (filters.value.projectIds && filters.value.projectIds.length > 0) {
+      loadKanbanData();
+      connectWebSocket();
+    }
   });
 
   onUnmounted(() => {
@@ -373,6 +384,7 @@ export function useKanban() {
     // Computed
     columns: filteredColumns,
     totalTasks,
+    projectSummary,
     userPermissions,
     hasSelectedTasks,
     

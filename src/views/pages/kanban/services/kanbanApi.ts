@@ -73,6 +73,12 @@ export const kanbanApi = {
    * Get cross-project kanban board data with tasks organized by status columns
    */
   getKanbanBoard: async (filters?: KanbanFilters): Promise<KanbanBoard> => {
+    // If a single project is selected, prefer the project-specific endpoint
+    // (more Trello-like: one board per project). If the backend doesn't support it,
+    // fall back to the all-projects endpoint with projectIds filter.
+    const singleProjectId =
+      filters?.projectIds && filters.projectIds.length === 1 ? filters.projectIds[0] : null;
+
     const params = new URLSearchParams();
     
     if (filters?.projectIds?.length) {
@@ -111,10 +117,26 @@ export const kanbanApi = {
     }
 
     const queryString = params.toString();
+
+    // Attempt project-specific endpoint first if applicable.
+    if (singleProjectId) {
+      const url = `/api/tasks/kanban/${singleProjectId}${queryString ? '?' + queryString : ''}`;
+      console.log('[kanbanApi] Fetching project kanban board:', { projectId: singleProjectId, filters, url });
+      try {
+        const response = await api.get(url);
+        return response.data;
+      } catch (err: any) {
+        const status = err?.response?.status;
+        // If backend doesn't implement this endpoint yet, fall back.
+        if (status !== 404) {
+          throw err;
+        }
+        console.warn('[kanbanApi] Project kanban endpoint not found, falling back to all-projects endpoint');
+      }
+    }
+
     const url = `/api/tasks/kanban/all-projects${queryString ? '?' + queryString : ''}`;
-    
     console.log('[kanbanApi] Fetching cross-project kanban board:', { filters, url });
-    
     const response = await api.get(url);
     return response.data;
   },

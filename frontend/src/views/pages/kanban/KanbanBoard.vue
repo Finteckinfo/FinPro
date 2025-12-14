@@ -80,6 +80,38 @@
       @refresh="loadKanbanData(true)"
     />
 
+    <!-- Project Picker (required) -->
+    <div v-if="!boardProjectId" class="project-picker">
+      <v-card elevation="0" class="picker-card">
+        <v-card-title class="text-h5">{{ boardTitle }}</v-card-title>
+        <v-card-text>
+          <p class="text-body-2 text-medium-emphasis mb-4">
+            Each FinERP project has its own Trello-like board. Choose a project to continue.
+          </p>
+
+          <v-alert v-if="projectPickerError" type="error" variant="tonal" class="mb-3">
+            {{ projectPickerError }}
+          </v-alert>
+
+          <v-select
+            v-model="selectedProjectId"
+            :items="projectOptions"
+            item-title="title"
+            item-value="value"
+            label="Project"
+            variant="outlined"
+            :loading="projectPickerLoading"
+            hide-details="auto"
+          />
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn variant="outlined" @click="loadProjectPicker" :loading="projectPickerLoading">Refresh</v-btn>
+          <v-btn color="primary" @click="openSelectedBoard" :disabled="!selectedProjectId">Open board</v-btn>
+        </v-card-actions>
+      </v-card>
+    </div>
+
     <!-- Loading State -->
     <div v-if="loading" class="loading-container">
       <v-row>
@@ -109,7 +141,8 @@
     </v-alert>
 
     <!-- Kanban Columns -->
-    <div v-if="!loading && !error" id="kanban-columns" class="kanban-columns">
+    <div v-if="!boardProjectId" />
+    <div v-else-if="!loading && !error" id="kanban-columns" class="kanban-columns">
       <div 
         class="columns-container"
         role="region"
@@ -121,12 +154,14 @@
           :key="column.id"
           :column="column"
           :tasks="(columns as any)[column.status] || []"
+          :all-tasks="allTasks"
           :selected-tasks="selectedTasks"
           :user-permissions="userPermissions"
           @task-click="handleTaskClick"
           @task-select="toggleTaskSelection"
           @task-move="handleTaskMove"
           @add-task="handleAddTask"
+          @quick-add-task="handleQuickAddTask"
           @column-action="handleColumnAction"
         />
       </div>
@@ -168,6 +203,9 @@
     <!-- Create Task Modal -->
     <CreateTaskModal
       v-model="showCreateTask"
+      :default-status="createTaskDefaultStatus"
+      :default-project="boardProjectId || undefined"
+      :default-department="defaultDepartmentId || undefined"
       @task-created="handleTaskCreated"
     />
 
@@ -198,11 +236,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, computed, onMounted, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useKanban } from './composables/useKanban';
 import { DEFAULT_COLUMNS } from './types/kanban';
 import type { KanbanTask, TaskPosition } from './types/kanban';
+import { projectApi, departmentApi, taskApi } from '@/services/projectApi';
+import { kanbanApi } from './services/kanbanApi';
 
 // Import kanban styles
 import './styles/kanban.css';
@@ -217,7 +257,7 @@ import { RetroGrid } from '@/components/ui/retro-grid';
 import KanbanAnalytics from './components/KanbanAnalytics.vue';
 import { useTheme } from '@/composables/useTheme';
 
-// Kanban composable (no project ID needed for cross-project view)
+// Project = Board (Trello-like). Require ?projectId=...
 const {
   loading,
   error,
@@ -240,9 +280,88 @@ const showCreateTask = ref(false);
 const showBulkActions = ref(false);
 const showAnalytics = ref(false);
 const selectedTask = ref<KanbanTask | null>(null);
+const createTaskDefaultStatus = ref<'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'APPROVED'>('PENDING');
+
+const route = useRoute();
+const router = useRouter();
+
+const boardProjectId = computed(() => {
+  const raw = route.query.projectId;
+  return typeof raw === 'string' && raw.trim() ? raw : null;
+});
+
+const boardTitle = ref<string>('Choose a Project Board');
+const defaultDepartmentId = ref<string | null>(null);
+const projectPickerLoading = ref(false);
+const projectPickerError = ref<string | null>(null);
+const projectOptions = ref<Array<{ title: string; value: string }>>([]);
+const selectedProjectId = ref<string | null>(null);
+
+const loadProjectPicker = async () => {
+  projectPickerLoading.value = true;
+  projectPickerError.value = null;
+  try {
+    const projectsResponse = await projectApi.getUserProjectsSimple();
+    const projects = Array.isArray(projectsResponse)
+      ? projectsResponse
+      : (projectsResponse?.projects || projectsResponse?.data || []);
+    projectOptions.value = (projects || []).map((p: any) => ({ title: p.name, value: p.id }));
+  } catch (e: any) {
+    projectPickerError.value = e?.message || 'Failed to load projects';
+    projectOptions.value = [];
+  } finally {
+    projectPickerLoading.value = false;
+  }
+};
+
+const openSelectedBoard = () => {
+  if (!selectedProjectId.value) return;
+  router.push({ path: '/kanban', query: { projectId: selectedProjectId.value } });
+};
+
+const loadBoardContext = async () => {
+  if (!boardProjectId.value) {
+    boardTitle.value = 'Choose a Project Board';
+    defaultDepartmentId.value = null;
+    return;
+  }
+
+  await updateFilters({ projectIds: [boardProjectId.value] });
+
+  try {
+    const project = await projectApi.getProject(boardProjectId.value);
+    boardTitle.value = project?.name ? `${project.name}` : 'Project Board';
+  } catch {
+    boardTitle.value = 'Project Board';
+  }
+
+  try {
+    const depsResp = await departmentApi.getAccessibleDepartments(boardProjectId.value);
+    const deps = Array.isArray(depsResp) ? depsResp : (depsResp?.departments || depsResp?.data || []);
+    defaultDepartmentId.value = deps?.[0]?.id || null;
+  } catch {
+    defaultDepartmentId.value = null;
+  }
+};
+
+watch(boardProjectId, () => {
+  loadBoardContext();
+  if (!boardProjectId.value) loadProjectPicker();
+});
 
 // Column configurations
 const columnConfigs = computed(() => DEFAULT_COLUMNS);
+
+// All tasks flattened (for fallback metadata lookup in KanbanColumn when dataTransfer fails)
+const allTasks = computed<KanbanTask[]>(() => {
+  const cols = columns as { PENDING: KanbanTask[]; IN_PROGRESS: KanbanTask[]; COMPLETED: KanbanTask[]; APPROVED: KanbanTask[] };
+  return [
+    ...(cols.PENDING || []),
+    ...(cols.IN_PROGRESS || []),
+    ...(cols.COMPLETED || []),
+    ...(cols.APPROVED || []),
+  ];
+});
 
 // Methods
 const handleTaskClick = (task: KanbanTask) => {
@@ -278,7 +397,31 @@ const handleTaskMove = async (taskId: string, position: TaskPosition) => {
 
 const handleAddTask = (columnStatus: string) => {
   // Pre-fill the create task modal with the column status
+  createTaskDefaultStatus.value = (columnStatus as any) || 'PENDING';
   showCreateTask.value = true;
+};
+
+const handleQuickAddTask = async (payload: { status: string; title: string }) => {
+  if (!boardProjectId.value || !defaultDepartmentId.value) {
+    createTaskDefaultStatus.value = (payload.status as any) || 'PENDING';
+    showCreateTask.value = true;
+    return;
+  }
+  try {
+    const created = await taskApi.createTask({
+      title: payload.title,
+      departmentId: defaultDepartmentId.value,
+      priority: 'MEDIUM'
+    });
+    const col = (columns as any).value?.[payload.status] || [];
+    const order = Array.isArray(col) ? col.length : 0;
+    await kanbanApi.updateTaskPosition(created.id, { taskId: created.id, status: payload.status as any, order });
+    await loadKanbanData(true);
+  } catch (e) {
+    console.error('[KanbanBoard] Quick add failed', e);
+    createTaskDefaultStatus.value = (payload.status as any) || 'PENDING';
+    showCreateTask.value = true;
+  }
 };
 
 const handleColumnAction = (action: string, columnStatus: string) => {

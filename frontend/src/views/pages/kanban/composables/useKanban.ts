@@ -349,13 +349,19 @@ export function useKanban() {
 
   // Watchers
   watch(() => filters.value, () => {
-    loadKanbanData(true);
+    // Enforce "project = board": do not load anything unless a projectId filter exists
+    if (filters.value.projectIds && filters.value.projectIds.length > 0) {
+      loadKanbanData(true);
+    }
   }, { deep: true });
 
   // Lifecycle
   onMounted(() => {
-    loadKanbanData();
-    connectWebSocket();
+    // Enforce "project = board": do not load anything unless a projectId filter exists
+    if (filters.value.projectIds && filters.value.projectIds.length > 0) {
+      loadKanbanData();
+      connectWebSocket();
+    }
   });
 
   onUnmounted(() => {

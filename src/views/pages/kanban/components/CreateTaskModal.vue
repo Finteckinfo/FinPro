@@ -151,7 +151,7 @@
                 :min="0"
                 :step="0.01"
                 variant="outlined"
-                suffix="SIZ"
+                suffix="FIN"
                 hide-details="auto"
                 hint="Amount to pay when task is completed"
                 class="kanban-modal-input"
@@ -299,7 +299,7 @@
 <script setup lang="ts">
 import { computed, ref, watch, nextTick } from 'vue';
 import { useTheme } from '@/composables/useTheme';
-import { taskApi } from '@/services/projectApi';
+import { taskApi, projectApi, departmentApi, userRoleApi } from '@/services/projectApi';
 import type { CreateTaskData, KanbanTask } from '../types/kanban';
 
 type SelectOption<T = string> = { title: string; value: T };
@@ -370,9 +370,7 @@ const priorityOptions: SelectOption[] = [
   { title: 'Low', value: 'LOW' }
 ];
 
-const projectOptions = ref<SelectOption<string>[]>([
-  // Will be loaded from user's projects
-]);
+const projectOptions = ref<SelectOption<string>[]>([]);
 
 const departmentOptions = ref<SelectOption<string>[]>([]);
 
@@ -408,18 +406,68 @@ const loadProjectDepartments = async (projectId: string) => {
   }
   
   try {
-    // Load departments for the selected project
-    console.log('[CreateTaskModal] Loading departments for project:', projectId);
-    // This would use your existing departmentApi.getProjectDepartments(projectId)
-    
-    // Mock data for now
-    departmentOptions.value = [
-      { title: 'Development', value: 'dept1' },
-      { title: 'Design', value: 'dept2' },
-      { title: 'Marketing', value: 'dept3' }
-    ];
+    console.log('[CreateTaskModal] Loading accessible departments for project:', projectId);
+    const departmentsResponse = await departmentApi.getAccessibleDepartments(projectId);
+    const departments = Array.isArray(departmentsResponse)
+      ? departmentsResponse
+      : (departmentsResponse?.departments || departmentsResponse?.data || []);
+
+    departmentOptions.value = (departments || []).map((d: any) => ({
+      title: d.name,
+      value: d.id
+    }));
+
+    // Default department if none selected
+    if (!newTask.value.departmentId && departmentOptions.value.length > 0) {
+      newTask.value.departmentId = departmentOptions.value[0].value;
+    }
+
+    // Load team members/roles for assignee dropdown
+    try {
+      const rolesResponse = await userRoleApi.getProjectUserRoles(projectId);
+      const roles = Array.isArray(rolesResponse)
+        ? rolesResponse
+        : (rolesResponse?.userRoles || rolesResponse?.data || []);
+      assigneeOptions.value = [
+        { title: 'Unassigned', value: null },
+        ...(roles || []).map((r: any) => ({
+          title: r.user?.email || r.user?.name || r.userId,
+          value: r.id
+        }))
+      ];
+    } catch (e) {
+      // Non-fatal
+      assigneeOptions.value = [{ title: 'Unassigned', value: null }];
+    }
   } catch (error) {
     console.error('[CreateTaskModal] Failed to load departments:', error);
+  }
+};
+
+// Load user's projects for the project dropdown
+const loadProjects = async () => {
+  try {
+    const projectsResponse = await projectApi.getUserProjectsSimple();
+    const projects = Array.isArray(projectsResponse)
+      ? projectsResponse
+      : (projectsResponse?.projects || projectsResponse?.data || []);
+
+    projectOptions.value = (projects || []).map((p: any) => ({
+      title: p.name,
+      value: p.id
+    }));
+
+    // Preselect default project if provided, else first project
+    if (props.defaultProject && projectOptions.value.some(p => p.value === props.defaultProject)) {
+      newTask.value.projectId = props.defaultProject;
+      await loadProjectDepartments(props.defaultProject);
+    } else if (!newTask.value.projectId && projectOptions.value.length > 0) {
+      newTask.value.projectId = projectOptions.value[0].value;
+      await loadProjectDepartments(newTask.value.projectId);
+    }
+  } catch (e) {
+    console.error('[CreateTaskModal] Failed to load projects:', e);
+    projectOptions.value = [];
   }
 };
 
@@ -520,6 +568,9 @@ watch(() => props.modelValue, (isOpen) => {
     setTimeout(resetForm, 300); // Delay to allow animation to complete
   }
 });
+
+// Initial load
+loadProjects();
 </script>
 
 <style scoped>

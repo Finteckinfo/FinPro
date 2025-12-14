@@ -26,7 +26,7 @@
             size="small"
             variant="text"
             :aria-label="`Add task to ${column.title}`"
-            @click="$emit('add-task', column.status)"
+            @click="openAddCard"
           >
             <v-icon>mdi-plus</v-icon>
           </v-btn>
@@ -115,6 +115,45 @@
       </div>
     </div>
 
+    <!-- Add Task Footer -->
+    <div v-if="!collapsed && userPermissions.canCreateTasks" class="column-footer">
+      <div v-if="!isAddingCard" class="add-card-cta">
+        <v-btn
+          variant="text"
+          block
+          class="justify-start text-none px-2"
+          color="medium-emphasis"
+          @click="openAddCard"
+        >
+          <v-icon start size="small">mdi-plus</v-icon>
+          Add a card
+        </v-btn>
+      </div>
+
+      <!-- Trello-like inline composer -->
+      <div v-else class="add-card-composer">
+        <v-textarea
+          v-model="newCardTitle"
+          auto-grow
+          rows="1"
+          max-rows="4"
+          variant="outlined"
+          density="compact"
+          hide-details
+          placeholder="Enter a title for this card..."
+          class="add-card-input"
+          @keydown.enter.exact.prevent="submitAddCard"
+          @keydown.esc.prevent="cancelAddCard"
+        />
+        <div class="composer-actions">
+          <v-btn color="primary" size="small" @click="submitAddCard">Add card</v-btn>
+          <v-btn variant="text" size="small" @click="cancelAddCard">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </div>
+      </div>
+    </div>
+
     <!-- Collapsed State -->
     <div v-if="collapsed" class="collapsed-content">
       <v-btn
@@ -191,6 +230,7 @@ interface Emits {
   (e: 'task-select', taskId: string): void;
   (e: 'task-move', taskId: string, position: TaskPosition): void;
   (e: 'add-task', status: string): void;
+  (e: 'quick-add-task', payload: { status: string; title: string }): void;
   (e: 'column-action', action: string, status: string): void;
 }
 
@@ -202,6 +242,8 @@ const collapsed = ref(false);
 const isDragOver = ref(false);
 const showColumnInfo = ref(false);
 const draggedTaskId = ref<string | null>(null);
+const isAddingCard = ref(false);
+const newCardTitle = ref('');
 
 // Computed
 const columnClasses = computed(() => ({
@@ -224,6 +266,25 @@ const getColumnIcon = (status: string) => {
 const toggleCollapse = () => {
   collapsed.value = !collapsed.value;
   emit('column-action', 'collapse', props.column.status);
+};
+
+const openAddCard = () => {
+  if (!props.userPermissions.canCreateTasks) return;
+  isAddingCard.value = true;
+  newCardTitle.value = '';
+};
+
+const cancelAddCard = () => {
+  isAddingCard.value = false;
+  newCardTitle.value = '';
+};
+
+const submitAddCard = () => {
+  const title = newCardTitle.value.trim();
+  if (!title) return;
+  emit('quick-add-task', { status: props.column.status, title });
+  isAddingCard.value = false;
+  newCardTitle.value = '';
 };
 
 const selectAllTasks = () => {
@@ -362,6 +423,21 @@ const handleDrop = (event: DragEvent) => {
 </script>
 
 <style scoped>
+.add-card-composer {
+  padding: 0.5rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.add-card-input :deep(.v-field) {
+  background: var(--erp-card-bg);
+}
+
+.composer-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
 .kanban-column {
   width: 360px;
   min-width: 360px;
@@ -557,7 +633,32 @@ const handleDrop = (event: DragEvent) => {
   box-shadow: 0 16px 32px rgba(8, 15, 33, 0.35);
 }
 
-::global(.dark-theme) .empty-drop-zone {
   background: color-mix(in srgb, var(--erp-page-bg) 85%, transparent);
+}
+
+.column-footer {
+  padding: 0.5rem 0.75rem;
+  background: var(--erp-surface);
+  border-radius: 0 0 18px 18px;
+  border-top: 1px solid var(--erp-border);
+}
+
+.column-footer .v-btn {
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.column-footer .v-btn:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+:global(.dark-theme) .column-footer .v-btn:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Override column content radius when footer is present */
+.column-content:has(+ .column-footer) {
+  border-radius: 0;
 }
 </style>
