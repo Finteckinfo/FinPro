@@ -802,6 +802,7 @@ import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import { kanbanApi } from '../services/kanbanApi';
 import { taskApi, userRoleApi, tagApi, type UserRole, type ProjectTag } from '@/services/projectApi';
 import { useNextAuth } from '@/composables/useNextAuth';
+import { supabase, isSupabaseOnly } from '@/services/supabase';
 import type { KanbanTask, TaskActivity } from '../types/kanban';
 
 interface Props {
@@ -966,10 +967,17 @@ const persistLocalDetails = (taskId: string) => {
 const syncChecklistCounts = async () => {
   if (!props.task || !canEditTask.value) return;
   try {
-    await taskApi.updateTask(props.task.id, {
-      checklistCount: checklistTotalCount.value,
-      checklistCompleted: checklistDoneCount.value
-    } as any);
+    if (isSupabaseOnly && supabase) {
+      await supabase
+        .from('tasks')
+        .update({ checklist_count: checklistTotalCount.value, checklist_completed: checklistDoneCount.value })
+        .eq('id', props.task.id);
+    } else {
+      await taskApi.updateTask(props.task.id, {
+        checklistCount: checklistTotalCount.value,
+        checklistCompleted: checklistDoneCount.value
+      } as any);
+    }
   } catch (e) {
     console.warn('[TaskDetailModal] Failed to sync checklist counts', e);
   }
@@ -1073,8 +1081,19 @@ const saveTitle = async () => {
   }
   try {
     savingTitle.value = true;
-    const updated = await taskApi.updateTask(props.task.id, { title: nextTitle } as any);
-    emit('task-updated', { ...props.task, ...updated, title: nextTitle });
+    if (isSupabaseOnly && supabase) {
+      const { data, error } = await supabase
+        .from('tasks')
+        .update({ title: nextTitle })
+        .eq('id', props.task.id)
+        .select()
+        .maybeSingle();
+      if (error) throw error;
+      emit('task-updated', { ...props.task, ...(data as any), title: nextTitle });
+    } else {
+      const updated = await taskApi.updateTask(props.task.id, { title: nextTitle } as any);
+      emit('task-updated', { ...props.task, ...updated, title: nextTitle });
+    }
     editableTask.value.title = nextTitle;
     isEditingTitle.value = false;
   } catch (e) {
@@ -1099,8 +1118,12 @@ const applyMove = async () => {
       status: moveToStatus.value,
       order: props.task.order
     });
-    const updated = await taskApi.updateTask(props.task.id, { status: moveToStatus.value } as any);
-    emit('task-updated', { ...props.task, ...updated, status: moveToStatus.value });
+    if (isSupabaseOnly) {
+      emit('task-updated', { ...props.task, status: moveToStatus.value });
+    } else {
+      const updated = await taskApi.updateTask(props.task.id, { status: moveToStatus.value } as any);
+      emit('task-updated', { ...props.task, ...updated, status: moveToStatus.value });
+    }
     showMoveDialog.value = false;
   } catch (e) {
     console.warn('[TaskDetailModal] Failed to move card', e);
@@ -1113,6 +1136,23 @@ const copyCard = async () => {
   if (!props.task || !props.task.departmentId) return;
   try {
     copying.value = true;
+    if (isSupabaseOnly && supabase) {
+      const { error } = await supabase
+        .from('tasks')
+        .insert([{
+          project_id: props.task.projectId,
+          title: `${props.task.title} (copy)`,
+          description: props.task.description || null,
+          status: props.task.status.toLowerCase(),
+          archived_at: null
+        }])
+        .select()
+        .single();
+      if (error) throw error;
+      emit('task-updated', { ...props.task });
+      localValue.value = false;
+      return;
+    }
     const created = await taskApi.createTask({
       title: `${props.task.title} (copy)`,
       description: props.task.description,
@@ -1146,8 +1186,19 @@ const archiveCard = async () => {
   try {
     saving.value = true;
     const archivedAt = new Date().toISOString();
-    const updated = await taskApi.updateTask(props.task.id, { archivedAt } as any);
-    emit('task-updated', { ...props.task, ...updated, archivedAt });
+    if (isSupabaseOnly && supabase) {
+      const { data, error } = await supabase
+        .from('tasks')
+        .update({ archived_at: archivedAt })
+        .eq('id', props.task.id)
+        .select()
+        .maybeSingle();
+      if (error) throw error;
+      emit('task-updated', { ...props.task, ...(data as any), archivedAt });
+    } else {
+      const updated = await taskApi.updateTask(props.task.id, { archivedAt } as any);
+      emit('task-updated', { ...props.task, ...updated, archivedAt });
+    }
     localValue.value = false;
   } catch (e) {
     console.warn('[TaskDetailModal] Failed to archive card', e);
@@ -1160,8 +1211,19 @@ const restoreCard = async () => {
   if (!props.task || !canEditTask.value) return;
   try {
     saving.value = true;
-    const updated = await taskApi.updateTask(props.task.id, { archivedAt: null } as any);
-    emit('task-updated', { ...props.task, ...updated, archivedAt: null });
+    if (isSupabaseOnly && supabase) {
+      const { data, error } = await supabase
+        .from('tasks')
+        .update({ archived_at: null })
+        .eq('id', props.task.id)
+        .select()
+        .maybeSingle();
+      if (error) throw error;
+      emit('task-updated', { ...props.task, ...(data as any), archivedAt: null });
+    } else {
+      const updated = await taskApi.updateTask(props.task.id, { archivedAt: null } as any);
+      emit('task-updated', { ...props.task, ...updated, archivedAt: null });
+    }
   } catch (e) {
     console.warn('[TaskDetailModal] Failed to restore card', e);
   } finally {
@@ -1406,10 +1468,31 @@ const saveChanges = async () => {
       estimatedHours: editableTask.value.estimatedHours,
       actualHours: editableTask.value.actualHours
     };
-    
-    const updatedTask = await taskApi.updateTask(props.task.id, updateData);
-    
-    emit('task-updated', { ...props.task, ...updatedTask });
+
+    if (isSupabaseOnly && supabase) {
+      const payload: any = {};
+      if (updateData.title !== undefined) payload.title = updateData.title;
+      if (updateData.description !== undefined) payload.description = updateData.description;
+      if (updateData.status !== undefined) payload.status = String(updateData.status).toLowerCase();
+      if (updateData.priority !== undefined) payload.priority = updateData.priority;
+      if (updateData.dueDate !== undefined) payload.due_date = updateData.dueDate;
+      if (updateData.progress !== undefined) payload.progress = updateData.progress;
+      if (updateData.estimatedHours !== undefined) payload.estimated_hours = updateData.estimatedHours;
+      if (updateData.actualHours !== undefined) payload.actual_hours = updateData.actualHours;
+
+      const { data, error } = await supabase
+        .from('tasks')
+        .update(payload)
+        .eq('id', props.task.id)
+        .select()
+        .maybeSingle();
+      if (error) throw error;
+
+      emit('task-updated', { ...props.task, ...(data as any) } as any);
+    } else {
+      const updatedTask = await taskApi.updateTask(props.task.id, updateData);
+      emit('task-updated', { ...props.task, ...updatedTask });
+    }
     editMode.value = false;
     
   } catch (error: any) {
@@ -1521,6 +1604,11 @@ const approveAndPayTask = async () => {
 
 const loadTagsAndTeam = async () => {
   if (!props.task) return;
+  if (isSupabaseOnly) {
+    availableTags.value = [];
+    teamRoles.value = [];
+    return;
+  }
   try {
     const [tags, team] = await Promise.all([
       tagApi.getProjectTags(props.task.projectId),

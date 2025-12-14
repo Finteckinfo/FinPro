@@ -300,6 +300,7 @@
 import { computed, ref, watch, nextTick } from 'vue';
 import { useTheme } from '@/composables/useTheme';
 import { taskApi, projectApi, departmentApi, userRoleApi } from '@/services/projectApi';
+import { supabase, isSupabaseOnly } from '@/services/supabase';
 import type { CreateTaskData, KanbanTask } from '../types/kanban';
 
 type SelectOption<T = string> = { title: string; value: T };
@@ -404,6 +405,14 @@ const loadProjectDepartments = async (projectId: string) => {
     departmentOptions.value = [];
     return;
   }
+
+  // Supabase-only mode: no departments table; use a single "General" bucket.
+  if (isSupabaseOnly) {
+    departmentOptions.value = [{ title: 'General', value: 'general' }];
+    newTask.value.departmentId = 'general';
+    assigneeOptions.value = [{ title: 'Unassigned', value: null }];
+    return;
+  }
   
   try {
     console.log('[CreateTaskModal] Loading accessible departments for project:', projectId);
@@ -447,15 +456,21 @@ const loadProjectDepartments = async (projectId: string) => {
 // Load user's projects for the project dropdown
 const loadProjects = async () => {
   try {
-    const projectsResponse = await projectApi.getUserProjectsSimple();
-    const projects = Array.isArray(projectsResponse)
-      ? projectsResponse
-      : (projectsResponse?.projects || projectsResponse?.data || []);
+    if (isSupabaseOnly && supabase) {
+      const { data, error } = await supabase.from('projects').select('id,title,created_at').order('created_at', { ascending: false });
+      if (error) throw error;
+      projectOptions.value = (data || []).map((p: any) => ({ title: p.title, value: p.id }));
+    } else {
+      const projectsResponse = await projectApi.getUserProjectsSimple();
+      const projects = Array.isArray(projectsResponse)
+        ? projectsResponse
+        : (projectsResponse?.projects || projectsResponse?.data || []);
 
-    projectOptions.value = (projects || []).map((p: any) => ({
-      title: p.name,
-      value: p.id
-    }));
+      projectOptions.value = (projects || []).map((p: any) => ({
+        title: p.name,
+        value: p.id
+      }));
+    }
 
     // Preselect default project if provided, else first project
     if (props.defaultProject && projectOptions.value.some(p => p.value === props.defaultProject)) {
@@ -489,16 +504,42 @@ const createTask = async () => {
     creating.value = true;
     
     // Validate required fields
-    if (!newTask.value.projectId || !newTask.value.departmentId) {
-      console.error('[CreateTaskModal] Project and Department are required');
+    if (!newTask.value.projectId) {
+      console.error('[CreateTaskModal] Project is required');
+      return;
+    }
+    if (!isSupabaseOnly && !newTask.value.departmentId) {
+      console.error('[CreateTaskModal] Department is required');
       return;
     }
     
-    // Prepare task data
+    // Supabase-only create
+    if (isSupabaseOnly && supabase) {
+      const { data, error } = await supabase
+        .from('tasks')
+        .insert([{
+          project_id: newTask.value.projectId,
+          title: newTask.value.title,
+          description: newTask.value.description || null,
+          status: String(newTask.value.status || props.defaultStatus || 'PENDING').toLowerCase(),
+          priority: newTask.value.priority,
+          due_date: newTask.value.dueDate || null,
+          progress: newTask.value.progress || 0,
+          archived_at: null
+        }])
+        .select()
+        .single();
+      if (error) throw error;
+      emit('task-created', data as any);
+      resetForm();
+      return;
+    }
+
+    // Backend mode: Prepare task data
     const taskData: CreateTaskData = {
       title: newTask.value.title,
       description: newTask.value.description,
-      departmentId: newTask.value.departmentId,
+      departmentId: newTask.value.departmentId as any,
       assignedRoleId: newTask.value.assignedRoleId,
       priority: newTask.value.priority,
       estimatedHours: newTask.value.estimatedHours,

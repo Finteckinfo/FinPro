@@ -20,6 +20,7 @@
     "@mdi/js": "^7.4.47",
     "@metamask/detect-provider": "^2.0.0",
     "@metamask/providers": "^16.1.0",
+    "@supabase/supabase-js": "^2.87.1",
     "@types/qrcode": "^1.5.5",
     "@typescript-eslint/parser": "^8.19.0",
     "@walletconnect/ethereum-provider": "^2.17.2",

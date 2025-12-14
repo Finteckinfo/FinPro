@@ -3,8 +3,8 @@
  * This bridges the SSO authentication with the wallet system
  */
 
-import { onMounted, watch } from 'vue';
-import { addManualWallet, clearWalletConnection, activeAccount } from '@/lib/walletManager';
+import { onMounted, watch, getCurrentInstance } from 'vue';
+import { addManualWallet, removeManualWallet, activeAccount } from '@/lib/walletManager';
 import { logger } from '@/services/logger';
 
 interface SSOUser {
@@ -40,6 +40,7 @@ function getSSOUser(): SSOUser | null {
  * Auto-connect wallet from SSO session if available
  */
 export function useSSOWallet() {
+  const hasComponentInstance = !!getCurrentInstance();
   
   const connectWalletFromSSO = () => {
     const user = getSSOUser();
@@ -65,11 +66,9 @@ export function useSSOWallet() {
     }
   };
   
-  // Auto-connect on mount
-  onMounted(() => {
-    logger.debug('[useSSOWallet] Component mounted, checking for SSO wallet');
-    
-    // Only auto-connect if wallet is not already connected
+  // Auto-connect on mount (if called inside a component), otherwise attempt immediately.
+  const doInitialConnect = () => {
+    logger.debug('[useSSOWallet] Checking for SSO wallet');
     if (!activeAccount.value) {
       const connected = connectWalletFromSSO();
       if (connected) {
@@ -78,18 +77,30 @@ export function useSSOWallet() {
     } else {
       logger.debug('[useSSOWallet] Wallet already connected, skipping SSO auto-connect');
     }
-  });
+  };
+
+  if (hasComponentInstance) {
+    onMounted(() => {
+      logger.debug('[useSSOWallet] Component mounted');
+      doInitialConnect();
+    });
+  } else {
+    // Prevent Vue warning when composable is used outside setup()
+    doInitialConnect();
+  }
   
   // Watch for SSO session changes
-  watch(() => sessionStorage.getItem('erp_user'), (newUser) => {
-    if (newUser && !activeAccount.value) {
-      logger.debug('[useSSOWallet] SSO session detected, attempting auto-connect');
-      connectWalletFromSSO();
-    } else if (!newUser && activeAccount.value) {
-      logger.debug('[useSSOWallet] SSO session cleared, disconnecting wallet');
-      clearWalletConnection();
-    }
-  });
+  if (hasComponentInstance) {
+    watch(() => sessionStorage.getItem('erp_user'), (newUser) => {
+      if (newUser && !activeAccount.value) {
+        logger.debug('[useSSOWallet] SSO session detected, attempting auto-connect');
+        connectWalletFromSSO();
+      } else if (!newUser && activeAccount.value) {
+        logger.debug('[useSSOWallet] SSO session cleared, disconnecting wallet');
+        removeManualWallet();
+      }
+    });
+  }
   
   return {
     connectWalletFromSSO,

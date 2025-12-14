@@ -52,12 +52,22 @@ CREATE TABLE IF NOT EXISTS tasks (
 
 -- Soft-archive support (safe to re-run)
 ALTER TABLE tasks ADD COLUMN IF NOT EXISTS archived_at TIMESTAMP;
+ALTER TABLE tasks ADD COLUMN IF NOT EXISTS priority VARCHAR(20) DEFAULT 'MEDIUM';
+ALTER TABLE tasks ADD COLUMN IF NOT EXISTS due_date DATE;
+ALTER TABLE tasks ADD COLUMN IF NOT EXISTS progress INTEGER DEFAULT 0;
+ALTER TABLE tasks ADD COLUMN IF NOT EXISTS "order" INTEGER DEFAULT 0;
+ALTER TABLE tasks ADD COLUMN IF NOT EXISTS checklist_count INTEGER DEFAULT 0;
+ALTER TABLE tasks ADD COLUMN IF NOT EXISTS checklist_completed INTEGER DEFAULT 0;
+ALTER TABLE tasks ADD COLUMN IF NOT EXISTS estimated_hours NUMERIC;
+ALTER TABLE tasks ADD COLUMN IF NOT EXISTS actual_hours NUMERIC;
 
 -- ============================================
 -- Create Indexes (IF NOT EXISTS handles duplicates)
 -- ============================================
 CREATE INDEX IF NOT EXISTS idx_projects_owner ON projects(owner_id);
 CREATE INDEX IF NOT EXISTS idx_tasks_project ON tasks(project_id);
+CREATE INDEX IF NOT EXISTS idx_tasks_project_status_order ON tasks(project_id, status, "order");
+CREATE INDEX IF NOT EXISTS idx_tasks_due_date ON tasks(due_date);
 CREATE INDEX IF NOT EXISTS idx_tasks_assigned ON tasks(assigned_to);
 CREATE INDEX IF NOT EXISTS idx_tasks_archived ON tasks(archived_at);
 

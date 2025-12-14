@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { authService } from '@/services/authService';
+import { supabase, isSupabaseConfigured } from '@/services/supabase';
 import type { 
   KanbanBoard, 
   KanbanFilters, 
@@ -15,7 +16,8 @@ import type {
 const API_BASE_URL_ENV = (import.meta as any).env?.VITE_BACKEND_URL as string | undefined;
 const API_BASE_URL = (API_BASE_URL_ENV || '').replace(/\/+$/, '');
 
-if (!API_BASE_URL) {
+const IS_SUPABASE_ONLY = !API_BASE_URL && isSupabaseConfigured;
+if (!API_BASE_URL && !IS_SUPABASE_ONLY) {
   console.warn('[kanbanApi] VITE_BACKEND_URL is not set. Please define it in your .env file.');
 }
 
@@ -73,6 +75,123 @@ export const kanbanApi = {
    * Get cross-project kanban board data with tasks organized by status columns
    */
   getKanbanBoard: async (filters?: KanbanFilters): Promise<KanbanBoard> => {
+    if (IS_SUPABASE_ONLY) {
+      if (!supabase) throw new Error('Supabase is not configured');
+      const projectId = filters?.projectIds?.length === 1 ? filters.projectIds[0] : null;
+      if (!projectId) {
+        return {
+          columns: { PENDING: [], IN_PROGRESS: [], COMPLETED: [], APPROVED: [] },
+          totalTasks: 0,
+          projectSummary: [],
+          userPermissions: { canCreateTasks: true, canEditAllTasks: true, canDeleteTasks: true, canAssignTasks: true }
+        };
+      }
+
+      const { data: projectRow } = await supabase
+        .from('projects')
+        .select('id,title')
+        .eq('id', projectId)
+        .maybeSingle();
+
+      let query = supabase.from('tasks').select('*').eq('project_id', projectId);
+
+      if (!filters?.includeArchived) {
+        query = query.is('archived_at', null);
+      }
+
+      if (filters?.search) {
+        const q = `%${filters.search}%`;
+        query = query.or(`title.ilike.${q},description.ilike.${q}`);
+      }
+
+      const { data: taskRows, error: taskErr } = await query.order('created_at', { ascending: true });
+      if (taskErr) throw taskErr;
+
+      const toStatus = (raw: any): 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'APPROVED' => {
+        const s = String(raw || '').toUpperCase().replace(/\s+/g, '_');
+        if (s === 'PENDING' || s === 'IN_PROGRESS' || s === 'COMPLETED' || s === 'APPROVED') return s;
+        return 'PENDING';
+      };
+
+      const columns: KanbanBoard['columns'] = { PENDING: [], IN_PROGRESS: [], COMPLETED: [], APPROVED: [] };
+      const rows = (taskRows || []).filter((r: any) => {
+        if (filters?.includeCompleted) return true;
+        const st = toStatus(r.status);
+        return st !== 'COMPLETED' && st !== 'APPROVED';
+      });
+
+      // Hydrate assigned user emails (optional)
+      const assignedIds = Array.from(new Set(rows.map((r: any) => r.assigned_to).filter(Boolean)));
+      const userById = new Map<string, any>();
+      if (assignedIds.length) {
+        const { data: users } = await supabase.from('users').select('id,email,first_name,last_name').in('id', assignedIds);
+        (users || []).forEach((u: any) => userById.set(u.id, u));
+      }
+
+      rows.forEach((r: any, idx: number) => {
+        const st = toStatus(r.status);
+        const assigned = r.assigned_to ? userById.get(r.assigned_to) : null;
+        (columns as any)[st].push({
+          id: r.id,
+          title: r.title,
+          description: r.description || undefined,
+          status: st,
+          archivedAt: (r as any).archived_at ?? null,
+          priority: (String((r as any).priority || 'MEDIUM').toUpperCase() as any) || 'MEDIUM',
+          dueDate: (r as any).due_date || undefined,
+          progress: (r as any).progress || 0,
+          order: (r as any).order ?? idx,
+          projectId: projectId,
+          departmentId: 'general',
+          assignedRoleId: undefined,
+          assignedUser: assigned
+            ? {
+                id: assigned.id,
+                email: assigned.email,
+                name: `${assigned.first_name || ''} ${assigned.last_name || ''}`.trim() || assigned.email
+              }
+            : undefined,
+          project: {
+            id: projectId,
+            name: projectRow?.title || 'Project',
+            type: 'PROGRESSIVE',
+            priority: 'MEDIUM'
+          },
+          department: {
+            id: 'general',
+            name: 'General',
+            type: 'MAJOR',
+            color: '#615fff'
+          },
+          checklistCount: (r as any).checklist_count || undefined,
+          checklistCompleted: (r as any).checklist_completed || undefined,
+          paymentAmount: (r as any).payment_amount || undefined,
+          paymentStatus: (r as any).payment_status || undefined,
+          createdAt: (r as any).created_at,
+          updatedAt: (r as any).updated_at,
+          canView: true,
+          canEdit: true,
+          canAssign: true,
+          canDelete: true,
+          canApprove: true
+        } as any);
+      });
+
+      return {
+        columns,
+        totalTasks: rows.length,
+        projectSummary: [
+          {
+            projectId,
+            projectName: projectRow?.title || 'Project',
+            taskCount: rows.length,
+            departments: [{ id: 'general', name: 'General', taskCount: rows.length }]
+          }
+        ],
+        userPermissions: { canCreateTasks: true, canEditAllTasks: true, canDeleteTasks: true, canAssignTasks: true }
+      };
+    }
+
     // If a single project is selected, prefer the project-specific endpoint
     // (more Trello-like: one board per project). If the backend doesn't support it,
     // fall back to the all-projects endpoint with projectIds filter.
@@ -155,6 +274,22 @@ export const kanbanApi = {
     updatedAt: string;
     affectedTasks: Array<{ id: string; order: number }>;
   }> => {
+    if (IS_SUPABASE_ONLY) {
+      if (!supabase) throw new Error('Supabase is not configured');
+      const updates: any = { status: position.status.toLowerCase() };
+      // order/departmentId are optional in Supabase schema; update if present
+      if (position.order !== undefined) updates.order = position.order;
+      const { data, error } = await supabase.from('tasks').update(updates).eq('id', taskId).select().maybeSingle();
+      if (error) throw error;
+      return {
+        taskId,
+        status: position.status,
+        order: (data as any)?.order ?? position.order,
+        updatedAt: (data as any)?.updated_at || new Date().toISOString(),
+        affectedTasks: []
+      };
+    }
+
     console.log('[kanbanApi] Updating task position - starting API call:', { 
       taskId, 
       position,
@@ -205,6 +340,17 @@ export const kanbanApi = {
    * Bulk update multiple tasks
    */
   bulkUpdateTasks: async (bulkUpdate: BulkTaskUpdate): Promise<BulkUpdateResult> => {
+    if (IS_SUPABASE_ONLY) {
+      if (!supabase) throw new Error('Supabase is not configured');
+      const results: any[] = [];
+      for (const id of bulkUpdate.taskIds) {
+        const { error } = await supabase.from('tasks').update(bulkUpdate.updates as any).eq('id', id);
+        if (error) results.push({ taskId: id, success: false, error: error.message });
+        else results.push({ taskId: id, success: true });
+      }
+      return { success: results.every((r) => r.success), results } as any;
+    }
+
     console.log('[kanbanApi] Bulk updating tasks:', bulkUpdate);
     
     const response = await api.patch('/api/tasks/bulk-update', {
@@ -222,6 +368,10 @@ export const kanbanApi = {
     taskId: string;
     activities: TaskActivity[];
   }> => {
+    if (IS_SUPABASE_ONLY) {
+      return { taskId, activities: [] };
+    }
+
     console.log('[kanbanApi] Fetching task activity:', taskId);
     
     const response = await api.get(`/api/tasks/${taskId}/activity`);
@@ -235,6 +385,17 @@ export const kanbanApi = {
     timeRange?: string, 
     projectIds?: string[]
   ): Promise<KanbanMetrics> => {
+    if (IS_SUPABASE_ONLY) {
+      return {
+        timeRange: timeRange || 'all',
+        totalTasks: 0,
+        completedTasks: 0,
+        averageCompletionTime: 0,
+        tasksByStatus: { PENDING: 0, IN_PROGRESS: 0, COMPLETED: 0, APPROVED: 0 },
+        tasksByPriority: { LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 0 }
+      } as any;
+    }
+
     const params = new URLSearchParams();
     
     if (timeRange) {
@@ -260,6 +421,10 @@ export const kanbanApi = {
    * Create WebSocket connection for real-time updates
    */
   createWebSocketConnection: async (projectId: string, onMessage: (message: WebSocketMessage) => void): Promise<WebSocket | null> => {
+    if (IS_SUPABASE_ONLY) {
+      return null;
+    }
+
     try {
       // Get auth token first
       const token = await authService.getJWTToken();

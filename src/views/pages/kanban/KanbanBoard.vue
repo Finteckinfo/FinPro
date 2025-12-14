@@ -245,6 +245,7 @@ import type { KanbanTask, TaskPosition } from './types/kanban';
 import { departmentApi, projectApi } from '@/services/projectApi';
 import { taskApi } from '@/services/projectApi';
 import { kanbanApi } from './services/kanbanApi';
+import { supabase, isSupabaseOnly } from '@/services/supabase';
 
 // Import kanban styles
 import './styles/kanban.css';
@@ -313,17 +314,26 @@ const loadBoardContext = async () => {
 
   // Try to load project name for the header
   try {
-    const project = await projectApi.getProject(boardProjectId.value);
-    boardTitle.value = project?.name ? `${project.name}` : 'Project Board';
+    if (isSupabaseOnly && supabase) {
+      const { data } = await supabase.from('projects').select('id,title').eq('id', boardProjectId.value).maybeSingle();
+      boardTitle.value = data?.title ? `${data.title}` : 'Project Board';
+    } else {
+      const project = await projectApi.getProject(boardProjectId.value);
+      boardTitle.value = project?.name ? `${project.name}` : 'Project Board';
+    }
   } catch {
     boardTitle.value = 'Project Board';
   }
 
   // Get a default department (required by backend for task creation)
   try {
-    const depsResp = await departmentApi.getAccessibleDepartments(boardProjectId.value);
-    const deps = Array.isArray(depsResp) ? depsResp : (depsResp?.departments || depsResp?.data || []);
-    defaultDepartmentId.value = deps?.[0]?.id || null;
+    if (isSupabaseOnly) {
+      defaultDepartmentId.value = 'general';
+    } else {
+      const depsResp = await departmentApi.getAccessibleDepartments(boardProjectId.value);
+      const deps = Array.isArray(depsResp) ? depsResp : (depsResp?.departments || depsResp?.data || []);
+      defaultDepartmentId.value = deps?.[0]?.id || null;
+    }
   } catch {
     defaultDepartmentId.value = null;
   }
@@ -337,11 +347,17 @@ const loadProjectPicker = async () => {
   projectPickerLoading.value = true;
   projectPickerError.value = null;
   try {
-    const projectsResponse = await projectApi.getUserProjectsSimple();
-    const projects = Array.isArray(projectsResponse)
-      ? projectsResponse
-      : (projectsResponse?.projects || projectsResponse?.data || []);
-    projectOptions.value = (projects || []).map((p: any) => ({ title: p.name, value: p.id }));
+    if (isSupabaseOnly && supabase) {
+      const { data, error } = await supabase.from('projects').select('id,title').order('created_at', { ascending: false });
+      if (error) throw error;
+      projectOptions.value = (data || []).map((p: any) => ({ title: p.title, value: p.id }));
+    } else {
+      const projectsResponse = await projectApi.getUserProjectsSimple();
+      const projects = Array.isArray(projectsResponse)
+        ? projectsResponse
+        : (projectsResponse?.projects || projectsResponse?.data || []);
+      projectOptions.value = (projects || []).map((p: any) => ({ title: p.name, value: p.id }));
+    }
   } catch (e: any) {
     projectPickerError.value = e?.message || 'Failed to load projects';
     projectOptions.value = [];
@@ -406,24 +422,43 @@ const handleQuickAddTask = async (payload: { status: string; title: string }) =>
   }
 
   try {
-    // Backend create requires departmentId; status isn't part of the create payload,
-    // so we create then position it into the target column.
-    const created = await taskApi.createTask({
-      title: payload.title,
-      departmentId: defaultDepartmentId.value,
-      priority: 'MEDIUM'
-    });
+    if (isSupabaseOnly && supabase) {
+      const columnTasks = (columns.value as any)?.[payload.status] || [];
+      const order = Array.isArray(columnTasks) ? columnTasks.length : 0;
+      const { data: created, error } = await supabase
+        .from('tasks')
+        .insert([{
+          project_id: boardProjectId.value,
+          title: payload.title,
+          description: null,
+          status: String(payload.status || 'PENDING').toLowerCase(),
+          archived_at: null,
+          order
+        }])
+        .select()
+        .single();
+      if (error) throw error;
+      await loadKanbanData(true);
+    } else {
+      // Backend create requires departmentId; status isn't part of the create payload,
+      // so we create then position it into the target column.
+      const created = await taskApi.createTask({
+        title: payload.title,
+        departmentId: defaultDepartmentId.value,
+        priority: 'MEDIUM'
+      });
 
-    const columnTasks = (columns.value as any)?.[payload.status] || [];
-    const order = Array.isArray(columnTasks) ? columnTasks.length : 0;
+      const columnTasks = (columns.value as any)?.[payload.status] || [];
+      const order = Array.isArray(columnTasks) ? columnTasks.length : 0;
 
-    await kanbanApi.updateTaskPosition(created.id, {
-      taskId: created.id,
-      status: payload.status as any,
-      order
-    });
+      await kanbanApi.updateTaskPosition(created.id, {
+        taskId: created.id,
+        status: payload.status as any,
+        order
+      });
 
-    await loadKanbanData(true);
+      await loadKanbanData(true);
+    }
   } catch (e) {
     console.error('[KanbanBoard] Quick add failed, falling back to modal', e);
     createTaskDefaultStatus.value = (payload.status as any) || 'PENDING';

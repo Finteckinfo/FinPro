@@ -312,7 +312,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
 import { debounce } from 'lodash';
-import { projectApi, departmentApi } from '@/services/projectApi';
+import { supabase, isSupabaseOnly } from '@/services/supabase';
 import type { KanbanFilters } from '../types/kanban';
 
 interface Props {
@@ -472,21 +472,22 @@ const getDepartmentName = (departmentId: string) => {
 // Load filter options
 const loadFilterOptions = async () => {
   try {
-    // Load departments and assignees from your project context
-    // This would need to be adapted based on your current project context
     console.log('[KanbanFilters] Loading filter options...');
-    
-    // For now, we'll use mock data - replace with actual API calls
-    departments.value = [
-      { id: '1', name: 'Development' },
-      { id: '2', name: 'Design' },
-      { id: '3', name: 'Marketing' }
-    ];
-    
-    assignees.value = [
-      { id: '1', name: 'John Doe', email: 'john@example.com' },
-      { id: '2', name: 'Jane Smith', email: 'jane@example.com' }
-    ];
+
+    if (isSupabaseOnly && supabase) {
+      departments.value = [{ id: 'general', name: 'General' }];
+      const { data: users } = await supabase.from('users').select('id,email,first_name,last_name').order('created_at', { ascending: false });
+      assignees.value = (users || []).map((u: any) => ({
+        id: u.id,
+        name: `${u.first_name || ''} ${u.last_name || ''}`.trim(),
+        email: u.email
+      }));
+      return;
+    }
+
+    // Fallback (no backend, no supabase): mock data
+    departments.value = [{ id: 'general', name: 'General' }];
+    assignees.value = [];
     
   } catch (error) {
     console.error('[KanbanFilters] Failed to load filter options:', error);

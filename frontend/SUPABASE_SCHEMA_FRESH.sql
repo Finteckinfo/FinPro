@@ -44,6 +44,14 @@ CREATE TABLE tasks (
   title VARCHAR(255) NOT NULL,
   description TEXT,
   status VARCHAR(50) DEFAULT 'pending',
+  priority VARCHAR(20) DEFAULT 'MEDIUM',
+  due_date DATE,
+  progress INTEGER DEFAULT 0,
+  "order" INTEGER DEFAULT 0,
+  checklist_count INTEGER DEFAULT 0,
+  checklist_completed INTEGER DEFAULT 0,
+  estimated_hours NUMERIC,
+  actual_hours NUMERIC,
   assigned_to UUID REFERENCES users(id),
   payment_amount DECIMAL(18, 2),
   payment_status VARCHAR(50),
@@ -57,6 +65,8 @@ CREATE TABLE tasks (
 -- ============================================
 CREATE INDEX idx_projects_owner ON projects(owner_id);
 CREATE INDEX idx_tasks_project ON tasks(project_id);
+CREATE INDEX idx_tasks_project_status_order ON tasks(project_id, status, "order");
+CREATE INDEX idx_tasks_due_date ON tasks(due_date);
 CREATE INDEX idx_tasks_assigned ON tasks(assigned_to);
 CREATE INDEX idx_tasks_archived ON tasks(archived_at);
 
