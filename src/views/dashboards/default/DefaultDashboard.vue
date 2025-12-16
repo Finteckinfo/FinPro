@@ -7,6 +7,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useMetaMaskWallet } from '@/composables/useMetaMaskWallet';
 import { useRouter } from 'vue-router';
 import { supabase, isSupabaseOnly } from '@/services/supabase';
+import { useMobile } from '@/composables/useMobile';
 
 // Components
 import FINTokenBalance from './components/FINTokenBalance.vue';
@@ -14,6 +15,7 @@ import DEXSwap from './components/DEXSwap.vue';
 
 const router = useRouter();
 const { user: walletUser, isConnected, connect } = useMetaMaskWallet();
+const { isMobile, isDesktop } = useMobile();
 
 // State
 const projects = ref<any[]>([]);
@@ -163,10 +165,11 @@ watch(isConnected, (connected) => {
 
 // PERFORMANCE: Load data after initial render to prevent blocking
 onMounted(() => {
-  // Delay data loading to allow page to render first
+  // Mobile gets faster loading, desktop gets delayed loading for better UX
+  const delay = isMobile.value ? 50 : 100;
   setTimeout(() => {
     loadData();
-  }, 100);
+  }, delay);
 });
 </script>
 

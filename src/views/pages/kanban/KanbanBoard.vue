@@ -5,7 +5,7 @@
     
     <!-- Hero Section with Retro Grid -->
     <div class="kanban-hero">
-      <RetroGrid v-if="!isDark" class="kanban-hero-grid" />
+      <RetroGrid v-if="!isDark && isDesktop" class="kanban-hero-grid" />
       <div class="hero-content">
         <div class="hero-icon">
           <v-icon size="48">mdi-view-column</v-icon>
@@ -304,6 +304,10 @@ import BulkActionsModal from './components/BulkActionsModal.vue';
 import { RetroGrid } from '@/components/ui/retro-grid';
 import KanbanAnalytics from './components/KanbanAnalytics.vue';
 import { useTheme } from '@/composables/useTheme';
+import { useMobile } from '@/composables/useMobile';
+
+// Mobile detection
+const { isDesktop } = useMobile();
 
 // Kanban composable (no project ID needed for cross-project view)
 const {

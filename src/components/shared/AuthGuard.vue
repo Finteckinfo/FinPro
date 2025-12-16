@@ -60,7 +60,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div
+  <div 
     v-if="isLoaded && isAuthenticated"
     :class="{ 'dark-theme': isDark }"
   >

@@ -677,6 +677,45 @@ div {
   font-size: 1rem !important;
 }
 
+/* Mobile-specific button enhancements for better touch targets */
+@media (pointer: coarse) {
+  .v-btn {
+    min-height: 48px !important;
+    padding: 12px 20px !important;
+    font-size: 1rem !important;
+    border-radius: 8px !important;
+  }
+
+  .v-btn--size-small {
+    min-height: 44px !important;
+    padding: 10px 16px !important;
+  }
+
+  .v-btn--size-large {
+    min-height: 52px !important;
+    padding: 14px 24px !important;
+  }
+
+  /* Ensure buttons are easily tappable */
+  .v-btn:not(.v-btn--disabled) {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(5, 150, 105, 0.1);
+  }
+
+  /* Improve form inputs on mobile */
+  .v-text-field .v-field__input {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+  }
+
+  .v-select .v-field__input {
+    font-size: 16px !important;
+  }
+
+  .v-textarea .v-field__input {
+    font-size: 16px !important;
+  }
+}
+
 /* Disabled button states */
 .v-btn--disabled {
   opacity: 0.5 !important;
@@ -710,12 +749,44 @@ div {
   background-color: var(--erp-hover-bg) !important;
 }
 
-/* Responsive adjustments */
+/* Mobile Performance Optimizations */
 @media (max-width: 768px) {
+  /* Reduce animations on mobile for better performance */
+  .v-btn,
+  .v-card,
+  .v-chip {
+    transition-duration: 0.15s !important;
+  }
+
+  /* Disable expensive visual effects on mobile */
+  .retro-grid,
+  .animated-background,
+  .complex-animations {
+    display: none !important;
+  }
+
+  /* Optimize shadows for performance */
+  .v-card,
+  .v-sheet {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* Prevent layout shifts */
+  .v-card,
+  .v-btn,
+  .v-text-field {
+    contain: layout style;
+  }
+
+  /* Optimize images */
+  img {
+    image-rendering: optimizeSpeed;
+  }
+
   .dark-theme {
     background-color: #101828 !important;
   }
-  
+
   /* Ensure mobile dropdowns are legible */
   .v-select.mobile,
   .v-autocomplete.mobile,

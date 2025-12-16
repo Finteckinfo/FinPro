@@ -110,7 +110,7 @@ const tokens = {
   FIN: {
     symbol: 'FIN',
     name: 'FinPro Token',
-    icon: '/FinERP/images/FinPro-logo.png',
+    icon: '/images/FinPro-logo.png',
     decimals: 18
   },
   USDT: {

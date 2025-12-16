@@ -107,15 +107,11 @@ export const db = {
       description?: string;
       budget?: number;
       escrow_address?: string;
-      status?: string;
     }) {
       if (!supabase) return { data: null, error: new Error('Supabase not configured') };
       const { data, error } = await supabase
         .from('projects')
-        .insert([{
-          ...projectData,
-          status: projectData.status || 'active',
-        }])
+        .insert([projectData])
         .select()
         .single();
       return { data, error };

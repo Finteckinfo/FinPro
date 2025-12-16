@@ -74,6 +74,9 @@
                     variant="outlined"
                     :rules="[v => !!v || 'Project name is required']"
                     class="mb-4"
+                    inputmode="text"
+                    autocorrect="off"
+                    autocapitalize="words"
                   />
 
                   <v-select

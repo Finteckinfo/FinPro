@@ -57,6 +57,13 @@ if (typeof window !== 'undefined') {
     const path = l.search.slice(2).replace(/~and~/g, '&');
     window.history.replaceState(null, '', '/FinERP/' + path + l.hash);
   }
+
+  // Mobile performance: Reduce navigation delays
+  const isMobile = window.innerWidth <= 768;
+  if (isMobile) {
+    // Disable smooth scrolling on mobile for better performance
+    document.documentElement.style.scrollBehavior = 'auto';
+  }
 }
 
 export { router };
