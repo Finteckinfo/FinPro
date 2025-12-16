@@ -2,10 +2,10 @@ import axios from 'axios';
 import { authService } from './authService';
 
 // Backend URL from environment (do NOT include '/api' here; we prefix per-request)
-const API_BASE_URL_ENV = (import.meta as any).env?.VITE_BACKEND_URL as string | undefined;
-const API_BASE_URL = (API_BASE_URL_ENV || '').replace(/\/+$/, '');
+const API_BASE = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1`;
+const API_BASE_URL = API_BASE;
 if (!API_BASE_URL) {
-  console.warn('[projectApi] VITE_BACKEND_URL is not set. Please define it in your .env file.');
+  console.warn('[projectApi] VITE_SUPABASE_URL is not set. Please define it in your .env file.');
 }
 
 // Ensure the URL is correct and accessible
@@ -14,18 +14,16 @@ console.log('🌐 API Base URL configured:', API_BASE_URL || '(missing)');
 // Centralized axios instance with proper JWT authentication interceptor
 export const api = axios.create({ 
   baseURL: API_BASE_URL,
-  timeout: 30000 // 30 second timeout
+  timeout: 30000, // 30 second timeout
+  headers: {
+    'Content-Type': 'application/json',
+    'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY
+  }
 });
 
 // Request interceptor - automatically adds JWT token to every request
 api.interceptors.request.use(async (config) => {
   try {
-    // Ensure all relative paths are prefixed with '/api'
-    if (config.url && !config.url.startsWith('http')) {
-      const path = config.url.startsWith('/api') ? config.url : `/api${config.url.startsWith('/') ? '' : '/'}${config.url}`;
-      config.url = path;
-    }
-    
     // Get auth headers from NextAuth session
     const headers = await authService.getAuthHeaders();
     config.headers = {
