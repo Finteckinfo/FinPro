@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 
 // Theme storage key
-const THEME_STORAGE_KEY = 'finerp-theme';
+const THEME_STORAGE_KEY = 'FinPro-theme';
 
 // System preference detection
 const getSystemPreference = (): boolean => {

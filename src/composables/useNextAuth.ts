@@ -23,7 +23,7 @@ const isLoaded = ref(false);
 const isValidating = ref(false);
 const lastValidated = ref<number>(0);
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes - increased for better performance
-const SESSION_STORAGE_KEY = 'finerp_session_cache';
+const SESSION_STORAGE_KEY = 'FinPro_session_cache';
 
 // PERFORMANCE: Initialize from localStorage on module load (synchronous)
 function initializeFromStorage(): void {
@@ -87,10 +87,38 @@ export function useNextAuth() {
     isValidating.value = true;
 
     try {
+      // DEVELOPMENT MODE: Create mock authentication for local testing
+      if (import.meta.env.DEV) {
+        console.log('[NextAuth] Development mode - creating mock user session');
+
+        // Create a mock user session for development
+        sessionCache.value = {
+          user: {
+            id: 'dev-user-123',
+            email: 'developer@example.com',
+            name: 'Developer User',
+            firstName: 'Developer',
+            lastName: 'User',
+            walletAddress: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e', // Mock wallet address
+            authMethod: 'development'
+          },
+          expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+        };
+
+        lastValidated.value = Date.now();
+        isLoaded.value = true;
+
+        // Persist mock session
+        persistSession();
+
+        console.log('[NextAuth] Mock authentication created for development');
+        return;
+      }
+
       // Check for NextAuth session cookie
       const sessionToken = getCookie('next-auth.session-token') ||
         getCookie('__Secure-next-auth.session-token') ||
-        getCookie('finerp_sso_token'); // Also check specifically for our SSO token
+        getCookie('FinPro_sso_token'); // Also check specifically for our SSO token
 
       if (!sessionToken) {
         // Fallback: Check SSO sessionStorage for ERP users

@@ -433,7 +433,7 @@ const overviewSections = [
     description: 'Key performance indicators and summary metrics',
     component: 'AnalyticsOverview',
     defaultOpen: true,
-    priority: 'high' as 'high'
+    priority: 'high' as const
   },
   {
     id: 'all-projects-performance',
@@ -441,7 +441,7 @@ const overviewSections = [
     description: 'Aggregated performance metrics across all projects',
     component: 'ProjectPerformance',
     defaultOpen: true,
-    priority: 'high' as 'high'
+    priority: 'high' as const
   },
   {
     id: 'live-snapshot',
@@ -449,7 +449,7 @@ const overviewSections = [
     description: 'Real-time project status and active tasks',
     component: 'LiveDashboard',
     defaultOpen: false,
-    priority: 'medium' as 'medium'
+    priority: 'medium' as const
   }
 ];
 
@@ -460,7 +460,7 @@ const projectsSections = [
     description: 'Detailed performance metrics for individual projects',
     component: 'ProjectPerformance',
     defaultOpen: true,
-    priority: 'high' as 'high'
+    priority: 'high' as const
   },
   {
     id: 'timeline-analysis',
@@ -468,7 +468,7 @@ const projectsSections = [
     description: 'Project timeline tracking and deadline adherence',
     component: 'TimelineAnalysis',
     defaultOpen: false,
-    priority: 'medium' as 'medium'
+    priority: 'medium' as const
   },
   {
     id: 'benchmarks',
@@ -476,7 +476,7 @@ const projectsSections = [
     description: 'Compare project performance against industry standards',
     component: 'BenchmarksComparison',
     defaultOpen: false,
-    priority: 'medium' as 'medium'
+    priority: 'medium' as const
   }
 ];
 
@@ -487,7 +487,7 @@ const teamsSections = [
     description: 'Team productivity and collaboration metrics',
     component: 'TeamAnalytics',
     defaultOpen: true,
-    priority: 'high' as 'high'
+    priority: 'high' as const
   },
   {
     id: 'workload-distribution',
@@ -495,7 +495,7 @@ const teamsSections = [
     description: 'Task distribution and capacity planning',
     component: 'WorkloadDistribution',
     defaultOpen: false,
-    priority: 'medium' as 'medium'
+    priority: 'medium' as const
   },
   {
     id: 'collaboration-metrics',
@@ -503,7 +503,7 @@ const teamsSections = [
     description: 'Team communication and knowledge sharing',
     component: 'CollaborationMetrics',
     defaultOpen: false,
-    priority: 'medium' as 'medium'
+    priority: 'medium' as const
   }
 ];
 
@@ -514,7 +514,7 @@ const departmentsSections = [
     description: 'Department productivity and resource utilization',
     component: 'DepartmentEfficiency',
     defaultOpen: true,
-    priority: 'high' as 'high'
+    priority: 'high' as const
   },
   {
     id: 'resource-utilization',
@@ -522,7 +522,7 @@ const departmentsSections = [
     description: 'Resource allocation and optimization insights',
     component: 'ResourceUtilization',
     defaultOpen: false,
-    priority: 'medium' as 'medium'
+    priority: 'medium' as const
   }
 ];
 
@@ -533,7 +533,7 @@ const trendsSections = [
     description: 'Historical trends and pattern analysis',
     component: 'TrendsAnalysis',
     defaultOpen: true,
-    priority: 'high' as 'high'
+    priority: 'high' as const
   },
   {
     id: 'predictions-forecast',
@@ -541,7 +541,7 @@ const trendsSections = [
     description: 'AI-powered predictions and forecasting',
     component: 'PredictionsForecast',
     defaultOpen: false,
-    priority: 'medium' as 'medium'
+    priority: 'medium' as const
   }
 ];
 
@@ -552,7 +552,7 @@ const qualitySections = [
     description: 'Quality tracking, defects, and approval metrics',
     component: 'QualityMetrics',
     defaultOpen: true,
-    priority: 'high' as 'high'
+    priority: 'high' as const
   }
 ];
 
@@ -563,7 +563,7 @@ const userSections = [
     description: 'Personal productivity and performance metrics',
     component: 'UserPerformance',
     defaultOpen: true,
-    priority: 'high' as 'high'
+    priority: 'high' as const
   },
   {
     id: 'my-dashboard',
@@ -571,7 +571,7 @@ const userSections = [
     description: 'Personalized dashboard with quick actions',
     component: 'UserDashboard',
     defaultOpen: false,
-    priority: 'medium' as 'medium'
+    priority: 'medium' as const
   },
   {
     id: 'activity-feed',
@@ -579,7 +579,7 @@ const userSections = [
     description: 'Recent activities and project updates',
     component: 'ActivityFeed',
     defaultOpen: false,
-    priority: 'medium' as 'medium'
+    priority: 'medium' as const
   },
   {
     id: 'active-alerts',
@@ -587,7 +587,7 @@ const userSections = [
     description: 'System alerts and notifications',
     component: 'AlertsPanel',
     defaultOpen: false,
-    priority: 'low' as 'low'
+    priority: 'low' as const
   }
 ];
 
@@ -598,7 +598,7 @@ const reportsSections = [
     description: 'Generate and view custom analytics reports',
     component: 'CustomReports',
     defaultOpen: true,
-    priority: 'high' as 'high'
+    priority: 'high' as const
   }
 ];
 
@@ -609,7 +609,7 @@ const settingsSections = [
     description: 'User preferences and configuration settings',
     component: 'AnalyticsSettings',
     defaultOpen: true,
-    priority: 'high' as 'high'
+    priority: 'high' as const
   },
   {
     id: 'widget-configuration',
@@ -617,7 +617,7 @@ const settingsSections = [
     description: 'Dashboard widget settings and layouts',
     component: 'WidgetConfiguration',
     defaultOpen: false,
-    priority: 'medium' as 'medium'
+    priority: 'medium' as const
   },
   {
     id: 'cache-status',
@@ -625,7 +625,7 @@ const settingsSections = [
     description: 'System cache performance and optimization',
     component: 'CacheStatus',
     defaultOpen: false,
-    priority: 'low' as 'low'
+    priority: 'low' as const
   },
   {
     id: 'data-freshness',
@@ -633,7 +633,7 @@ const settingsSections = [
     description: 'Data synchronization and freshness monitoring',
     component: 'DataFreshness',
     defaultOpen: false,
-    priority: 'low' as 'low'
+    priority: 'low' as const
   }
 ];
 

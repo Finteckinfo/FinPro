@@ -1,6 +1,6 @@
-# FinERP Application Workflow Documentation
+# FinPro Application Workflow Documentation
 
-A comprehensive guide to understanding and testing the FinERP blockchain-powered ERP system.
+A comprehensive guide to understanding and testing the FinPro blockchain-powered ERP system.
 
 ---
 
@@ -22,7 +22,7 @@ A comprehensive guide to understanding and testing the FinERP blockchain-powered
 
 ## System Overview
 
-FinERP is a decentralized Enterprise Resource Planning (ERP) system that leverages blockchain technology for secure, transparent project management and payments. The system combines:
+FinPro is a decentralized Enterprise Resource Planning (ERP) system that leverages blockchain technology for secure, transparent project management and payments. The system combines:
 
 - **FIN Token**: ERC20 token (100M supply, 1:1 USDT peg)
 - **Project Escrow**: Secure payment holding with multi-sig approvals
@@ -46,7 +46,7 @@ FinERP is a decentralized Enterprise Resource Planning (ERP) system that leverag
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        FINERP SYSTEM                            │
+│                        FinPro SYSTEM                            │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  ┌──────────────────────────────────────────────────────────┐  │
@@ -88,7 +88,7 @@ FinERP is a decentralized Enterprise Resource Planning (ERP) system that leverag
 ### Directory Structure
 
 ```
-FINERP/
+FinPro/
 ├── contracts/                    # Solidity smart contracts
 │   ├── contracts/
 │   │   ├── FINToken.sol         # ERC20 token with roles
@@ -140,8 +140,8 @@ FINERP/
 
 ```bash
 # Clone the repository
-git clone https://github.com/Finteckinfo/FinERP.git
-cd FINERP
+git clone https://github.com/Finteckinfo/FinPro.git
+cd FinPro
 
 # Install root dependencies
 npm install
@@ -256,7 +256,7 @@ Choose one of these faucets:
 | Chainlink | https://faucets.chain.link/sepolia | 0.1 ETH |
 | Google Cloud | https://cloud.google.com/application/web3/faucet/ethereum/sepolia | 0.05 ETH/day |
 
-#### 4. Connect to FinERP
+#### 4. Connect to FinPro
 1. Open `http://localhost:5174` (or your deployed URL)
 2. Click "Get Started" or "Create a Project"
 3. Approve MetaMask connection popup
@@ -575,7 +575,7 @@ npx hardhat test
 REPORT_GAS=true npx hardhat test
 
 # Run specific test file
-npx hardhat test test/FinERP.test.ts
+npx hardhat test test/FinPro.test.ts
 
 # Generate coverage report
 npx hardhat coverage

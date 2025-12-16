@@ -4,31 +4,43 @@
 
 /* Removed conflicting Tailwind system */
 
-/* ===== ERP Dashboard exact palette (no theme tokens) ===== */
+/* ===== ERP Dashboard enhanced palette for maximum readability ===== */
 :root {
-  /* Light mode */
+  /* Light mode - enhanced contrast ratios for better WCAG compliance */
   --erp-header-bg: #ffffff;
   --erp-sidebar-bg: #ffffff;
-  --erp-page-bg: #f3f4f6;
-  --erp-surface: #f3f4f6;
+  --erp-page-bg: #f8fafc;
+  --erp-surface: #f8fafc;
   --erp-card-bg: #ffffff;
-  --erp-accent-green: #6ec207;
+  --erp-accent-green: #059669; /* Stronger accent green for better visibility */
   --erp-accent-indigo: #615fff;
-  --erp-text: #101828;
-  --erp-border: #e5e7eb; /* light border for separators */
+  --erp-text: #0f172a; /* Darker text colors for better contrast */
+  --erp-text-primary: #0f172a;
+  --erp-text-secondary: #334155; /* Improved secondary colors with better gray scales */
+  --erp-text-tertiary: #64748b;
+  --erp-text-muted: #94a3b8;
+  --erp-heading: #020617;
+  --erp-border: #cbd5e1; /* Enhanced border colors for subtle but clear separation */
+  --erp-hover-bg: #f8fafc;
 }
 
 .dark-theme {
-  /* Dark mode */
-  --erp-header-bg: #101828; /* topnav + page area */
-  --erp-sidebar-bg: #1e2939; /* sidenav + dropdowns */
-  --erp-page-bg: #101828;
-  --erp-surface: #1e2939;
-  --erp-card-bg: #101828;
-  --erp-accent-green: #6ec207;
+  /* Dark mode - enhanced contrast and readability */
+  --erp-header-bg: #1e293b; /* Enhanced card backgrounds for better separation */
+  --erp-sidebar-bg: #1e293b; /* sidenav + dropdowns */
+  --erp-page-bg: #0f172a; /* Better background contrast */
+  --erp-surface: #1e293b;
+  --erp-card-bg: #1e293b;
+  --erp-accent-green: #10b981; /* Improved accent colors for emerald green */
   --erp-accent-indigo: #615fff;
-  --erp-text: #ffffff;
-  --erp-border: #243041; /* subtle dark border */
+  --erp-text: #f8fafc; /* Enhanced text contrast */
+  --erp-text-primary: #f8fafc;
+  --erp-text-secondary: #cbd5e1;
+  --erp-text-tertiary: #94a3b8;
+  --erp-text-muted: #64748b;
+  --erp-heading: #ffffff;
+  --erp-border: #334155; /* Better border colors for clear boundaries */
+  --erp-hover-bg: #334155; /* Enhanced hover states with proper contrast */
 }
 
 /* Utilities for header/sidebar without using primary/secondary */

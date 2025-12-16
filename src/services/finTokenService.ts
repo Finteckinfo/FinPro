@@ -10,6 +10,10 @@ export interface FINTokenBalance {
   symbol: string;
   decimals: number;
   found: boolean;
+  // Additional properties for UI compatibility
+  formattedAmount: string; // Alias for formattedBalance
+  unitName: string; // Alias for symbol
+  assetId: string; // Contract address
 }
 
 /**
@@ -54,6 +58,10 @@ export async function getFINTokenBalance(
       symbol,
       decimals: Number(decimals),
       found: balance > 0n,
+      // Compatibility properties
+      formattedAmount: formattedBalance,
+      unitName: symbol,
+      assetId: tokenAddress,
     };
   } catch (error) {
     console.error('Failed to fetch FIN token balance:', error);
@@ -79,6 +87,10 @@ export function getRPCUrl(chainId: number): string {
       return import.meta.env.VITE_POLYGON_RPC_URL || '';
     case 11155111:
       return import.meta.env.VITE_SEPOLIA_RPC_URL || '';
+    case 42161:
+      return import.meta.env.VITE_ARBITRUM_RPC_URL || 'https://arb1.arbitrum.io/rpc';
+    case 10:
+      return import.meta.env.VITE_OPTIMISM_RPC_URL || 'https://mainnet.optimism.io';
     default:
       return '';
   }

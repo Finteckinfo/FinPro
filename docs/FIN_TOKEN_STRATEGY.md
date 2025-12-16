@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-For FinERP's FIN token launch, we recommend a multi-chain deployment strategy starting with Base (Coinbase L2), with future expansion to Arbitrum and Polygon. This approach maximizes gas efficiency, user accessibility, and long-term scalability.
+For FinPro's FIN token launch, we recommend a multi-chain deployment strategy starting with Base (Coinbase L2), with future expansion to Arbitrum and Polygon. This approach maximizes gas efficiency, user accessibility, and long-term scalability.
 
 ---
 
@@ -58,11 +58,11 @@ contract FINToken is
     uint256 public constant MAX_SUPPLY = 100_000_000 * 10**18;
     
     function initialize(address admin) public initializer {
-        __ERC20_init("FinERP Token", "FIN");
+        __ERC20_init("FinPro Token", "FIN");
         __ERC20Burnable_init();
         __ERC20Pausable_init();
         __AccessControl_init();
-        __ERC20Permit_init("FinERP Token");
+        __ERC20Permit_init("FinPro Token");
         __UUPSUpgradeable_init();
 
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
@@ -138,7 +138,7 @@ function batchTransfer(
 
 ### Phase 1: Testnet (Week 1-2)
 1. Deploy to Base Sepolia testnet
-2. Integrate with FinERP frontend
+2. Integrate with FinPro frontend
 3. Test escrow contract interactions
 4. Security audit with Slither/Mythril
 
@@ -200,7 +200,7 @@ function batchTransfer(
 
 ---
 
-## Implementation in FinERP
+## Implementation in FinPro
 
 ### Current Contract Location
 ```

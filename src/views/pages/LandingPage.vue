@@ -4,7 +4,7 @@
     <nav class="main-nav">
       <div class="nav-container">
         <div class="nav-logo">
-          <span class="logo-text">FINERP</span>
+          <span class="logo-text">FinPro</span>
         </div>
         <div class="nav-links">
           <a href="#features" @click.prevent="scrollToFeatures">Features</a>
@@ -24,27 +24,27 @@
     <!-- Hero Section -->
     <section class="hero-section">
       <div class="hero-container">
-        <h1 class="hero-title">FINERP</h1>
+        <h1 class="hero-title">FinPro</h1>
         <p class="hero-subtitle">
           Professional Web3 ERP system for remote teams with secure FIN token escrow payments 
           and blockchain-based project management.
         </p>
         <div class="hero-actions">
           <v-btn
-            size="large"
+            size="default"
             variant="flat"
             class="primary-button"
             @click="goToCreateProject"
           >
-            Create a Project
+            Create Project
           </v-btn>
           <v-btn
-            size="large"
+            size="default"
             variant="outlined"
             class="secondary-button"
             @click="goToJoinProject"
           >
-            Join a Project
+            Join Project
           </v-btn>
         </div>
       </div>
@@ -63,7 +63,7 @@
       <div class="footer-container">
         <div class="footer-content">
           <div class="footer-brand">
-            <span class="footer-logo-text">FINERP</span>
+            <span class="footer-logo-text">FinPro</span>
             <p class="footer-tagline">Professional Web3 Project Management</p>
           </div>
           <div class="footer-links">
@@ -74,7 +74,7 @@
         </div>
         <div class="footer-bottom">
           <p class="footer-copyright">
-            © {{ new Date().getFullYear() }} FINERP. All rights reserved.
+            © {{ new Date().getFullYear() }} FinPro. All rights reserved.
           </p>
         </div>
       </div>
@@ -222,34 +222,55 @@ const scrollToFeatures = () => {
 
 .hero-actions {
   display: flex;
-  gap: 1rem;
+  gap: 0.75rem;
   justify-content: center;
+  align-items: center;
   flex-wrap: wrap;
   position: relative;
   z-index: 20;
   pointer-events: auto;
+  max-width: 400px;
+  margin: 0 auto;
 }
 
 .primary-button,
 .secondary-button {
   text-transform: none !important;
   font-weight: 500 !important;
-  padding: 0.75rem 2rem !important;
-  border-radius: 6px !important;
+  padding: 0.625rem 1.25rem !important;
+  border-radius: 8px !important;
   pointer-events: auto !important;
   cursor: pointer !important;
   position: relative;
   z-index: 30;
+  font-size: 0.875rem !important;
+  min-width: 120px;
+  flex: 1;
+  max-width: 160px;
 }
 
 .primary-button {
-  background-color: var(--erp-text) !important;
-  color: var(--erp-card-bg) !important;
+  background-color: var(--erp-accent-green) !important;
+  color: white !important;
+  border: 2px solid var(--erp-accent-green) !important;
+}
+
+.primary-button:hover {
+  background-color: var(--erp-accent-green) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(5, 150, 105, 0.4);
 }
 
 .secondary-button {
-  border-color: var(--erp-border) !important;
+  border: 2px solid var(--erp-border) !important;
   color: var(--erp-text) !important;
+  background-color: var(--erp-card-bg) !important;
+}
+
+.secondary-button:hover {
+  border-color: var(--erp-accent-green) !important;
+  background-color: var(--erp-accent-light) !important;
+  transform: translateY(-2px);
 }
 
 /* Features Section */
@@ -363,13 +384,17 @@ const scrollToFeatures = () => {
   }
 
   .hero-actions {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    gap: 0.5rem;
+    max-width: 320px;
   }
 
   .primary-button,
   .secondary-button {
-    width: 100%;
+    flex: 1;
+    min-width: 120px;
+    padding: 0.5rem 1rem !important;
+    font-size: 0.8rem !important;
   }
 
   .section-title {
@@ -397,6 +422,19 @@ const scrollToFeatures = () => {
 
   .hero-subtitle {
     font-size: 1rem;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 280px;
+  }
+
+  .primary-button,
+  .secondary-button {
+    width: 100%;
+    max-width: none;
+    flex: none;
   }
 
   .section-title {

@@ -404,7 +404,7 @@ watch(selectedProject, (newProjectId) => {
 // Helper: wait for Clerk to be ready before making API calls
 const waitForAuthReady = async (timeoutMs = 8000) => {
   const start = Date.now()
-  // eslint-disable-next-line no-constant-condition
+   
   while (true) {
     const clerk = (window as any).Clerk
     if (clerk?.session && clerk?.user) return

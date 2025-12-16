@@ -86,7 +86,7 @@
           <div class="token-logo-container mb-3">
             <img 
               src="/images/banner3.png" 
-              alt="FinERP Logo" 
+              alt="FinPro Logo" 
               class="token-logo"
             />
           </div>
@@ -137,7 +137,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
 import { useMetaMaskWallet } from '@/composables/useMetaMaskWallet';
-import { getFINTokenBalance, type FINTokenBalance } from '@/services/finTokenService';
+import { getFINTokenBalance, getFINTokenAddress, getRPCUrl, type FINTokenBalance } from '@/services/finTokenService';
 
 // State
 const loading = ref(false);
@@ -149,6 +149,7 @@ const { user: walletUser, isConnected, chainId, provider } = useMetaMaskWallet()
 
 // Computed
 const walletAddress = computed(() => walletUser.value?.address || '');
+const isWalletConnected = computed(() => isConnected.value && !!walletAddress.value);
 
 const networkLabel = computed(() => {
   const chain = chainId.value;

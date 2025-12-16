@@ -1,6 +1,6 @@
-# FinERP Documentation
+# FinPro Documentation
 
-This folder contains **human-readable documentation** for the FinERP project (frontend + contracts).
+This folder contains **human-readable documentation** for the FinPro project (frontend + contracts).
 
 ## Start Here
 

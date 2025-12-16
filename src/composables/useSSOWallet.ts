@@ -91,15 +91,15 @@ export function useSSOWallet() {
   
   // Watch for SSO session changes
   if (hasComponentInstance) {
-    watch(() => sessionStorage.getItem('erp_user'), (newUser) => {
-      if (newUser && !activeAccount.value) {
-        logger.debug('[useSSOWallet] SSO session detected, attempting auto-connect');
-        connectWalletFromSSO();
-      } else if (!newUser && activeAccount.value) {
-        logger.debug('[useSSOWallet] SSO session cleared, disconnecting wallet');
+  watch(() => sessionStorage.getItem('erp_user'), (newUser) => {
+    if (newUser && !activeAccount.value) {
+      logger.debug('[useSSOWallet] SSO session detected, attempting auto-connect');
+      connectWalletFromSSO();
+    } else if (!newUser && activeAccount.value) {
+      logger.debug('[useSSOWallet] SSO session cleared, disconnecting wallet');
         removeManualWallet();
-      }
-    });
+    }
+  });
   }
   
   return {

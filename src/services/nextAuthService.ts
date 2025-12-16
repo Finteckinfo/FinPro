@@ -26,7 +26,7 @@ export class NextAuthService {
   private hasSession(): boolean {
     const sessionToken = getCookie('next-auth.session-token') ||
       getCookie('__Secure-next-auth.session-token') ||
-      getCookie('finerp_sso_token'); // Also check for SSO token
+      getCookie('FinPro_sso_token'); // Also check for SSO token
     return !!sessionToken;
   }
 
@@ -43,7 +43,7 @@ export class NextAuthService {
     // Get token from cookie (synchronous)
     const sessionToken = getCookie('next-auth.session-token') ||
       getCookie('__Secure-next-auth.session-token') ||
-      getCookie('finerp_sso_token');
+      getCookie('FinPro_sso_token');
 
     if (sessionToken) {
       this.tokenCache = sessionToken;
@@ -90,7 +90,7 @@ export class NextAuthService {
         // Get token from cookie
         const sessionToken = getCookie('next-auth.session-token') ||
           getCookie('__Secure-next-auth.session-token') ||
-          getCookie('finerp_sso_token');
+          getCookie('FinPro_sso_token');
 
         if (sessionToken) {
           // PERFORMANCE: Use token directly without backend validation
@@ -147,7 +147,7 @@ export class NextAuthService {
     // First, try to get NextAuth session token
     const sessionToken = getCookie('next-auth.session-token') ||
       getCookie('__Secure-next-auth.session-token') ||
-      getCookie('finerp_sso_token'); // Also check for SSO token
+      getCookie('FinPro_sso_token'); // Also check for SSO token
 
     if (sessionToken) {
       return {

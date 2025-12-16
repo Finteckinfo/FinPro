@@ -1,7 +1,7 @@
 # FIN Token Whitepaper (Draft)
 
 **Document status**: Draft (needs final numbers + legal review)  
-**Project**: FinERP  
+**Project**: FinPro  
 **Token**: FIN  
 **Last updated**: 2025-12-14  
 
@@ -11,11 +11,11 @@
 
 ## 1. Abstract
 
-FinERP is a Web3-native enterprise resource planning (ERP) platform that integrates **project management**, **escrow-based payments**, and **token-powered settlement** to enable secure, transparent coordination between employers, teams, and vendors.
+FinPro is a Web3-native enterprise resource planning (ERP) platform that integrates **project management**, **escrow-based payments**, and **token-powered settlement** to enable secure, transparent coordination between employers, teams, and vendors.
 
 The **FIN** token is a utility token designed to facilitate:
 
-- Settlement of work and invoices inside the FinERP ecosystem
+- Settlement of work and invoices inside the FinPro ecosystem
 - Escrow funding and milestone payments
 - Optional integration with a built-in DEX module for swaps/liquidity
 
@@ -32,9 +32,9 @@ Modern remote teams face recurring problems:
 
 ---
 
-## 3. Solution: FinERP
+## 3. Solution: FinPro
 
-FinERP combines:
+FinPro combines:
 
 - **Project workflows** (tasks, assignments, progress)
 - **Escrow smart contracts** that hold funds and release them based on workflow state
@@ -60,7 +60,7 @@ FinERP combines:
 
 ### 4.1 Utility
 
-FIN is intended to be used inside FinERP for:
+FIN is intended to be used inside FinPro for:
 
 - Funding project escrow balances
 - Paying workers, contractors, suppliers
@@ -71,7 +71,7 @@ FIN is intended to be used inside FinERP for:
 
 Some documentation refers to “1 FIN = 1 USDT”. A DEX pool + liquidity **does not guarantee a peg** by itself.
 
-If a stable value is required, FinERP should implement one of:
+If a stable value is required, FinPro should implement one of:
 
 - A managed treasury/market-making policy
 - A stablecoin-backed redemption mechanism
@@ -146,7 +146,7 @@ If enabled later, governance may cover:
 
 ### 8.1 Smart contracts
 
-FinERP includes:
+FinPro includes:
 
 - `FINToken` (upgradeable ERC-20)
 - `ProjectEscrow` (upgradeable escrow)

@@ -217,14 +217,14 @@ console.log('🔍 LoginPage redirecting to SSO, route:', route.path);
   margin-top: 2rem;
 }
 
-// Dark theme adjustments - only for our custom elements
+// Dark theme adjustments - enhanced contrast for better readability
 .dark-theme {
-  background: #101828 !important;
-  
+  background: #0f172a !important; /* Better background contrast */
+
   .banner-overlay {
     background: rgba(0, 0, 0, 0.7);
   }
-  
+
   .form-title {
     color: var(--v-theme-on-surface);
   }
@@ -232,18 +232,18 @@ console.log('🔍 LoginPage redirecting to SSO, route:', route.path);
 
 // Force the background color with higher specificity
 body .login-page.dark-theme {
-  background: #101828 !important;
+  background: #0f172a !important;
 }
 
 // Global dark theme background for the entire page
 html.dark-theme,
 body.dark-theme {
-  background: #101828 !important;
+  background: #0f172a !important;
 }
 
 // Ensure the login page container also has the dark background
 .login-page.dark-theme .login-container {
-  background: #101828 !important;
+  background: #0f172a !important;
 }
 
 // Responsive design

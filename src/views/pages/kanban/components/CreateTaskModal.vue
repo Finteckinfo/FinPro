@@ -405,7 +405,7 @@ const loadProjectDepartments = async (projectId: string) => {
     departmentOptions.value = [];
     return;
   }
-
+  
   // Supabase-only mode: no departments table; use a single "General" bucket.
   if (isSupabaseOnly) {
     departmentOptions.value = [{ title: 'General', value: 'general' }];

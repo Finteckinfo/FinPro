@@ -65,8 +65,8 @@
             <span class="balance-value">{{ formatBalance(ethBalance, 4) }}</span>
             <span class="balance-usd">≈ ${{ formatUSD(ethBalance, 2500) }}</span>
           </div>
+          </div>
         </div>
-      </div>
 
       <!-- Quick Actions -->
       <div class="quick-actions">
@@ -164,7 +164,7 @@ function formatBalance(value: string, decimals = 2) {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals 
   });
-}
+  }
 
 function formatUSD(value: string, rate = 1) {
   const num = parseFloat(value || '0') * rate;
@@ -462,7 +462,7 @@ onMounted(() => {
   .balances-section {
     gap: 10px;
   }
-
+  
   .balance-item {
     padding: 10px;
   }
@@ -480,7 +480,7 @@ onMounted(() => {
   .balance-value {
     font-size: 1rem;
   }
-
+  
   .balance-usd {
     font-size: 0.7rem;
   }
@@ -513,7 +513,7 @@ onMounted(() => {
   .account-row {
     padding: 10px;
   }
-
+  
   .balance-item {
     padding: 8px;
   }
@@ -525,7 +525,7 @@ onMounted(() => {
   .balance-usd {
     font-size: 0.65rem;
   }
-
+  
   .testnet-notice {
     font-size: 0.7rem;
     padding: 6px;

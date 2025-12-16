@@ -480,8 +480,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useWallet } from '@txnlab/use-wallet-vue';
-import algosdk from 'algosdk';
+import { useEVMWallet } from '@/composables/useEVMWallet';
 import { RetroGrid } from '@/components/ui/retro-grid';
 import {
   getEscrowBalance,
@@ -497,7 +496,7 @@ import { projectApi } from '@/services/projectApi';
 // Router & Wallet
 const router = useRouter();
 const route = useRoute();
-const { activeAccount, signTransactions } = useWallet();
+const { user: walletUser, isConnected, provider, signer } = useEVMWallet();
 
 // Props
 const projectId = computed(() => route.params.id as string);
@@ -533,8 +532,8 @@ const lastDepositAmount = ref(0);
 const lastTxHash = ref('');
 
 // Computed
-const isWalletConnected = computed(() => !!activeAccount.value);
-const connectedWalletAddress = computed(() => activeAccount.value?.address || '');
+const isWalletConnected = computed(() => !!walletUser.value?.address);
+const connectedWalletAddress = computed(() => walletUser.value?.address || '');
 const projectName = computed(() => projectData.value?.name || 'Project');
 
 const recommendedFunding = computed(() => fundingNeeded.value?.recommended || 0);
@@ -597,7 +596,7 @@ const loadEscrowData = async () => {
 
 // Send FIN from connected wallet
 const sendFromWallet = async () => {
-  if (!activeAccount.value || sendAmount.value <= 0) {
+  if (!walletUser.value?.address || sendAmount.value <= 0) {
     alert('Please connect wallet and enter amount');
     return;
   }
@@ -605,49 +604,37 @@ const sendFromWallet = async () => {
   try {
     sending.value = true;
 
-    // Get Algorand client
-    const network = localStorage.getItem('algorand_network') || 'testnet';
-    const nodeUrl = network === 'mainnet'
-      ? 'https://mainnet-api.algonode.cloud'
-      : 'https://testnet-api.algonode.cloud';
+    if (!walletUser.value?.address || !signer.value) {
+      throw new Error('Wallet not connected');
+    }
 
-    const algodClient = new algosdk.Algodv2('', nodeUrl, '');
-    const params = await algodClient.getTransactionParams().do();
+    // Get escrow address
+    const escrowAddress = escrowData.value.escrowAddress;
+    if (!escrowAddress) {
+      throw new Error('Escrow address not found');
+    }
 
-    // Create token transfer transaction
-    const txn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-      sender: activeAccount.value.address,
-      receiver: escrowData.value.escrowAddress,
-      assetIndex: FIN_TOKEN_CONFIG.ASSET_ID,
-      amount: finToBaseUnits(sendAmount.value),
-      note: new TextEncoder().encode(`Funding project ${projectId.value}`),
-      suggestedParams: params
+    // Convert amount to base units
+    const amountInBaseUnits = finToBaseUnits(sendAmount.value);
+
+    // Create and send EVM transaction
+    const tx = await signer.value.sendTransaction({
+      to: escrowAddress,
+      value: amountInBaseUnits,
+      data: `0x${Buffer.from(`Funding project ${projectId.value}`).toString('hex')}`
     });
 
-    // Sign transaction with user's wallet
-    const encodedTxn = algosdk.encodeUnsignedTransaction(txn);
-    const signedTxns = await signTransactions([encodedTxn]);
-
-    // Submit to blockchain
-    if (!signedTxns || !signedTxns[0]) {
-      throw new Error('Failed to sign transaction');
-    }
-    
-    const response = await algodClient.sendRawTransaction(signedTxns[0]).do();
-    const txId = response.txid;
-    console.log('Transaction submitted:', txId);
-
-    // Wait for confirmation (4 rounds)
-    await algosdk.waitForConfirmation(algodClient, txId, 4);
-    console.log('Transaction confirmed:', txId);
+    console.log('Transaction submitted:', tx.hash);
+    const receipt = await tx.wait();
+    console.log('Transaction confirmed:', tx.hash);
 
     // Confirm with backend
-    const result = await depositToEscrow(projectId.value, txId, sendAmount.value);
+    const result = await depositToEscrow(projectId.value, tx.hash, sendAmount.value);
 
     if (result.verified) {
       // Success!
       lastDepositAmount.value = result.amount;
-      lastTxHash.value = txId;
+      lastTxHash.value = tx.hash;
       showSuccess.value = true;
 
       // Reload balance

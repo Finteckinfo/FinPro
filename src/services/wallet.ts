@@ -2,10 +2,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ref } from 'vue';
 
+// Define WalletId type for compatibility
+export type WalletId = string;
+
 // Try imports but don't crash at build-time if package API differs.
 // Use dynamic require / import via try-catch.
 let TxnLabWalletManager: any = null;
-let WalletId: any = null;
+let WalletIdEnum: any = null;
 let PeraWalletConnect: any = null;
 
 try {
@@ -16,10 +19,16 @@ try {
   // @ts-ignore
   const t = require('@txnlab/use-wallet-vue');
   TxnLabWalletManager = t?.WalletManager ?? t?.default ?? null;
-  WalletId = t?.WalletId ?? null;
+  WalletIdEnum = t?.WalletId ?? null;
 } catch (e) {
   // not present or different API — ignore
 }
+
+// Export WalletId for backward compatibility
+export const WalletId = WalletIdEnum || {
+  PERA: 'pera',
+  WALLETCONNECT: 'walletconnect',
+};
 
 try {
   // Pera Wallet
@@ -38,7 +47,7 @@ async function initTxnLab() {
   if (!TxnLabWalletManager) return null;
   try {
     managerInstance = new TxnLabWalletManager({
-      wallets: WalletId ? [WalletId.PERA, WalletId.WALLETCONNECT] : [],
+      wallets: WalletIdEnum ? [WalletIdEnum.PERA, WalletIdEnum.WALLETCONNECT] : [],
       defaultNetwork: 'testnet',
       options: { debug: false },
     });

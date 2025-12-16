@@ -1,11 +1,11 @@
-# FinERP - Production-Grade EVM ERP System
+# FinPro - Production-Grade EVM ERP System
 
-FinERP is a secure, blockchain-based Enterprise Resource Planning system built on EVM-compatible networks. It combines smart contract-powered escrow payments, integrated DEX functionality, and gasless transactions into a professional Web3 ERP experience.
+FinPro is a secure, blockchain-based Enterprise Resource Planning system built on EVM-compatible networks. It combines smart contract-powered escrow payments, integrated DEX functionality, and gasless transactions into a professional Web3 ERP experience.
 
 ## Architecture Overview
 
 ```
-FinERP/
+FinPro/
 ├── contracts/           # Solidity smart contracts
 │   ├── FINToken.sol
 │   ├── ProjectEscrow.sol
@@ -56,8 +56,8 @@ FinERP/
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/Finteckinfo/FinERP.git
-cd FinERP
+git clone https://github.com/Finteckinfo/FinPro.git
+cd FinPro
 ```
 
 ### 2. Smart Contracts Setup
@@ -171,9 +171,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/Finteckinfo/FinERP/issues)
-- **Documentation**: [Wiki](https://github.com/Finteckinfo/FinERP/wiki)
-- **Discussions**: [GitHub Discussions](https://github.com/Finteckinfo/FinERP/discussions)
+- **Issues**: [GitHub Issues](https://github.com/Finteckinfo/FinPro/issues)
+- **Documentation**: [Wiki](https://github.com/Finteckinfo/FinPro/wiki)
+- **Discussions**: [GitHub Discussions](https://github.com/Finteckinfo/FinPro/discussions)
 
 ## Acknowledgments
 
@@ -186,4 +186,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Authored by Llakterian**
 
-**FinERP** - Transforming remote work with blockchain-powered trust and transparency.
+**FinPro** - Transforming remote work with blockchain-powered trust and transparency.

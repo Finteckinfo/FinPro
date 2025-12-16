@@ -133,7 +133,9 @@
               </div>
 
               <v-alert type="info" variant="tonal" density="compact" class="mt-3">
-                <v-icon slot="prepend" size="20">mdi-information</v-icon>
+                <template v-slot:prepend>
+<v-icon  size="20">mdi-information</v-icon>
+</template>
                 <span class="text-caption">
                   Payments in FIN tokens are held in secure escrow and released automatically when work is approved
                 </span>

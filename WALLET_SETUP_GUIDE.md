@@ -1,6 +1,6 @@
-# MetaMask & Wallet Setup Guide for FinERP
+# MetaMask & Wallet Setup Guide for FinPro
 
-Complete step-by-step guide to set up MetaMask and connect to FinERP.
+Complete step-by-step guide to set up MetaMask and connect to FinPro.
 
 ---
 
@@ -10,7 +10,7 @@ Complete step-by-step guide to set up MetaMask and connect to FinERP.
 2. [Create or Import Wallet](#step-2-create-or-import-wallet)
 3. [Connect to Sepolia Testnet](#step-3-connect-to-sepolia-testnet)
 4. [Get Test ETH from Faucet](#step-4-get-test-eth-from-faucet)
-5. [Connect Wallet to FinERP](#step-5-connect-wallet-to-finerp)
+5. [Connect Wallet to FinPro](#step-5-connect-wallet-to-FinPro)
 6. [Add FIN Token to MetaMask](#step-6-add-fin-token-to-metamask)
 7. [Troubleshooting](#troubleshooting)
 
@@ -163,7 +163,7 @@ You need test ETH to pay for transaction fees (gas). Here are working faucets:
 
 ---
 
-## Step 5: Connect Wallet to FinERP
+## Step 5: Connect Wallet to FinPro
 
 ### Prerequisites:
 - ✅ MetaMask installed
@@ -172,9 +172,9 @@ You need test ETH to pay for transaction fees (gas). Here are working faucets:
 
 ### Connection Steps:
 
-1. **Start FinERP Application:**
+1. **Start FinPro Application:**
    ```bash
-   cd /home/c0bw3b/FINERP
+   cd /home/c0bw3b/FinPro
    npm run dev
    ```
 
@@ -197,7 +197,7 @@ You need test ETH to pay for transaction fees (gas). Here are working faucets:
 
 1. Click MetaMask icon in toolbar
 2. Look for pending connection request
-3. If none, refresh the FinERP page and try again
+3. If none, refresh the FinPro page and try again
 
 ---
 
@@ -207,7 +207,7 @@ To see your FIN token balance in MetaMask:
 
 ### Method 1: Auto-Add (If Deployed)
 
-1. Go to FinERP Dashboard
+1. Go to FinPro Dashboard
 2. Click on FIN balance widget
 3. Click **"Add FIN to MetaMask"** (if available)
 4. Approve in MetaMask popup
@@ -272,7 +272,7 @@ After smart contracts are deployed, you can:
 - Some faucets have 24-hour limits
 - Verify address is correct
 
-### MetaMask Not Detected by FinERP
+### MetaMask Not Detected by FinPro
 
 **Problem:** App says "MetaMask not detected"
 **Solutions:**
@@ -301,7 +301,7 @@ After smart contracts are deployed, you can:
 1. Click MetaMask icon
 2. Click network dropdown
 3. Select "Sepolia"
-4. Refresh FinERP page
+4. Refresh FinPro page
 
 ---
 

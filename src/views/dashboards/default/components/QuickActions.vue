@@ -7,9 +7,9 @@ import { useTheme } from '@/composables/useTheme';
 const router = useRouter();
 const { isDark } = useTheme();
 
-const headerColor = computed(() => (isDark.value ? '#ffffff' : '#101828'));
-const subHeaderColor = computed(() => (isDark.value ? 'rgba(255,255,255,0.85)' : 'rgba(16,24,40,0.8)'));
-const iconColor = computed(() => (isDark.value ? '#ffffff' : '#101828'));
+const headerColor = computed(() => (isDark.value ? '#ffffff' : '#0f172a'));
+const subHeaderColor = computed(() => (isDark.value ? 'rgba(248,250,252,0.85)' : 'rgba(15,23,42,0.8)'));
+const iconColor = computed(() => (isDark.value ? '#f8fafc' : '#0f172a'));
 const iconAvatarStyle = computed(() =>
   isDark.value
     ? { background: 'transparent', border: '1px solid rgba(255,255,255,0.35)' }

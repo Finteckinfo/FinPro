@@ -2,7 +2,7 @@ import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router';
 import { getCookie } from '@/utils/cookies';
 
 /**
- * Authentication Guard for FinERP
+ * Authentication Guard for FinPro
  * 
  * PERFORMANCE OPTIMIZED:
  * - Uses synchronous cookie/storage checks (no network calls)
@@ -15,7 +15,7 @@ function hasValidSession(): boolean {
   // Check cookies first (fastest)
   const sessionToken = getCookie('next-auth.session-token') ||
     getCookie('__Secure-next-auth.session-token') ||
-    getCookie('finerp_sso_token');
+    getCookie('FinPro_sso_token');
   
   if (sessionToken) return true;
   
@@ -36,7 +36,7 @@ function hasValidSession(): boolean {
   
   // Check localStorage cache
   try {
-    const cached = localStorage.getItem('finerp_session_cache');
+    const cached = localStorage.getItem('FinPro_session_cache');
     if (cached) {
       const parsed = JSON.parse(cached);
       const cacheAge = Date.now() - (parsed.timestamp || 0);

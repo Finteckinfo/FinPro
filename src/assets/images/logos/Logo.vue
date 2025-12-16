@@ -5,7 +5,7 @@
     aria-label="Logo">
     <img 
       src="/images/banner3.png" 
-      alt="FinERP Logo" 
+      alt="FinPro Logo" 
       class="logo-image"
       width="50" 
       height="50" 

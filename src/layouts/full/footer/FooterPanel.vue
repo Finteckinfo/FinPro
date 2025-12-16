@@ -18,7 +18,7 @@
     <v-row justify="center" align="center" no-gutters style="width: 100%">
       <v-col cols="12" class="text-center">
         <p class="text-body-1 mb-0">
-          FinERP Beta Version
+          Beta Version
         </p>
       </v-col>
     </v-row>

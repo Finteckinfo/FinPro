@@ -118,16 +118,16 @@
     <!-- Add Task Footer -->
     <div v-if="!collapsed && userPermissions.canCreateTasks" class="column-footer">
       <div v-if="!isAddingCard" class="add-card-cta">
-        <v-btn
-          variant="text"
-          block
-          class="justify-start text-none px-2"
-          color="medium-emphasis"
+      <v-btn
+        variant="text"
+        block
+        class="justify-start text-none px-2"
+        color="medium-emphasis"
           @click="openAddCard"
-        >
-          <v-icon start size="small">mdi-plus</v-icon>
-          Add a card
-        </v-btn>
+      >
+        <v-icon start size="small">mdi-plus</v-icon>
+        Add a card
+      </v-btn>
       </div>
 
       <!-- Inline card composer -->

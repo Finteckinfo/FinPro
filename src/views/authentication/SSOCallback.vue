@@ -20,13 +20,13 @@ onMounted(async () => {
     
     // If no token in URL, check cookie
     if (!ssoToken) {
-      const cookieMatch = document.cookie.match(/(?:^|;\s*)finerp_sso_token=([^;]+)/);
+      const cookieMatch = document.cookie.match(/(?:^|;\s*)FinPro_sso_token=([^;]+)/);
       if (cookieMatch) {
         ssoToken = cookieMatch[1];
         console.log('[SSO Callback] SSO token found in cookie');
         // Clear the cookie immediately after reading
         const cookieDomain = import.meta.env.VITE_COOKIE_DOMAIN || window.location.hostname;
-        document.cookie = `finerp_sso_token=; Domain=${cookieDomain}; Path=/; Max-Age=0`;
+        document.cookie = `FinPro_sso_token=; Domain=${cookieDomain}; Path=/; Max-Age=0`;
       }
     } else {
       console.log('[SSO Callback] SSO token found in URL');

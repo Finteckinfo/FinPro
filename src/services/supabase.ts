@@ -18,7 +18,7 @@ if (isSupabaseOnly) {
   console.warn('Supabase environment variables not set. Database features will be disabled.');
 }
 
-export { supabase, isSupabaseOnly };
+export { supabase, isSupabaseOnly, isSupabaseOnly as isSupabaseConfigured };
 
 // Database helper functions
 export const db = {

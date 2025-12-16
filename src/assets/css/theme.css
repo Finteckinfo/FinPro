@@ -5,66 +5,66 @@
   font-family: 'Poppins', sans-serif;
 }
 
-/* Light Mode (Default) - using non-conflicting variable names */
+/* Light Mode (Default) - enhanced contrast and readability */
 :root {
   --theme-page-bg: #ffffff;
-  --theme-text-color: #1a202c;
-  --theme-text-primary: #1a202c;
-  --theme-text-secondary: #4a5568;
-  --theme-text-tertiary: #6b7280;
-  --theme-text-muted: #9ca3af;
+  --theme-text-color: #0f172a;
+  --theme-text-primary: #0f172a;
+  --theme-text-secondary: #334155;
+  --theme-text-tertiary: #64748b;
+  --theme-text-muted: #94a3b8;
   --theme-card-bg: #ffffff;
   --theme-border-color: #e2e8f0;
   --theme-primary-color: #5BC85B;
   --theme-secondary-color: #02124C;
-  --theme-accent-green: #5BC85B;
-  
-  /* ERP-specific variables for consistent theming */
-  --erp-text: #1a202c;
-  --erp-text-primary: #1a202c;
-  --erp-text-secondary: #4a5568;
-  --erp-text-tertiary: #6b7280;
-  --erp-text-muted: #9ca3af;
-  --erp-heading: #0f172a;
+  --theme-accent-green: #059669;
+
+  /* ERP-specific variables for consistent theming - enhanced contrast */
+  --erp-text: #0f172a;
+  --erp-text-primary: #0f172a;
+  --erp-text-secondary: #334155;
+  --erp-text-tertiary: #64748b;
+  --erp-text-muted: #94a3b8;
+  --erp-heading: #020617;
   --erp-card-bg: #ffffff;
-  --erp-border: #e2e8f0;
-  --erp-accent-green: #006400;
-  --erp-hover-bg: #f7fafc;
-  --erp-accent-light: rgba(91, 200, 91, 0.1);
+  --erp-border: #cbd5e1;
+  --erp-accent-green: #059669;
+  --erp-hover-bg: #f8fafc;
+  --erp-accent-light: rgba(5, 150, 105, 0.1);
   --erp-page-bg: #ffffff;
   --erp-surface: #f8fafc;
   --erp-header-bg: #ffffff;
 }
 
-/* Dark Mode - using non-conflicting variable names */
+/* Dark Mode - enhanced contrast and readability */
 .dark-theme {
-  --theme-page-bg: #101828;
+  --theme-page-bg: #0f172a;
   --theme-text-color: #f8fafc;
   --theme-text-primary: #f8fafc;
   --theme-text-secondary: #cbd5e1;
   --theme-text-tertiary: #94a3b8;
   --theme-text-muted: #64748b;
-  --theme-card-bg: #1a2332;
-  --theme-border-color: #2d3748;
+  --theme-card-bg: #1e293b;
+  --theme-border-color: #334155;
   --theme-primary-color: #5BC85B;
   --theme-secondary-color: #010d2e;
-  --theme-accent-green: #5BC85B;
-  
-  /* ERP-specific variables for dark mode */
+  --theme-accent-green: #10b981;
+
+  /* ERP-specific variables for dark mode - enhanced contrast */
   --erp-text: #f8fafc;
   --erp-text-primary: #f8fafc;
   --erp-text-secondary: #cbd5e1;
   --erp-text-tertiary: #94a3b8;
   --erp-text-muted: #64748b;
   --erp-heading: #ffffff;
-  --erp-card-bg: #1a2332;
-  --erp-border: #2d3748;
-  --erp-accent-green: #90EE90;
-  --erp-hover-bg: #1e293b;
-  --erp-accent-light: rgba(91, 200, 91, 0.15);
-  --erp-page-bg: #101828;
+  --erp-card-bg: #1e293b;
+  --erp-border: #334155;
+  --erp-accent-green: #10b981;
+  --erp-hover-bg: #334155;
+  --erp-accent-light: rgba(16, 185, 129, 0.15);
+  --erp-page-bg: #0f172a;
   --erp-surface: #1e293b;
-  --erp-header-bg: #1a2332;
+  --erp-header-bg: #1e293b;
 }
 
 /* Apply theme to body and html */
@@ -118,7 +118,7 @@ body.dark-theme {
 
 /* CRITICAL: Force banner image to always be visible in dark mode */
 .dark-theme .banner-box {
-  background-image: url('/images/finerp-logo.svg') !important;
+  background-image: url('/images/FinPro-logo.svg') !important;
   background-size: cover !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
@@ -242,7 +242,7 @@ body.dark-theme {
 
 /* Ensure the banner image is always visible */
 .banner-box {
-  background-image: url('/images/finerp-logo.svg') !important;
+  background-image: url('/images/FinPro-logo.svg') !important;
   background-size: cover !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
@@ -255,16 +255,59 @@ body.dark-theme {
 .banner-box,
 .dark-theme .banner-box,
 .light-theme .banner-box {
-  background-image: url('/images/finerp-logo.svg') !important;
+  background-image: url('/images/FinPro-logo.svg') !important;
   background-size: cover !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
   background-color: transparent !important;
 }
 
-/* Theme toggle button styling */
+/* Enhanced theme toggle button styling */
 .theme-toggle-container {
   z-index: 1000;
+}
+
+/* Accessible focus states for all interactive elements */
+button:focus-visible,
+.v-btn:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--erp-accent-green) !important;
+  outline-offset: 2px !important;
+  border-radius: 4px !important;
+}
+
+/* Enhanced input focus states */
+.v-field--focused .v-field__outline {
+  color: var(--erp-accent-green) !important;
+  border-width: 2px !important;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --erp-text: #000000;
+    --erp-border: #000000;
+    --erp-accent-green: #059669;
+  }
+
+  .dark-theme {
+    --erp-text: #ffffff;
+    --erp-border: #ffffff;
+    --erp-accent-green: #00ff00;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* Tailwind-like utilities for theme toggle */
@@ -278,42 +321,66 @@ body.dark-theme {
 .ml-2 { margin-left: 0.5rem; }
 .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
 .border-4 { border-width: 4px; }
-.border-gray-700 { border-color: #374151; }
-.border-gray-600 { border-color: #4B5563; }
-.border-gray-200 { border-color: #E5E7EB; }
-.text-gray-200 { color: #E5E7EB; }
-.text-gray-700 { color: #374151; }
-.hover\:bg-gray-700:hover { background-color: #374151; }
-.hover\:bg-gray-100:hover { background-color: #F3F4F6; }
-.dark\:border-gray-600.dark { border-color: #4B5563; }
-.dark\:text-gray-200.dark { color: #E5E7EB; }
+.border-gray-700 { border-color: var(--erp-border); }
+.border-gray-600 { border-color: var(--erp-border); }
+.border-gray-200 { border-color: var(--erp-border); }
+.text-gray-200 { color: var(--erp-text-secondary); }
+.text-gray-700 { color: var(--erp-text-primary); }
+.hover\:bg-gray-700:hover { background-color: var(--erp-hover-bg); }
+.hover\:bg-gray-100:hover { background-color: var(--erp-hover-bg); }
+.dark\:border-gray-600.dark { border-color: var(--erp-border); }
+.dark\:text-gray-200.dark { color: var(--erp-text-secondary); }
 
-/* Global text color rules for readability */
+/* Enhanced Global text color rules for maximum readability */
 body,
 html {
   color: var(--erp-text) !important;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Headings use primary text color */
+/* Headings use primary text color with enhanced contrast */
 h1, h2, h3, h4, h5, h6 {
   color: var(--erp-heading) !important;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.025em;
 }
 
-/* Paragraphs and general text */
+/* Paragraphs and general text with improved readability */
 p {
   color: var(--erp-text-primary) !important;
+  margin-bottom: 1rem;
 }
 
-/* Labels and small text */
+/* Labels and small text with better contrast */
 label,
 small {
   color: var(--erp-text-secondary) !important;
+  font-weight: 500;
 }
 
-/* Muted text */
+/* Muted text with subtle but visible styling */
 .text-muted,
 .muted {
   color: var(--erp-text-muted) !important;
+  opacity: 0.8;
+}
+
+/* Enhanced link styling for better visibility */
+a {
+  color: var(--erp-accent-green) !important;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+a:hover {
+  color: var(--erp-accent-green) !important;
+  opacity: 0.8;
+  text-decoration: underline;
 }
 
 /* Card text */
@@ -531,17 +598,95 @@ div {
   border: 1px solid var(--erp-border) !important;
 }
 
-/* Buttons with proper contrast */
+/* Enhanced buttons with proper contrast and accessibility */
 .v-btn {
   color: var(--erp-text-primary) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.025em !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.v-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.v-btn:hover::before {
+  left: 100%;
+}
+
+.v-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
 .v-btn--variant-outlined {
   border-color: var(--erp-border) !important;
+  border-width: 2px !important;
+  background-color: var(--erp-card-bg) !important;
+}
+
+.v-btn--variant-outlined:hover {
+  border-color: var(--erp-accent-green) !important;
+  background-color: var(--erp-accent-light) !important;
 }
 
 .v-btn--variant-text {
   color: var(--erp-accent-green) !important;
+  background-color: transparent !important;
+}
+
+.v-btn--variant-text:hover {
+  background-color: var(--erp-accent-light) !important;
+}
+
+.v-btn--variant-flat {
+  background-color: var(--erp-accent-green) !important;
+  color: white !important;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3) !important;
+}
+
+.v-btn--variant-flat:hover {
+  background-color: var(--erp-accent-green) !important;
+  box-shadow: 0 4px 16px rgba(5, 150, 105, 0.4) !important;
+  transform: translateY(-2px);
+}
+
+/* Button size variants for better responsiveness */
+.v-btn--size-small {
+  padding: 0.5rem 1rem !important;
+  font-size: 0.875rem !important;
+}
+
+.v-btn--size-default {
+  padding: 0.75rem 1.5rem !important;
+  font-size: 0.875rem !important;
+}
+
+.v-btn--size-large {
+  padding: 1rem 2rem !important;
+  font-size: 1rem !important;
+}
+
+/* Disabled button states */
+.v-btn--disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+.v-btn--disabled:hover {
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 /* Chips and tags */

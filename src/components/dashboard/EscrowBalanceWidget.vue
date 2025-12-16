@@ -110,7 +110,9 @@
           density="compact"
           class="mt-4"
         >
-          <v-icon slot="prepend" size="20">mdi-alert</v-icon>
+          <template v-slot:prepend>
+<v-icon  size="20">mdi-alert</v-icon>
+</template>
           <span class="text-caption">
             Low available balance. Consider adding more funds to cover upcoming payments.
           </span>

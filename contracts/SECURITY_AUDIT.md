@@ -1,4 +1,4 @@
-# FinERP Smart Contracts Security Audit
+# FinPro Smart Contracts Security Audit
 
 ## Audit Date
 2025-01-XX

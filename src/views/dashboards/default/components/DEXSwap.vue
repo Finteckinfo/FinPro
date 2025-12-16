@@ -109,8 +109,8 @@ const { user, isConnected, connect } = useMetaMaskWallet();
 const tokens = {
   FIN: {
     symbol: 'FIN',
-    name: 'FinERP Token',
-    icon: '/images/finerp-logo.png',
+    name: 'FinPro Token',
+    icon: '/images/FinPro-logo.png',
     decimals: 18
   },
   USDT: {

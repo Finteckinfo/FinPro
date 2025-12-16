@@ -8,6 +8,7 @@ import { isWalletModalOpen as storeWalletModalOpen } from '@/stores/walletStore'
 import { useNextAuth } from '@/composables/useNextAuth';
 import { useRouter } from 'vue-router';
 import { useTheme } from '@/composables/useTheme';
+import type { WalletId } from '@/services/wallet';
 
 // Router
 const router = useRouter();
@@ -55,6 +56,24 @@ onMounted(() => {
 
 // Manual wallet input
 const manualWallet = ref<{ address: string }>({ address: '' });
+
+// Wallets ref for compatibility
+const wallets = ref([
+  {
+    id: 'metamask',
+    name: 'MetaMask',
+    metadata: { name: 'MetaMask', icon: '/wallets/metamask.png' },
+    connect: async () => console.log('MetaMask connect stub'),
+    disconnect: async () => console.log('MetaMask disconnect stub'),
+  },
+  {
+    id: 'walletconnect',
+    name: 'WalletConnect',
+    metadata: { name: 'WalletConnect', icon: '/wallets/walletconnect.png' },
+    connect: async () => console.log('WalletConnect connect stub'),
+    disconnect: async () => console.log('WalletConnect disconnect stub'),
+  },
+]);
 
 // Theme-aware styling helpers
 const { isDark } = useTheme();
@@ -299,16 +318,12 @@ async function connectManualWallet() {
 
 // Handle disconnect
 async function handleDisconnect() {
-  if (activeWallet.value) {
-    try {
-      await activeWallet.value.disconnect();
-      console.log('[ConnectWallet] Wallet disconnected via hook');
-    } catch (err) {
-      console.error('[ConnectWallet] Error disconnecting via hook:', err);
-      // Fallback to manual removal
-      removeManualWallet();
-    }
-  } else {
+  try {
+    await disconnectWallet();
+    console.log('[ConnectWallet] Wallet disconnected via hook');
+  } catch (err) {
+    console.error('[ConnectWallet] Error disconnecting via hook:', err);
+    // Fallback to manual removal
     removeManualWallet();
   }
   // The watcher will dispatch 'wallet-disconnected' event automatically
@@ -549,7 +564,7 @@ const shortenAddress = (address: string) => {
   <v-dialog v-model="showCreateWallet" max-width="500" z-index="2001">
     <v-card class="rounded-xl">
       <v-card-title class="headline text-center">
-        🎉 Create Your FinERP Wallet
+        🎉 Create Your FinPro Wallet
       </v-card-title>
       <v-card-text>
         <p class="text-body-1 text-center text-medium-emphasis mb-4">

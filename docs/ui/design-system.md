@@ -1,6 +1,6 @@
-# FinERP UI Design System (Baseline)
+# FinPro UI Design System (Baseline)
 
-This document defines the **baseline design rules** for FinERP so the UI stays modern, sleek, responsive, and readable in **both light and dark** themes.
+This document defines the **baseline design rules** for FinPro so the UI stays modern, sleek, responsive, and readable in **both light and dark** themes.
 
 ## Design principles
 
@@ -11,7 +11,7 @@ This document defines the **baseline design rules** for FinERP so the UI stays m
 
 ## Theme architecture
 
-FinERP uses CSS variables defined in `src/index.css` (e.g. `--erp-page-bg`, `--erp-text`, `--erp-border`) and toggles them by adding/removing the `.dark-theme` class.
+FinPro uses CSS variables defined in `src/index.css` (e.g. `--erp-page-bg`, `--erp-text`, `--erp-border`) and toggles them by adding/removing the `.dark-theme` class.
 
 ### Rules
 
