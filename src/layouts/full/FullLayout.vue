@@ -92,8 +92,22 @@ const customizer = useCustomizerStore();
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .page-content-card {
-    margin: 16px;
-    padding: 16px;
+    margin: 8px;
+    padding: 12px;
+    border-radius: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-content-card {
+    margin: 4px; /* Minimal margin on very small screens */
+    padding: 8px;
+  }
+  
+  /* Ensure no double padding from page-wrapper */
+  .v-container {
+    padding-left: 4px !important;
+    padding-right: 4px !important;
   }
 }
 </style>
