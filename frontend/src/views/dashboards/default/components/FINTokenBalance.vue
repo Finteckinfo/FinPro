@@ -110,7 +110,7 @@
 </template>
 
 <script setup lang="ts">
-import FinProLogo from '@/assets/images/FinPro-logo.svg';
+import FinProLogo from '@/assets/images/finerp-logo.svg';
 import { ref, computed, watch, onMounted } from 'vue';
 import { useMetaMaskWallet } from '@/composables/useMetaMaskWallet';
 
