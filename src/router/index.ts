@@ -18,7 +18,7 @@ function hasWalletConnection(): boolean {
 // Handle GitHub Pages SPA routing
 // https://github.com/rafgraph/spa-github-pages
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory('/FinERP/'), // Explicitly set base path for GitHub Pages
   routes: [
     { path: '/:pathMatch(.*)*', component: () => import('@/views/pages/maintenance/error/Error404Page.vue') },
     { path: '/sso-callback', component: () => import('@/views/authentication/SSOCallback.vue') },
@@ -36,7 +36,7 @@ if (typeof window !== 'undefined') {
 
   if (l.search.startsWith('?/')) {
     const path = l.search.slice(2).replace(/~and~/g, '&');
-    window.history.replaceState(null, '', l.pathname.slice(0, -1) + path + l.hash);
+    window.history.replaceState(null, '', '/FinERP/' + path + l.hash);
   }
 }
 
