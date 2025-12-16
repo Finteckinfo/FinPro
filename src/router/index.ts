@@ -15,7 +15,9 @@ function hasWalletConnection(): boolean {
   return isConnected.value && !!user.value?.address;
 }
 
-export const router = createRouter({
+// Handle GitHub Pages SPA routing
+// https://github.com/rafgraph/spa-github-pages
+const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/:pathMatch(.*)*', component: () => import('@/views/pages/maintenance/error/Error404Page.vue') },
@@ -25,6 +27,20 @@ export const router = createRouter({
     PublicRoutes
   ]
 });
+
+// Handle GitHub Pages SPA routing redirect
+if (typeof window !== 'undefined') {
+  // Check if we're on GitHub Pages and have a redirect query parameter
+  const l = window.location;
+  const pathSegmentsToKeep = 1; // For /FinERP/ repository
+
+  if (l.search.startsWith('?/')) {
+    const path = l.search.slice(2).replace(/~and~/g, '&');
+    window.history.replaceState(null, '', l.pathname.slice(0, -1) + path + l.hash);
+  }
+}
+
+export { router };
 
 router.beforeEach(async (to, from, next) => {
   // Skip loading page to avoid infinite loop
