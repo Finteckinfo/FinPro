@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useCustomizerStore } from '../../../stores/customizer';
-import { useNextAuth } from '@/composables/useNextAuth';
+import { useEVMWallet } from '@/composables/useEVMWallet';
+import { UserIcon } from 'vue-tabler-icons';
+
 // Icon Imports
 import { BellIcon, SettingsIcon, SearchIcon, Menu2Icon } from 'vue-tabler-icons';
 
@@ -12,26 +14,20 @@ import Searchbar from './SearchBarPanel.vue';
 import ThemeToggle from '@/components/shared/ThemeToggle.vue';
 import NetworkSelector from '@/components/shared/NetworkSelector.vue';
 
-// Default user profile image
-import defaultUserImage from '@/assets/images/profile/user-round.svg';
-
 const customizer = useCustomizerStore();
 const showSearch = ref(false);
-const { user, isLoaded } = useNextAuth();
 
-// Computed properties for user profile
-const userProfileImage = computed(() => {
-  if (isLoaded.value && user.value?.image) {
-    return user.value.image;
-  }
-  return defaultUserImage;
-});
+// Wallet Integration
+const { user: walletUser, isConnected } = useEVMWallet();
 
-const userDisplayName = computed(() => {
-  if (isLoaded.value && user.value) {
-    return user.value.firstName || user.value.email || 'User';
-  }
-  return 'Guest';
+// Generate a deterministic gradient based on address (same as ProfileDD)
+const avatarGradient = computed(() => {
+  if (!walletUser.value?.address) return 'var(--erp-surface-variant)';
+  const addr = walletUser.value.address;
+  const hash = addr.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const hue1 = hash % 360;
+  const hue2 = (hue1 + 40) % 360;
+  return `linear-gradient(135deg, hsl(${hue1}, 70%, 50%) 0%, hsl(${hue2}, 70%, 50%) 100%)`;
 });
 
 function searchbox() {
@@ -120,25 +116,18 @@ function searchbox() {
     </v-menu>
 
     <!-- ---------------------------------------------- -->
-    <!-- User Profile -->
+    <!-- User Profile / Wallet -->
     <!-- ---------------------------------------------- -->
-    <v-menu :close-on-content-click="false">
+    <v-menu :close-on-content-click="false" offset-y>
       <template v-slot:activator="{ props }">
-        <v-btn class="profileBtn" :style="{ background: 'var(--erp-surface)', color: 'var(--erp-text)' }" variant="flat" rounded="pill" v-bind="props">
-          <v-avatar size="30" class="mr-2 py-2">
-            <img 
-              :src="userProfileImage" 
-              :alt="userDisplayName"
-              @error="(event) => {
-                const target = event.target as HTMLImageElement;
-                if (target) target.src = defaultUserImage;
-              }"
-            />
+        <v-btn class="profileBtn ml-1" variant="text" rounded="pill" v-bind="props">
+          <v-avatar size="35" class="d-flex align-center justify-center elevation-2" :style="{ background: avatarGradient }">
+             <UserIcon v-if="!isConnected" size="20" class="text-medium-emphasis" />
+             <UserIcon v-else size="20" color="white" />
           </v-avatar>
-          <SettingsIcon stroke-width="1.5" />
         </v-btn>
       </template>
-      <v-sheet rounded="md" width="330" elevation="12" class="erp-dropdown-surface">
+      <v-sheet rounded="xl" width="360" elevation="12" class="erp-dropdown-surface mt-2 overflow-hidden">
         <ProfileDD />
       </v-sheet>
     </v-menu>

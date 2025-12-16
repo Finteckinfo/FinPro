@@ -1,112 +1,193 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { LogoutIcon, SettingsIcon, UserIcon, SearchIcon } from 'vue-tabler-icons'
-import { useNextAuth } from '@/composables/useNextAuth'
-import ConnectWallet from '@/layouts/full/vertical-header/ConnectWallet.vue'
+import { ref, computed } from 'vue';
+import { useEVMWallet } from '@/composables/useEVMWallet';
+import { isWalletModalOpen } from '@/stores/walletStore';
+import { useTheme } from '@/composables/useTheme';
 
-// wallet modal state & active wallet
-import { isWalletModalOpen, openWalletModal } from '@/stores/walletStore'
-import { activeAccount } from '@/lib/walletManager'
+// Icons
+import { 
+  UserIcon, 
+  CopyIcon, 
+  LogoutIcon, 
+  SettingsIcon,
+  ChevronRightIcon
+} from 'vue-tabler-icons';
 
-const swt1 = ref(true)
-const swt2 = ref(false)
-const { user } = useNextAuth()
+// Theme
+const { isDark } = useTheme();
 
-// fallback if no name
-const firstName = computed(() => user.value?.firstName || 'Guest')
+// Wallet Hook
+const { user: walletUser, isConnected, disconnect } = useEVMWallet();
 
-// computed for connected wallet
-const walletAddress = computed(() => activeAccount.value?.address || 'Connect Wallet')
+// Utils
+const copied = ref(false);
 
-// debug logs
-watch(activeAccount, val => console.log('ProfileDD sees active wallet change:', val))
-watch(isWalletModalOpen, val => console.log('ProfileDD sees wallet modal change:', val))
+const shortenedAddress = computed(() => {
+  if (!walletUser.value?.address) return '';
+  const addr = walletUser.value.address;
+  return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+});
 
-function handleOpenWallet() {
-  console.log('Opening wallet modal from ProfileDD')
-  openWalletModal()
-}
+const walletBalance = computed(() => {
+  if (!walletUser.value?.balance) return '0.00';
+  return parseFloat(walletUser.value.balance).toFixed(4);
+});
 
-// Handle NextAuth logout
-async function handleLogout() {
-  try {
-    // Redirect to main domain for NextAuth logout
-    const ssoUrl = import.meta.env.VITE_SSO_PRIMARY_DOMAIN || 'http://localhost:3000'
-    window.location.href = `${ssoUrl}/api/auth/signout?callbackUrl=${encodeURIComponent(ssoUrl)}`
-    console.log('User logged out successfully')
-  } catch (error) {
-    console.error('Logout error:', error)
+async function handleCopy() {
+  if (walletUser.value?.address) {
+    await navigator.clipboard.writeText(walletUser.value.address);
+    copied.value = true;
+    setTimeout(() => { copied.value = false; }, 2000);
   }
 }
+
+function openWalletConnect() {
+  isWalletModalOpen.value = true;
+}
+
+async function handleDisconnect() {
+  await disconnect();
+}
+
+// Generate a deterministic gradient based on address
+const avatarGradient = computed(() => {
+  if (!walletUser.value?.address) return 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)';
+  const addr = walletUser.value.address;
+  // Simple hash for hue
+  const hash = addr.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const hue1 = hash % 360;
+  const hue2 = (hue1 + 40) % 360;
+  return `linear-gradient(135deg, hsl(${hue1}, 70%, 50%) 0%, hsl(${hue2}, 70%, 50%) 100%)`;
+});
+
 </script>
 
 <template>
-  <div class="pa-4">
-    <h4 class="mb-n1">
-      Good Morning, <span class="font-weight-regular">{{ firstName }}</span>
-    </h4>
-    <span class="text-subtitle-2 text-medium-emphasis">Project admin</span>
-
-    <v-text-field
-      persistent-placeholder
-      placeholder="Search"
-      class="my-3"
-      variant="outlined"
-      hide-details
-    >
-      <template v-slot:prepend-inner>
-        <SearchIcon stroke-width="1.5" size="20" class="SearchIcon" />
-      </template>
-    </v-text-field>
-
-    <v-divider></v-divider>
-
-    <perfect-scrollbar style="height: calc(100vh - 300px); max-height: 515px">
-      <div class="rounded-md px-5 py-3 my-3" :style="{ background: 'var(--erp-surface)', color: 'var(--erp-text)' }">
-        <div class="d-flex align-center justify-space-between">
-          <h5 class="text-h5">Allow Notifications</h5>
-          <v-switch v-model="swt2" hide-details inset :style="{ '--v-theme-primary': 'var(--erp-accent-indigo)' }"></v-switch>
+  <div class="pa-4 profile-dd">
+    <!-- CONNECTED STATE -->
+    <div v-if="isConnected && walletUser">
+      <div class="d-flex align-center mb-4">
+        <div class="wallet-avatar mr-3" :style="{ background: avatarGradient }">
+          <UserIcon size="24" color="white" />
+        </div>
+        <div>
+          <h4 class="text-h6 font-weight-bold mb-0">My Wallet</h4>
+          <span class="text-caption text-medium-emphasis">{{ shortenedAddress }}</span>
         </div>
       </div>
 
-      <!-- Wallet Connect button -->
-      <div class="my-4">
-        <v-btn block class="rounded-lg" :style="{ background: 'var(--erp-accent-indigo)', color: '#ffffff' }" @click="handleOpenWallet()">
-          {{ walletAddress }}
-        </v-btn>
-
-        <!-- Ensure the ConnectWallet component is mounted so its v-dialog (bound to the store ref)
-         can appear when openWalletModal() toggles the store. Import ConnectWallet in your <script setup>. -->
-        <ConnectWallet />
+      <div class="balance-card pa-4 mb-4 rounded-lg">
+        <span class="text-caption text-medium-emphasis d-block mb-1">Total Balance</span>
+        <div class="d-flex align-end">
+          <h3 class="text-h4 font-weight-bold mr-2">{{ walletBalance }}</h3>
+          <span class="text-subtitle-1 mb-1 font-weight-medium">ETH</span>
+        </div>
       </div>
 
-      <v-divider></v-divider>
+      <v-divider class="mb-3"></v-divider>
 
-      <v-list class="mt-3">
-        <v-list-item rounded="md" class="erp-hover" :style="{ background: 'transparent', color: 'var(--erp-text)' }">
+      <v-list class="pa-0" density="compact">
+        <!-- Copy Address -->
+        <v-list-item 
+          rounded="md" 
+          class="mb-1 ActionItem" 
+          @click="handleCopy"
+          ripple
+        >
           <template v-slot:prepend>
-            <SettingsIcon size="20" class="mr-2" />
+            <CopyIcon size="20" class="mr-2 text-medium-emphasis" />
           </template>
-          <v-list-item-title class="text-subtitle-2"> Account Settings </v-list-item-title>
+          <v-list-item-title class="text-body-2">
+            {{ copied ? 'Copied!' : 'Copy Address' }}
+          </v-list-item-title>
         </v-list-item>
 
-        <v-list-item rounded="md" class="erp-hover" :style="{ background: 'transparent', color: 'var(--erp-text)' }">
+        <!-- Account Settings (Placeholder for future) -->
+        <v-list-item 
+          rounded="md" 
+          class="mb-1 ActionItem"
+          ripple
+        >
           <template v-slot:prepend>
-            <UserIcon size="20" class="mr-2" />
+            <SettingsIcon size="20" class="mr-2 text-medium-emphasis" />
           </template>
-          <v-list-item-title class="text-subtitle-2"> Social Profile </v-list-item-title>
+          <v-list-item-title class="text-body-2">Settings</v-list-item-title>
           <template v-slot:append>
-            <v-chip class="text-white" text="02" variant="flat" size="small" :style="{ background: 'var(--erp-accent-indigo)' }" />
+             <ChevronRightIcon size="16" class="text-medium-emphasis" />
           </template>
         </v-list-item>
 
-        <v-list-item @click="handleLogout()" rounded="md" class="erp-hover" :style="{ background: 'transparent', color: 'var(--erp-text)' }">
+        <!-- Disconnect -->
+        <v-list-item 
+          rounded="md" 
+          class="ActionItem mt-2 text-error" 
+          @click="handleDisconnect"
+          ripple
+        >
           <template v-slot:prepend>
-            <LogoutIcon size="20" class="mr-2" />
+            <LogoutIcon size="20" class="mr-2 text-error" />
           </template>
-          <v-list-item-title class="text-subtitle-2"> Logout </v-list-item-title>
+          <v-list-item-title class="text-body-2 font-weight-medium">Disconnect</v-list-item-title>
         </v-list-item>
       </v-list>
-    </perfect-scrollbar>
+    </div>
+
+    <!-- NOT CONNECTED STATE -->
+    <div v-else class="text-center py-6">
+      <div class="wallet-avatar mb-4 mx-auto" style="background: var(--er-surface-variant)">
+        <UserIcon size="32" class="text-medium-emphasis" />
+      </div>
+      
+      <h3 class="text-h6 font-weight-bold mb-2">Connect Wallet</h3>
+      <p class="text-body-2 text-medium-emphasis mb-6 px-4">
+        Connect your wallet to access your profile, assets, and more.
+      </p>
+
+      <v-btn 
+        block 
+        color="primary" 
+        size="large" 
+        class="rounded-lg font-weight-bold"
+        elevation="0"
+        @click="openWalletConnect"
+      >
+        Connect Wallet
+      </v-btn>
+    </div>
   </div>
 </template>
+
+<style scoped>
+.wallet-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.balance-card {
+  background: rgba(var(--v-theme-primary), 0.05);
+  border: 1px solid rgba(var(--v-theme-primary), 0.1);
+}
+
+.ActionItem {
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.ActionItem:hover {
+  background: rgba(var(--v-theme-surface-variant), 0.5);
+  color: rgb(var(--v-theme-primary));
+}
+
+.ActionItem:hover :deep(.text-medium-emphasis) {
+    color: rgb(var(--v-theme-primary)) !important;
+}
+
+.text-error {
+  color: rgb(var(--v-theme-error)) !important;
+}
+</style>
