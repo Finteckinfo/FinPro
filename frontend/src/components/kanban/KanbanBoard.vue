@@ -11,23 +11,19 @@
     </div>
 
     <div class="lists-container" ref="listsContainer">
-      <Draggable
-        v-model="lists"
-        :animation="200"
-        :group="{ name: 'lists', pull: false, put: false }"
-        class="lists-wrapper"
-        @end="onListDragEnd"
+      <div
+        v-for="list in lists"
+        :key="list.id"
+        class="list-wrapper"
       >
         <kanban-list
-          v-for="list in lists"
-          :key="list.id"
           :list="list"
           :cards="getCardsForList(list.id)"
           @add-card="addCard"
           @update-card="updateCard"
           @delete-card="deleteCard"
         />
-      </draggable>
+      </div>
 
       <div class="add-list-placeholder" v-if="!isAddingList" @click="startAddingList">
         <v-icon>mdi-plus</v-icon>
@@ -57,7 +53,6 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, nextTick } from 'vue'
-import Draggable from 'vue-draggable-next'
 import KanbanList from './KanbanList.vue'
 
 interface Card {
@@ -168,10 +163,6 @@ const deleteCard = (cardId: string) => {
       break
     }
   }
-}
-
-const onListDragEnd = () => {
-  emit('updateBoard', { ...props.board, lists: lists.value })
 }
 </script>
 

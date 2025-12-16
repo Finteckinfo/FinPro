@@ -23,21 +23,17 @@
     </div>
 
     <div class="cards-container">
-      <Draggable
-        v-model="cards"
-        :animation="200"
-        :group="{ name: 'cards', pull: true, put: true }"
-        class="cards-wrapper"
-        @end="onCardDragEnd"
+      <div
+        v-for="card in cards"
+        :key="card.id"
+        class="card-wrapper"
       >
         <kanban-card
-          v-for="card in cards"
-          :key="card.id"
           :card="card"
           @update="updateCard"
           @delete="deleteCard"
         />
-      </draggable>
+      </div>
     </div>
 
     <div class="add-card-section" v-if="isAddingCard">
@@ -68,7 +64,6 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue'
-import Draggable from 'vue-draggable-next'
 import KanbanCard from './KanbanCard.vue'
 
 interface Card {
