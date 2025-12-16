@@ -157,8 +157,12 @@ watch(isConnected, (connected) => {
   }
 });
 
+// PERFORMANCE: Load data after initial render to prevent blocking
 onMounted(() => {
-  loadData();
+  // Delay data loading to allow page to render first
+  setTimeout(() => {
+    loadData();
+  }, 100);
 });
 </script>
 

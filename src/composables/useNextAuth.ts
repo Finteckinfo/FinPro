@@ -88,9 +88,9 @@ export function useNextAuth() {
     isValidating.value = true;
 
     try {
-      // SUPABASE-ONLY MODE: Check Supabase session first
-      if (isSupabaseOnly && supabase) {
-        console.log('[NextAuth] Supabase-only mode - checking Supabase session');
+      // SUPABASE-ONLY MODE: Check Supabase session first (only if forced or cache miss)
+      if (isSupabaseOnly && supabase && force) {
+        console.log('[NextAuth] Supabase-only mode - validating Supabase session');
 
         const { data: { session }, error } = await supabase.auth.getSession();
 
@@ -99,6 +99,7 @@ export function useNextAuth() {
           sessionCache.value = null;
           lastValidated.value = Date.now();
           isLoaded.value = true;
+          clearPersistedSession();
           return;
         }
 
@@ -132,6 +133,7 @@ export function useNextAuth() {
           sessionCache.value = null;
           lastValidated.value = Date.now();
           isLoaded.value = true;
+          clearPersistedSession();
           return;
         }
       }

@@ -12,25 +12,60 @@ import { supabase, isSupabaseOnly } from '@/services/supabase';
  */
 
 // PERFORMANCE: Synchronous session check - no network latency
-async function hasValidSession(): Promise<boolean> {
-  // SUPABASE-ONLY MODE: Check Supabase session first
-  if (isSupabaseOnly && supabase) {
+function hasValidSession(): boolean {
+  // SUPABASE-ONLY MODE: Check localStorage cache first (fast sync check)
+  if (isSupabaseOnly) {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) return true;
+      const cached = localStorage.getItem('FinPro_session_cache');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        const cacheAge = Date.now() - (parsed.timestamp || 0);
+        if (cacheAge < 10 * 60 * 1000 && parsed.session) { // 10 min cache
+          return true;
+        }
+      }
     } catch (e) {
-      // Ignore Supabase errors, fall back to other checks
+      // Ignore storage errors
     }
+
+    // Check sessionStorage for Supabase auth
+    try {
+      const user = sessionStorage.getItem('erp_user');
+      const token = sessionStorage.getItem('erp_session_token');
+      const timestamp = sessionStorage.getItem('erp_auth_timestamp');
+
+      if (user && token && timestamp) {
+        const age = Date.now() - parseInt(timestamp);
+        const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+        if (age < maxAge) return true;
+      }
+    } catch (e) {
+      // Ignore storage errors
+    }
+
+    // For Supabase-only mode, also check if we have a Supabase access token
+    try {
+      const supabaseAuth = localStorage.getItem('sb-' + import.meta.env.VITE_SUPABASE_URL?.split('//')[1]?.split('.')[0] + '-auth-token');
+      if (supabaseAuth) {
+        const parsed = JSON.parse(supabaseAuth);
+        if (parsed?.access_token && parsed?.expires_at) {
+          const expiresAt = new Date(parsed.expires_at * 1000);
+          if (expiresAt > new Date()) return true;
+        }
+      }
+    } catch (e) {
+      // Ignore storage errors
+    }
+
+    return false;
   }
 
-  // Check cookies first (fastest) - but only if not in Supabase-only mode
-  if (!isSupabaseOnly) {
-    const sessionToken = getCookie('next-auth.session-token') ||
-      getCookie('__Secure-next-auth.session-token') ||
-      getCookie('FinPro_sso_token');
+  // Check cookies first (fastest) - for NextAuth mode
+  const sessionToken = getCookie('next-auth.session-token') ||
+    getCookie('__Secure-next-auth.session-token') ||
+    getCookie('FinPro_sso_token');
 
-    if (sessionToken) return true;
-  }
+  if (sessionToken) return true;
 
   // Check sessionStorage (SSO fallback)
   try {
@@ -84,9 +119,30 @@ export async function authGuard(
     return next();
   }
 
-  // PERFORMANCE: Use session check (async for Supabase)
-  const hasSession = await hasValidSession();
+  // PERFORMANCE: Use synchronous session check - no network latency
+  const hasSession = hasValidSession();
   if (hasSession) {
+    // BACKGROUND VALIDATION: For Supabase-only mode, validate session in background
+    if (isSupabaseOnly && supabase) {
+      setTimeout(async () => {
+        try {
+          const { data: { session }, error } = await supabase.auth.getSession();
+          if (error || !session?.user) {
+            console.log('[AuthGuard] Background validation: No valid Supabase session, redirecting to login');
+            // Clear invalid session data
+            localStorage.removeItem('FinPro_session_cache');
+            sessionStorage.removeItem('erp_user');
+            sessionStorage.removeItem('erp_session_token');
+            sessionStorage.removeItem('erp_auth_timestamp');
+            // Redirect to login
+            window.location.href = '/login';
+          }
+        } catch (e) {
+          console.error('[AuthGuard] Background validation error:', e);
+        }
+      }, 100); // Small delay to not block initial navigation
+    }
+
     return next();
   }
 
