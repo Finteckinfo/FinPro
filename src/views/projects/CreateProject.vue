@@ -440,8 +440,8 @@
                   </template>
                   <div class="d-flex flex-column" style="gap: 8px;">
                     <div>
-                      Minimum 0.00 SIZ required to create a project.
-                      <span class="ml-1">Current: {{ finBalance.toFixed(2) }} SIZ</span>
+                      Minimum 0.00 FIN required to create a project.
+                      <span class="ml-1">Current: {{ finBalance.toFixed(2) }} FIN</span>
                     </div>
                     <div v-if="walletBalanceError" class="text-error text-caption">{{ walletBalanceError }}</div>
                     <div class="d-flex align-center" style="gap: 8px;">
@@ -449,11 +449,11 @@
                         color="primary"
                         variant="elevated"
                         size="small"
-                        :href="ssoDomain"
+                        href="https://app.uniswap.org"
                         target="_blank"
                       >
                         <v-icon start>mdi-open-in-new</v-icon>
-                        Get SIZ on DEX
+                        Get FIN on DEX
                       </v-btn>
                       <v-btn
                         variant="outlined"
