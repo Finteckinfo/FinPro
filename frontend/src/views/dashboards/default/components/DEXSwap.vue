@@ -102,7 +102,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
 import { useMetaMaskWallet } from '@/composables/useMetaMaskWallet';
-import FinProLogo from '@/assets/images/FinPro-logo.svg';
+import FinProLogo from '@/assets/images/finerp-logo.svg';
 
 const { user, isConnected, connect } = useMetaMaskWallet();
 
