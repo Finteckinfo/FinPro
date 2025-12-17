@@ -1,14 +1,13 @@
-import { nextAuthService } from './nextAuthService';
+import { useAuthStore } from '@/stores/authStore';
 
 /**
- * AuthService - Wrapper around NextAuthService for backward compatibility
- * This file exists to maintain compatibility with existing code that imports authService
- * All functionality is delegated to nextAuthService
+ * AuthService - EVM Wallet Authentication Service
+ * Replaces legacy NextAuth implementation with direct wallet-based auth
  */
 export class AuthService {
   private static instance: AuthService;
 
-  private constructor() {}
+  private constructor() { }
 
   public static getInstance(): AuthService {
     if (!AuthService.instance) {
@@ -18,67 +17,70 @@ export class AuthService {
   }
 
   /**
-   * Get JWT token - delegates to nextAuthService
+   * Get Wallet Address as "Token"
    */
   public async getJWTToken(): Promise<string | null> {
-    return nextAuthService.getJWTToken();
+    const address = sessionStorage.getItem('FinPro_wallet_address');
+    return address || null;
   }
 
   /**
-   * Get auth headers - delegates to nextAuthService
+   * Get auth headers for API requests
+   * Returns generic wallet headers instead of JWT
    */
   public async getAuthHeaders(): Promise<Record<string, string>> {
-    return nextAuthService.getAuthHeaders();
+    const address = sessionStorage.getItem('FinPro_wallet_address');
+
+    if (!address) {
+      console.warn('[AuthService] No wallet connected, returning empty headers');
+      return {};
+    }
+
+    return {
+      'X-Wallet-Address': address,
+      // For backward compatibility if some API expects Authorization header, 
+      // we can send the address as a mock token, though the backend must support it.
+      // 'Authorization': `Bearer ${address}` 
+    };
   }
 
   /**
-   * Get user - delegates to nextAuthService
+   * Get user info
    */
   public getUser(): any {
-    return nextAuthService.getUser();
+    const address = sessionStorage.getItem('FinPro_wallet_address');
+    if (!address) return null;
+    return {
+      id: address,
+      email: `${address}@wallet.connect`,
+      name: `${address.substring(0, 6)}...`
+    };
   }
 
-  /**
-   * Clear token cache - delegates to nextAuthService
-   */
-  public clearTokenCache(): void {
-    nextAuthService.clearTokenCache();
-  }
+  public clearTokenCache(): void { }
 
-  /**
-   * Check if token is expired - delegates to nextAuthService
-   */
   public isTokenExpired(): boolean {
-    return nextAuthService.isTokenExpired();
+    return false; // Wallets don't expire in this context
   }
 
-  /**
-   * Handle auth error - delegates to nextAuthService
-   */
   public handleAuthError(error: any): void {
-    nextAuthService.handleAuthError(error);
+    console.error('[AuthService] Auth error:', error);
+    // Optionally redirect to login if 401
+    if (error?.response?.status === 401) {
+      window.location.href = '/login';
+    }
   }
 
-  /**
-   * Decode JWT payload (for compatibility)
-   */
   public decodeJWTPayload(token: string): any {
-    try {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split('')
-          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-          .join('')
-      );
-      return JSON.parse(jsonPayload);
-    } catch (error) {
-      console.error('Error decoding JWT:', error);
-      return null;
-    }
+    // Mock decoder since we use addresses as tokens now
+    return {
+      sub: token,
+      user_id: token,
+      email: `${token}@wallet.connect`
+    };
   }
 }
 
 // Export singleton instance
 export const authService = AuthService.getInstance();
+

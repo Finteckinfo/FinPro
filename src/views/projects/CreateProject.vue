@@ -488,6 +488,27 @@ const createProject = async () => {
   saving.value = true;
   error.value = '';
 
+  // FAILSAFE: Ensure user exists in DB before creating project
+  // This handles cases where login sync might have been missed or user was deleted
+  try {
+      const { supabase } = await import('@/services/supabase');
+      if (supabase && user.value.id) {
+          const { error: upsertError } = await supabase
+              .from('users')
+              .upsert({ 
+                  id: user.value.id,
+                  wallet_address: user.value.id,
+                  updated_at: new Date().toISOString()
+              }, { onConflict: 'id' });
+          
+          if (upsertError) {
+              console.warn('[CreateProject] Failed to sync user to DB:', upsertError);
+          }
+      }
+  } catch (syncErr) {
+      console.warn('[CreateProject] User sync warning:', syncErr);
+  }
+
   try {
     // Create basic project with default departments and owner role
     const projectPayload = {
