@@ -30,7 +30,7 @@ export default defineConfig({
       protocolImports: true,
     })
   ],
-  base: process.env.NODE_ENV === 'production' ? '/FinERP/' : '/',
+  base: process.env.VERCEL ? '/' : (process.env.NODE_ENV === 'production' ? '/FinERP/' : '/'),
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

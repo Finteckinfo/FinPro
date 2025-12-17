@@ -115,8 +115,8 @@ import finLogo from '@/assets/images/logos/FinPro-logo.png'; // Assuming it exis
 
 const baseUrl = import.meta.env.BASE_URL;
 
-const tokens = ref([
-  {
+const tokens = ref({
+  FIN: {
     symbol: 'FIN',
     name: 'FinPro Token',
     balance: 0,
@@ -124,7 +124,7 @@ const tokens = ref([
     isNative: false,
     decimals: 18
   },
-  {
+  ETH: {
     symbol: 'ETH',
     name: 'Ethereum',
     balance: 0,
@@ -132,7 +132,7 @@ const tokens = ref([
     isNative: true,
     decimals: 18
   },
-  {
+  USDT: {
     symbol: 'USDT',
     name: 'Tether USD',
     balance: 0,
@@ -140,19 +140,15 @@ const tokens = ref([
     isNative: false,
     decimals: 6
   },
-  {
+  USDC: {
     symbol: 'USDC', 
     name: 'USD Coin',
     balance: 0,
     icon: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=029',
-  },
-  ETH: {
-    symbol: 'ETH',
-    name: 'Ethereum',
-    icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.png?v=029',
-    decimals: 18
+    decimals: 6,
+    isNative: false
   }
-};
+});
 
 // State
 const fromTokenSymbol = ref('FIN');
@@ -188,8 +184,8 @@ const rates = {
 // Computed
 const isWalletConnected = computed(() => isConnected.value);
 
-const fromToken = computed(() => tokens[fromTokenSymbol.value as keyof typeof tokens]);
-const toToken = computed(() => tokens[toTokenSymbol.value as keyof typeof tokens]);
+const fromToken = computed(() => tokens.value[fromTokenSymbol.value as keyof typeof tokens.value]);
+const toToken = computed(() => tokens.value[toTokenSymbol.value as keyof typeof tokens.value]);
 
 const fromBalance = computed(() => balances.value[fromTokenSymbol.value as keyof typeof balances.value] || '0');
 const toBalance = computed(() => balances.value[toTokenSymbol.value as keyof typeof balances.value] || '0');
@@ -260,7 +256,7 @@ function swapDirection() {
 
 function toggleFromToken() {
   // Cycle through available tokens
-  const tokenList = Object.keys(tokens);
+  const tokenList = Object.keys(tokens.value);
   const currentIndex = tokenList.indexOf(fromTokenSymbol.value);
   let nextIndex = (currentIndex + 1) % tokenList.length;
   
@@ -274,7 +270,7 @@ function toggleFromToken() {
 }
 
 function toggleToToken() {
-  const tokenList = Object.keys(tokens);
+  const tokenList = Object.keys(tokens.value);
   const currentIndex = tokenList.indexOf(toTokenSymbol.value);
   let nextIndex = (currentIndex + 1) % tokenList.length;
   
