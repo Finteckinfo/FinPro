@@ -106,13 +106,6 @@ import { useMetaMaskWallet } from '@/composables/useMetaMaskWallet';
 const { user, isConnected, connect } = useMetaMaskWallet();
 
 // Token definitions
-// Image Import
-import finLogo from '@/assets/images/logos/FinPro-logo.png'; // Assuming it exists here or use a known one like banner3.png or just /FinERP/ prefix
-
-// Actually, the user logs showed: GET https://finteckinfo.github.io/FinERPimages/FinPro-logo.png 404
-// The file might be in public/images/FinPro-logo.png
-// The correct path should be `${import.meta.env.BASE_URL}images/FinPro-logo.png`
-
 const baseUrl = import.meta.env.BASE_URL;
 
 const tokens = ref({
@@ -120,7 +113,7 @@ const tokens = ref({
     symbol: 'FIN',
     name: 'FinPro Token',
     balance: 0,
-    icon: `${baseUrl}images/FinPro-logo.png`, // Use baseUrl
+    icon: `${baseUrl}images/finerp-logo.png`,
     isNative: false,
     decimals: 18
   },
