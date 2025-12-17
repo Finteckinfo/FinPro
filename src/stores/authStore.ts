@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
-import { supabase, isSupabaseOnly } from '@/services/supabase';
+import { ref, computed, watch } from 'vue';
 import { useEVMWallet } from '@/composables/useEVMWallet';
 import { useRouter } from 'vue-router';
 
@@ -9,25 +8,25 @@ export const useAuthStore = defineStore('auth', () => {
     const { user: walletUser, isConnected: isWalletConnected, disconnect: disconnectWallet, connect: connectWallet } = useEVMWallet();
 
     // State
-    const session = ref<any>(null);
-    const user = ref<any>(null);
-    const loading = ref(true);
+    const loading = ref(false);
     const initialized = ref(false);
 
     // Computed
-    const isAuthenticated = computed(() => !!session.value?.user);
-    const userEmail = computed(() => user.value?.email || '');
+    // Authentication now depends strictly on wallet connection
+    const isAuthenticated = computed(() => isWalletConnected.value && !!walletUser.value);
+
+    // User display info derived from wallet
     const userDisplayName = computed(() => {
-        if (user.value?.user_metadata?.full_name) return user.value.user_metadata.full_name;
-        if (user.value?.email) return user.value.email.split('@')[0];
-        return 'User';
+        if (!walletUser.value?.address) return 'Guest';
+        const addr = walletUser.value.address;
+        return `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}`;
     });
 
     // Unified Profile Data
     const profile = computed(() => ({
         name: userDisplayName.value,
-        email: userEmail.value,
-        avatar: user.value?.user_metadata?.avatar_url || null,
+        email: null, // No email in wallet-only mode
+        avatar: null, // Could use blockie/jazzicon here if needed
         walletAddress: walletUser.value?.address || null,
         walletBalance: walletUser.value?.balance || null,
         walletConnected: isWalletConnected.value
@@ -36,63 +35,46 @@ export const useAuthStore = defineStore('auth', () => {
     // Actions
     async function initialize() {
         if (initialized.value) return;
+        // Wallet state is reactive from useEVMWallet, so we just mark initialized
+        initialized.value = true;
+    }
+
+    async function signIn() {
         loading.value = true;
-
         try {
-            if (isSupabaseOnly && supabase) {
-                // Check Supabase Session
-                const { data: { session: currentSession } } = await supabase.auth.getSession();
-                session.value = currentSession;
-                user.value = currentSession?.user || null;
+            const success = await connectWallet();
+            if (success) {
+                // Determine redirect path
+                const redirectPath = sessionStorage.getItem('post_auth_redirect') || '/dashboard/default';
+                sessionStorage.removeItem('post_auth_redirect');
 
-                // Listen for Auth Changes
-                supabase.auth.onAuthStateChange((_event, _session) => {
-                    session.value = _session;
-                    user.value = _session?.user || null;
-
-                    if (_event === 'SIGNED_OUT') {
-                        session.value = null;
-                        user.value = null;
-                        // Optional: Clear any local app state here
-                    }
-                });
+                if (router) {
+                    router.push(redirectPath);
+                } else {
+                    window.location.href = redirectPath;
+                }
             }
         } catch (error) {
-            console.error('[AuthStore] Initialization error:', error);
+            console.error('[AuthStore] Sign in error:', error);
         } finally {
             loading.value = false;
-            initialized.value = true;
         }
     }
 
     async function signOut() {
         loading.value = true;
         try {
-            // 1. Sign out of Supabase
-            if (isSupabaseOnly && supabase) {
-                await supabase.auth.signOut();
-            }
+            await disconnectWallet();
 
-            // 2. Disconnect Wallet
-            if (isWalletConnected.value) {
-                await disconnectWallet();
-            }
+            // Clear all auth-related storage
+            sessionStorage.clear();
+            localStorage.removeItem('FinPro_wallet_connected');
 
-            // 3. Clear State
-            session.value = null;
-            user.value = null;
-
-            // 4. Clear Storage (Add any other specific keys if needed)
-            sessionStorage.clear(); // Careful with this if you store other things, but usually safe for full logout
-            localStorage.removeItem('FinPro_wallet_connected'); // Ensure wallet doesn't auto-reconnect
-
-            // 5. Redirect
             if (router) {
                 router.push('/login');
             } else {
                 window.location.href = '/login';
             }
-
         } catch (error) {
             console.error('[AuthStore] Sign out error:', error);
         } finally {
@@ -102,18 +84,18 @@ export const useAuthStore = defineStore('auth', () => {
 
     return {
         // State
-        session,
-        user,
         loading,
         initialized,
 
         // Computed
         isAuthenticated,
         profile,
+        user: walletUser, // Expose wallet user as main user
 
         // Actions
         initialize,
+        signIn,
         signOut,
-        connectWallet // Expose wallet connect for convenience
+        connectWallet
     };
 });

@@ -275,13 +275,20 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { useNextAuth } from '@/composables/useNextAuth';
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/authStore';
 import { projectApi } from '@/services/projectApi';
 import { RetroGrid } from '@/components/ui/retro-grid';
 import { useEVMWallet } from '@/composables/useEVMWallet';
 
 const router = useRouter();
-const { user } = useNextAuth();
+const authStore = useAuthStore();
+// Map wallet user to the structure expected by the template
+const user = computed(() => ({
+  id: authStore.user?.address || '',
+  email: authStore.user?.address ? `${authStore.user.address}@wallet.connect` : '', // Mock email for backend compatibility
+  name: authStore.profile.name
+}));
 
 // Type definitions for better TypeScript support
 interface Department {

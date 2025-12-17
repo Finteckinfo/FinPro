@@ -18,7 +18,7 @@ const PublicRoutes = {
     {
       name: 'Register',
       path: '/register',
-      component: () => import('@/views/authentication/LoginPage.vue')
+      redirect: '/login'
     },
     {
       name: 'Error 404',

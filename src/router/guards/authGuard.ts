@@ -118,35 +118,21 @@ export async function authGuard(
     return next();
   }
 
-  // PERFORMANCE: Use synchronous session check - no network latency
-  const hasSession = hasValidSession();
-  if (hasSession) {
-    // BACKGROUND VALIDATION: Validate Supabase session in background
-    if (supabase) {
-      setTimeout(async () => {
-        try {
-          const { data: { session }, error } = await supabase!.auth.getSession();
-          if (error || !session?.user) {
-            console.log('[AuthGuard] Background validation: No valid session, redirecting to login');
-            // Clear invalid session data
-            localStorage.removeItem('FinPro_session_cache');
-            sessionStorage.removeItem('erp_user');
-            sessionStorage.removeItem('erp_session_token');
-            sessionStorage.removeItem('erp_auth_timestamp');
-            // Redirect to login
-            window.location.href = '/login';
-          }
-        } catch (e) {
-          console.error('[AuthGuard] Background validation error:', e);
-        }
-      }, 100);
-    }
+  // WALLET-ONLY AUTH: Check sessionStorage for wallet connection
+  // This matches logic in useEVMWallet
+  try {
+    const isConnected = sessionStorage.getItem('FinPro_wallet_connected') === 'true';
+    const hasAddress = !!sessionStorage.getItem('FinPro_wallet_address');
 
-    return next();
+    if (isConnected && hasAddress) {
+      return next();
+    }
+  } catch (e) {
+    // Ignore errors
   }
 
-  // No session found - redirect to login
-  console.log('[AuthGuard] No session, redirecting to login');
+  // No wallet connection found - redirect to login
+  console.log('[AuthGuard] No wallet connection, redirecting to login');
 
   // Store intended destination for post-auth redirect
   try {
@@ -162,14 +148,11 @@ export async function authGuard(
  * Helper function to check if user is authenticated
  */
 export async function isAuthenticated(): Promise<boolean> {
-  if (!supabase) return false;
-
   try {
-    const { data: { session }, error } = await supabase.auth.getSession();
-    if (error) throw error;
-    return !!(session?.user);
+    const isConnected = sessionStorage.getItem('FinPro_wallet_connected') === 'true';
+    const hasAddress = !!sessionStorage.getItem('FinPro_wallet_address');
+    return isConnected && hasAddress;
   } catch (error) {
-    console.error('[AuthGuard] Error checking authentication:', error);
     return false;
   }
 }

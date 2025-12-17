@@ -1,83 +1,49 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/authStore';
 import { useTheme } from '@/composables/useTheme';
 import ThemeToggle from '@/components/shared/ThemeToggle.vue';
-import { supabase, isSupabaseOnly } from '@/services/supabase';
 import Logo from '@/assets/images/logos/Logo.vue';
 
 const router = useRouter();
-const route = useRoute();
+const authStore = useAuthStore();
 const { isDark } = useTheme();
 
-// Determine if we're in login or register mode based on route
-const isLoginMode = ref(route.path === '/login');
-
-// Form state
-const email = ref('');
-const password = ref('');
-const loading = ref(false);
 const error = ref('');
-const success = ref('');
+const loading = ref(false);
 
-// Computed
-const formValid = computed(() => email.value && password.value);
-
-// SUPABASE-ONLY MODE: Handle authentication locally
-const handleSupabaseAuth = async () => {
-  if (!isSupabaseOnly || !supabase) {
-    console.error('[LoginPage] Supabase not configured');
-    return;
-  }
-
-  loading.value = true;
-  error.value = '';
-  success.value = '';
-
-  try {
-    const { data, error: authError } = await supabase.auth.signInWithPassword({
-      email: email.value,
-      password: password.value,
-    });
-
-    if (authError) {
-      error.value = authError.message;
-      return;
+const handleWalletLogin = async () => {
+    loading.value = true;
+    error.value = '';
+    
+    try {
+        await authStore.signIn();
+        // Redirect handled inside authStore upon success
+    } catch (err: any) {
+        console.error('Wallet login failed:', err);
+        error.value = err.message || 'Failed to connect wallet';
+    } finally {
+        loading.value = false;
     }
-
-    if (data.user) {
-      success.value = 'Login successful! Redirecting...';
-      console.log('[LoginPage] Supabase login successful');
-
-      // Redirect after successful login
-      setTimeout(() => {
-        const redirectPath = sessionStorage.getItem('post_auth_redirect') || '/dashboard/default';
-        sessionStorage.removeItem('post_auth_redirect');
-        router.push(redirectPath);
-      }, 1500);
-    }
-  } catch (err: any) {
-    console.error('[LoginPage] Supabase auth error:', err);
-    error.value = err.message || 'Login failed';
-  } finally {
-    loading.value = false;
-  }
 };
 
 onMounted(() => {
-  console.log('[LoginPage] Mounted');
+    // If already authenticated, redirect
+    if (authStore.isAuthenticated) {
+        router.push('/dashboard/default');
+    }
 });
 </script>
 
 <template>
   <div :class="{ 'dark-theme': isDark }" class="login-page">
-    <!-- Theme Toggle - Floating Button -->
+    <!-- Theme Toggle -->
     <div class="theme-toggle-container">
       <ThemeToggle :show-label="false" size="small" />
     </div>
     
-    <!-- SUPABASE-ONLY MODE: Show login form -->
-    <div v-if="isSupabaseOnly" class="login-container">
+    <div class="login-container">
       <!-- Left Side - Banner -->
       <div class="banner-column">
         <div class="banner-box">
@@ -87,34 +53,24 @@ onMounted(() => {
                 Execute. Organize. <span class="accent-text">Collaborate.</span>
               </h2>
               <h3 class="banner-subtitle">
-                Built for remote teams, project managers, and doers everywhere. Manage tasks, track progress, and collaborate without boundaries.
+                Access the decentralized ecosystem with your wallet. Secure, private, and seamless project management.
               </h3>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Right Side - Supabase Authentication Form -->
+      <!-- Right Side - Wallet Auth -->
       <div class="form-column">
         <div class="form-container">
-          <div class="form-header">
-            <h1 class="form-title">{{ isLoginMode ? 'Welcome Back' : 'Create Account' }}</h1>
-            <p class="form-subtitle">
-              {{ isLoginMode ? 'Sign in to your FinPro account' : 'Create your FinPro account' }}
-            </p>
+          <div class="logo-section">
+            <Logo />
           </div>
 
-          <!-- Success Message -->
-          <v-alert
-            v-if="success"
-            type="success"
-            variant="tonal"
-            class="mb-4"
-            closable
-            @click:close="success = ''"
-          >
-            {{ success }}
-          </v-alert>
+          <div class="form-header">
+            <h1 class="form-title">Welcome to FinPro</h1>
+            <p class="form-subtitle">Connect your wallet to access the dashboard</p>
+          </div>
 
           <!-- Error Message -->
           <v-alert
@@ -128,94 +84,23 @@ onMounted(() => {
             {{ error }}
           </v-alert>
 
-          <!-- Login Form -->
-          <v-form @submit.prevent="handleSupabaseAuth" class="auth-form">
-            <v-text-field
-              v-model="email"
-              label="Email"
-              type="email"
-              variant="outlined"
-              density="comfortable"
-              :rules="[v => !!v || 'Email is required', v => /.+@.+\..+/.test(v) || 'Email must be valid']"
-              class="mb-4"
-              :disabled="loading"
-            />
-
-            <v-text-field
-              v-model="password"
-              label="Password"
-              type="password"
-              variant="outlined"
-              density="comfortable"
-              :rules="[v => !!v || 'Password is required']"
-              class="mb-6"
-              :disabled="loading"
-            />
-
+          <!-- Wallet Connect Action -->
+          <div class="wallet-action-container">
             <v-btn
-              type="submit"
-              size="large"
+              size="x-large"
               block
               :loading="loading"
-              :disabled="!formValid || loading"
-              class="auth-button"
+              :disabled="loading"
+              class="wallet-button"
+              color="primary"
+              @click="handleWalletLogin"
             >
-              {{ isLoginMode ? 'Sign In' : 'Create Account' }}
+              <v-icon start icon="mdi-wallet" class="mr-2"></v-icon>
+              Connect Wallet
             </v-btn>
-          </v-form>
-
-          <!-- Toggle between login/register -->
-          <div class="auth-toggle">
-            <p class="toggle-text">
-              {{ isLoginMode ? "Don't have an account?" : "Already have an account?" }}
-              <router-link
-                :to="isLoginMode ? '/register' : '/login'"
-                class="toggle-link"
-              >
-                {{ isLoginMode ? 'Sign Up' : 'Sign In' }}
-              </router-link>
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- LEGACY MODE: Show loading while redirecting to SSO -->
-    <div v-else class="login-container">
-      <!-- Left Side - Banner -->
-      <div class="banner-column">
-        <div class="banner-box">
-          <div class="banner-overlay">
-            <div class="banner-content">
-              <h2 class="banner-title">
-                Redirecting to Authentication...
-              </h2>
-              <h3 class="banner-subtitle">
-                Please wait while we redirect you to the login page.
-              </h3>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right Side - Loading -->
-      <div class="form-column">
-        <div class="form-container">
-          <div class="logo-section">
-            <Logo />
-          </div>
-          
-          <h1 class="form-title">
-            {{ isLoginMode ? 'Login to continue' : 'Create your account' }}
-          </h1>
-          
-          <!-- SSO Redirect Message -->
-          <div class="redirect-container">
-            <p class="redirect-message">
-              Redirecting to {{ isLoginMode ? 'login' : 'signup' }}...
-            </p>
-            <p class="redirect-note">
-              You will be redirected to the main authentication page.
+            
+            <p class="mt-4 text-center text-medium-emphasis text-caption">
+              Supported Wallets: MetaMask, Coinbase, WalletConnect
             </p>
           </div>
         </div>
@@ -229,7 +114,6 @@ onMounted(() => {
   min-height: 100vh;
   background: var(--v-theme-surface);
   position: relative;
-  /* Allow scrolling on mobile */
 }
 
 .theme-toggle-container {
@@ -239,29 +123,11 @@ onMounted(() => {
   z-index: 1000;
 }
 
-/* Mobile: Float at bottom center */
-@media (max-width: 768px) {
-  .theme-toggle-container {
-    top: auto;
-    bottom: 20px;
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-  }
-}
-
-@media (max-width: 480px) {
-  .theme-toggle-container {
-    bottom: 15px;
-  }
-}
-
 .login-container {
   display: grid;
   grid-template-columns: 1.2fr 1.5fr;
   min-height: 100vh;
   width: 100%;
-  position: relative;
 }
 
 // Left Side - Banner
@@ -279,7 +145,6 @@ onMounted(() => {
   background-image: url('/FinERP/images/banner3.png');
   background-size: cover;
   background-position: center;
-  background-repeat: no-repeat;
   border-radius: 20px;
   position: relative;
   margin-left: 100px;
@@ -305,20 +170,10 @@ onMounted(() => {
 
 .banner-title {
   color: white;
-  font-size: 2rem;
+  font-size: 3.5rem;
   font-weight: 600;
-  line-height: 1.3;
+  line-height: 1.2;
   margin-bottom: 2rem;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  
-  @media (min-width: 768px) {
-    font-size: 4rem;
-  }
-  
-  @media (min-width: 1024px) {
-    font-size: 4.5rem;
-  }
 }
 
 .accent-text {
@@ -327,12 +182,8 @@ onMounted(() => {
 
 .banner-subtitle {
   color: rgba(255, 255, 255, 0.9);
-  font-size: 1rem;
-  line-height: 1.5;
-  
-  @media (min-width: 768px) {
-    font-size: 1.125rem;
-  }
+  font-size: 1.1rem;
+  line-height: 1.6;
 }
 
 // Right Side - Form
@@ -341,103 +192,52 @@ onMounted(() => {
   flex-direction: column;
   justify-content: center;
   padding: 0 50px;
-  width: 90%;
-  margin: 0 auto;
 }
 
 .form-container {
-  width: 60%;
+  width: 100%;
+  max-width: 480px;
   margin: 0 auto;
 }
 
 .logo-section {
-  margin: 2.5rem 0;
-  text-align: left;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
+  margin-bottom: 2rem;
 }
 
 .form-title {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: 700;
-  margin-bottom: 1.25rem;
-  color: var(--v-theme-on-surface);
+  margin-bottom: 0.5rem;
 }
 
-.clerk-container {
-  margin-top: 2rem;
+.form-subtitle {
+  font-size: 1.1rem;
+  color: var(--v-theme-on-surface-variant);
+  margin-bottom: 2.5rem;
+  opacity: 0.8;
 }
 
-// Dark theme adjustments - enhanced contrast for better readability
-.dark-theme {
-  background: #0f172a !important; /* Better background contrast */
-  
-  .banner-overlay {
-    background: rgba(0, 0, 0, 0.7);
-  }
-  
-  .form-title {
-    color: var(--v-theme-on-surface);
-  }
+.wallet-button {
+  height: 56px !important;
+  font-size: 1.1rem !important;
+  text-transform: none !important;
+  letter-spacing: 0.5px !important;
+  font-weight: 600 !important;
 }
 
-// Force the background color with higher specificity
-body .login-page.dark-theme {
-  background: #0f172a !important;
-}
-
-// Global dark theme background for the entire page
-html.dark-theme,
-body.dark-theme {
-  background: #0f172a !important;
-}
-
-// Ensure the login page container also has the dark background
-.login-page.dark-theme .login-container {
-  background: #0f172a !important;
-}
-
-// Responsive design
+// Responsive
 @media (max-width: 1024px) {
   .login-container {
     grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
-    min-height: auto;
-    height: auto;
   }
-  
+
   .banner-column {
-    padding: 20px;
-    height: 300px;
-    min-height: 300px;
+    display: none; // Hide banner on mobile/tablet for simpler login interactions
   }
-  
+
   .banner-box {
     margin-left: 0;
     width: 100%;
-    height: 100%;
-  }
-  
-  .banner-content {
-    width: 80%;
-  }
-  
-  .banner-title {
-    font-size: 2.5rem;
-    margin-bottom: 1.5rem;
-  }
-  
-  .form-column {
-    padding: 20px;
-    width: 100%;
-    min-height: auto;
-    height: auto;
-  }
-  
-  .form-container {
-    width: 100%;
-    max-width: 400px;
   }
 }
 
@@ -447,68 +247,12 @@ body.dark-theme {
     right: 20px;
   }
   
-  .banner-column {
-    height: 250px;
-    min-height: 250px;
-    padding: 15px;
-  }
-  
-  .banner-title {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-  }
-  
-  .banner-subtitle {
-    font-size: 0.875rem;
-  }
-  
   .form-column {
-    padding: 15px;
-    min-height: auto;
-    height: auto;
+    padding: 20px;
   }
-  
-  .form-container {
-    max-width: 100%;
-  }
-  
-  .logo-section {
-    margin: 1.5rem 0;
-  }
-  
-  .form-title {
-    font-size: 1.25rem;
-    margin-bottom: 1rem;
-  }
-  
-  .clerk-container {
-    margin-top: 1.5rem;
-  }
-}
 
-@media (max-width: 480px) {
-  .banner-column {
-    height: 200px;
-    min-height: 200px;
-    padding: 10px;
-  }
-  
-  .banner-title {
-    font-size: 1.5rem;
-  }
-  
-  .banner-subtitle {
-    font-size: 0.75rem;
-  }
-  
-  .form-column {
-    padding: 10px;
-    min-height: auto;
-    height: auto;
-  }
-  
-  .form-container {
-    padding: 0 10px;
+  .form-title {
+    font-size: 1.75rem;
   }
 }
 </style>
