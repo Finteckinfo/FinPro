@@ -79,7 +79,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-## Configuration
+## CoNfiguration
 
 ### Environment Variables
 
