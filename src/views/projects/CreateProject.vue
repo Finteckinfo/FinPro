@@ -530,7 +530,11 @@ const createProject = async () => {
       creationSteps.value[1].completed = true;
 
       setTimeout(() => {
-        router.push('/projects');
+        if (response.id) {
+          router.push(`/projects/${response.id}`);
+        } else {
+          router.push('/projects');
+        }
       }, 2000);
     } else {
       throw new Error('Failed to create project');

@@ -6,29 +6,17 @@ import PublicRoutes from './PublicRoutes';
 const DEV_BYPASS_AUTH = import.meta.env.VITE_DEV_BYPASS_AUTH === 'true';
 
 // Synchronous wallet connection check (no composable reactivity needed)
+// Synchronous wallet connection check
 function hasWalletConnection(): boolean {
   if (DEV_BYPASS_AUTH) return true;
 
-  // Check localStorage for MetaMask connection state
+  // Check sessionStorage for FinPro wallet connection state (useEVMWallet)
   try {
-    const mmState = localStorage.getItem('metamask-state');
-    if (mmState) {
-      const state = JSON.parse(mmState);
-      return !!(state?.isConnected && state?.selectedAddress);
-    }
+    const isConnected = sessionStorage.getItem('FinPro_wallet_connected') === 'true';
+    const hasAddress = !!sessionStorage.getItem('FinPro_wallet_address');
+    if (isConnected && hasAddress) return true;
   } catch (e) {
     // Ignore storage errors
-  }
-
-  // Check for Ethereum provider (synchronous check)
-  if (typeof window !== 'undefined' && (window as any).ethereum) {
-    try {
-      const ethereum = (window as any).ethereum;
-      // Quick synchronous check for connection
-      return !!(ethereum.selectedAddress || ethereum.isConnected);
-    } catch (e) {
-      // Ignore errors
-    }
   }
 
   return false;
