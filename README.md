@@ -165,17 +165,31 @@ All tables have Row Level Security (RLS) enabled with public access policies for
 
 ## Deployment
 
-### Vercel (Recommended)
+### Vercel (Current)
 
-1. Push your code to GitHub
-2. Import the repository in Vercel
-3. Add environment variables in Vercel dashboard
-4. Deploy
+If you are seeing a "Log in to Vercel" wall or hydration errors:
+1.  Go to your **Vercel Dashboard** > **Settings** > **Deployment Protection**.
+2.  Set **Vercel Authentication** to **Disabled**.
+3.  Go to **Settings** > **Toolbar** and set it to **Disabled**.
+4.  Trigger a **Redeploy** from the latest commit.
 
-The project is configured for Vercel with:
-- SPA routing via `vercel.json`
-- Optimized build output
-- Environment variable support
+### Alternative Hosts (Recommended)
+
+This project is optimized for several free hosting platforms. We have included a `public/_redirects` file for seamless routing.
+
+#### Netlify
+1.  Connect your GitHub repository to [Netlify](https://www.netlify.com/).
+2.  **Build Command**: `npm run build`
+3.  **Publish Directory**: `dist`
+4.  **Environment Variables**: Add your `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and `VITE_APP_URL`.
+
+#### Cloudflare Pages
+1.  Go to **Workers & Pages** in your [Cloudflare Dashboard](https://dash.cloudflare.com/).
+2.  Connect your Git repository.
+3.  **Framework Preset**: Vite
+4.  **Build Command**: `npm run build`
+5.  **Output Directory**: `dist`
+6.  **Environment Variables**: Add necessary `VITE_` variables in the Settings tab.
 
 ## Contributing
 
