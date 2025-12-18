@@ -1,18 +1,38 @@
 -- FinPro Supabase Schema
 -- Supporting EVM Wallet Addresses and Full RLS
+-- Run this in your Supabase SQL Editor
+
+-- 0. CLEAN SLATE (Optional but recommended if encountering type mismatch errors)
+-- Note: This will remove existing project data.
+DROP TABLE IF EXISTS task_attachments CASCADE;
+DROP TABLE IF EXISTS subtask_reviews CASCADE;
+DROP TABLE IF EXISTS subtasks CASCADE;
+DROP TABLE IF EXISTS projects CASCADE;
+DROP TABLE IF EXISTS user_roles CASCADE;
+DROP TABLE IF EXISTS token_transactions CASCADE;
+DROP TABLE IF EXISTS swap_transactions CASCADE;
+DROP TABLE IF EXISTS token_balances CASCADE;
 
 -- 1. Users Table (Stores user profiles linked to wallet addresses)
-CREATE TABLE IF NOT EXISTS users (
-  id TEXT PRIMARY KEY, -- EVM Wallet Address (lower-cased)
-  email TEXT UNIQUE,
-  full_name TEXT,
-  avatar_url TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
--- Ensure email is nullable for wallet-only auth
-ALTER TABLE users ALTER COLUMN email DROP NOT NULL;
+-- Handle existing users table safely
+DO $$ 
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_tables WHERE tablename = 'users') THEN
+    CREATE TABLE users (
+      id TEXT PRIMARY KEY,
+      email TEXT UNIQUE,
+      full_name TEXT,
+      avatar_url TEXT,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    );
+  ELSE
+    -- Alter existing users table to support wallet addresses
+    ALTER TABLE users ALTER COLUMN id DROP DEFAULT;
+    ALTER TABLE users ALTER COLUMN id TYPE TEXT USING id::text;
+    ALTER TABLE users ALTER COLUMN email DROP NOT NULL;
+  END IF;
+END $$;
 
 -- 2. Projects Table
 CREATE TABLE IF NOT EXISTS projects (
