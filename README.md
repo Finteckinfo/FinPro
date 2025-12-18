@@ -78,6 +78,7 @@ Create a `.env` file with your Supabase credentials:
 ```
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_APP_URL=https://your-project.vercel.app
 ```
 
 4. Apply the database schema:
@@ -130,13 +131,14 @@ FinPro/
 │   │   ├── components/      # Reusable UI components
 │   │   ├── context/         # React context providers
 │   │   ├── hooks/           # Custom React hooks
-│   │   ├── lib/             # Utility libraries
+│   │   ├── lib/             # Utility libraries (config, supabase)
 │   │   ├── pages/           # Page components
 │   │   └── App.tsx          # Main app component
 │   ├── shared/              # Shared types and utilities
 │   └── worker/              # Cloudflare Worker (legacy)
 ├── supabase_schema.sql      # Database schema and migrations
 ├── package.json             # Dependencies and scripts
+├── .env.example             # Example environment variables
 └── vite.config.ts           # Vite configuration
 ```
 
