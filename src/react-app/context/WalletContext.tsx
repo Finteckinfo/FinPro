@@ -1,0 +1,173 @@
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { BrowserProvider, formatEther, parseEther } from 'ethers';
+import { supabase } from '@/react-app/lib/supabase';
+
+interface WalletContextType {
+    account: string | null;
+    provider: BrowserProvider | null;
+    chainId: number | null;
+    loading: boolean;
+    error: string | null;
+    isConnected: boolean;
+    connect: () => Promise<void>;
+    disconnect: () => void;
+    switchNetwork: (targetChainId: number) => Promise<void>;
+}
+
+const WalletContext = createContext<WalletContextType | undefined>(undefined);
+
+export function WalletProvider({ children }: { children: React.ReactNode }) {
+    const [account, setAccount] = useState<string | null>(null);
+    const [provider, setProvider] = useState<BrowserProvider | null>(null);
+    const [chainId, setChainId] = useState<number | null>(null);
+    const [loading, setLoading] = useState(true); // Default to true for initial check
+    const [error, setError] = useState<string | null>(null);
+
+    const syncUserWithSupabase = useCallback(async (walletAddress: string) => {
+        try {
+            const { error } = await supabase
+                .from('users')
+                .upsert({
+                    id: walletAddress.toLowerCase(),
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'id' });
+
+            if (error) {
+                console.error('Error syncing user with Supabase:', error);
+            }
+        } catch (err) {
+            console.error('Failed to sync user:', err);
+        }
+    }, []);
+
+    const handleAccountsChanged = useCallback(async (accounts: string[]) => {
+        if (accounts.length === 0) {
+            setAccount(null);
+        } else {
+            const addr = accounts[0];
+            setAccount(addr);
+            await syncUserWithSupabase(addr);
+        }
+    }, [syncUserWithSupabase]);
+
+    const checkConnection = useCallback(async () => {
+        if (typeof window.ethereum === 'undefined') {
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const provider = new BrowserProvider(window.ethereum);
+            const accounts = await provider.listAccounts();
+
+            if (accounts.length > 0) {
+                const addr = accounts[0].address;
+                setAccount(addr);
+                setProvider(provider);
+
+                const network = await provider.getNetwork();
+                setChainId(Number(network.chainId));
+
+                await syncUserWithSupabase(addr);
+            }
+        } catch (err) {
+            console.error('Error checking connection:', err);
+        } finally {
+            setLoading(false);
+        }
+    }, [syncUserWithSupabase]);
+
+    useEffect(() => {
+        if (typeof window.ethereum !== 'undefined') {
+            checkConnection();
+
+            const handleChainChanged = () => window.location.reload();
+
+            window.ethereum.on('accountsChanged', handleAccountsChanged);
+            window.ethereum.on('chainChanged', handleChainChanged);
+
+            return () => {
+                window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+                window.ethereum.removeListener('chainChanged', handleChainChanged);
+            };
+        } else {
+            setLoading(false);
+        }
+    }, [checkConnection, handleAccountsChanged]);
+
+    const connect = async () => {
+        if (typeof window.ethereum === 'undefined') {
+            setError('Please install MetaMask to use Web3 features');
+            return;
+        }
+
+        try {
+            setLoading(true);
+            setError(null);
+
+            const provider = new BrowserProvider(window.ethereum);
+            const accounts = await provider.send('eth_requestAccounts', []);
+
+            const addr = accounts[0];
+            setAccount(addr);
+            setProvider(provider);
+
+            const network = await provider.getNetwork();
+            setChainId(Number(network.chainId));
+
+            await syncUserWithSupabase(addr);
+        } catch (err: any) {
+            setError(err.message || 'Failed to connect wallet');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const disconnect = () => {
+        setAccount(null);
+        setProvider(null);
+        setChainId(null);
+    };
+
+    const switchNetwork = async (targetChainId: number) => {
+        if (!window.ethereum) return;
+
+        try {
+            await window.ethereum.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: `0x${targetChainId.toString(16)}` }],
+            });
+        } catch (err: any) {
+            setError(err.message || 'Failed to switch network');
+            throw err;
+        }
+    };
+
+    return (
+        <WalletContext.Provider
+            value={{
+                account,
+                provider,
+                chainId,
+                loading,
+                error,
+                isConnected: !!account,
+                connect,
+                disconnect,
+                switchNetwork,
+            }}
+        >
+            {children}
+        </WalletContext.Provider>
+    );
+}
+
+export function useWallet() {
+    const context = useContext(WalletContext);
+    if (context === undefined) {
+        throw new Error('useWallet must be used within a WalletProvider');
+    }
+    return context;
+}
+
+export { formatEther, parseEther };
