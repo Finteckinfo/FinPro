@@ -91,9 +91,20 @@ ALTER TABLE swap_transactions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE token_transactions ENABLE ROW LEVEL SECURITY;
 
 -- Allow anonymous users to sync their own wallet addresses
+DROP POLICY IF EXISTS "Public Users Access" ON users;
 CREATE POLICY "Public Users Access" ON users FOR ALL TO anon USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public Projects Access" ON projects;
 CREATE POLICY "Public Projects Access" ON projects FOR ALL TO anon USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public Tasks Access" ON tasks;
 CREATE POLICY "Public Tasks Access" ON tasks FOR ALL TO anon USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public Token Balances Access" ON token_balances;
 CREATE POLICY "Public Token Balances Access" ON token_balances FOR ALL TO anon USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public Swap Transactions Access" ON swap_transactions;
 CREATE POLICY "Public Swap Transactions Access" ON swap_transactions FOR ALL TO anon USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public Token Transactions Access" ON token_transactions;
 CREATE POLICY "Public Token Transactions Access" ON token_transactions FOR ALL TO anon USING (true) WITH CHECK (true);
