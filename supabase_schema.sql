@@ -14,6 +14,7 @@ ALTER TABLE task_attachments DROP CONSTRAINT IF EXISTS task_attachments_uploaded
 -- 2. Alter users table id to TEXT (to store wallet addresses like '0x123...')
 ALTER TABLE users ALTER COLUMN id DROP DEFAULT;
 ALTER TABLE users ALTER COLUMN id TYPE TEXT USING id::text;
+ALTER TABLE users ALTER COLUMN email DROP NOT NULL;
 
 -- 3. Alter referencing columns to TEXT
 ALTER TABLE projects ALTER COLUMN owner_id TYPE TEXT USING owner_id::text;
