@@ -112,10 +112,19 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
     const connect = async () => {
         if (typeof window.ethereum === 'undefined') {
-            setError(isMobile
-                ? 'No wallet detected. Please open this dApp inside your wallet\'s browser (MetaMask, Trust Wallet, etc.)'
-                : 'No EVM wallet detected. Please install MetaMask or another browser extension.');
-            return;
+            // Give mobile another chance if it just hasn't injected yet
+            if (isMobile) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+                if (typeof window.ethereum !== 'undefined') {
+                    // It injected, proceed with normal connection
+                } else {
+                    setError('No wallet detected. Please open this dApp inside your wallet\'s browser (MetaMask, Trust Wallet, etc.)');
+                    return;
+                }
+            } else {
+                setError('No EVM wallet detected. Please install a browser extension like MetaMask or RABBY.');
+                return;
+            }
         }
 
         try {

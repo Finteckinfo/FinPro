@@ -13,7 +13,7 @@ export default function LoginPage() {
     }
   }, [isConnected, account, navigate]);
 
-  const openMetaMask = () => {
+  const openWalletApp = () => {
     const url = window.location.href.replace(/^https?:\/\//, '');
     window.location.href = `https://metamask.app.link/dapp/${url}`;
   };
@@ -106,10 +106,10 @@ export default function LoginPage() {
                   <p className="text-red-300 text-sm text-center font-medium mb-2">{error}</p>
                   {isMobile && !window.ethereum && (
                     <button
-                      onClick={openMetaMask}
+                      onClick={openWalletApp}
                       className="w-full py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm transition-all"
                     >
-                      Open in MetaMask
+                      Open in Wallet App
                     </button>
                   )}
                 </div>
