@@ -9,6 +9,7 @@ interface WalletContextType {
     loading: boolean;
     error: string | null;
     isConnected: boolean;
+    isMobile: boolean;
     connect: () => Promise<void>;
     disconnect: () => void;
     switchNetwork: (targetChainId: number) => Promise<void>;
@@ -20,8 +21,11 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const [account, setAccount] = useState<string | null>(null);
     const [provider, setProvider] = useState<BrowserProvider | null>(null);
     const [chainId, setChainId] = useState<number | null>(null);
-    const [loading, setLoading] = useState(true); // Default to true for initial check
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isMobile] = useState(() =>
+        typeof window !== 'undefined' && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+    );
 
     const syncUserWithSupabase = useCallback(async (walletAddress: string) => {
         try {
@@ -43,6 +47,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const handleAccountsChanged = useCallback(async (accounts: string[]) => {
         if (accounts.length === 0) {
             setAccount(null);
+            setProvider(null);
         } else {
             const addr = accounts[0];
             setAccount(addr);
@@ -51,6 +56,11 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     }, [syncUserWithSupabase]);
 
     const checkConnection = useCallback(async () => {
+        // Give mobile dApp browsers a moment to inject their provider
+        if (isMobile) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+
         if (typeof window.ethereum === 'undefined') {
             setLoading(false);
             return;
@@ -75,7 +85,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         } finally {
             setLoading(false);
         }
-    }, [syncUserWithSupabase]);
+    }, [isMobile, syncUserWithSupabase]);
 
     useEffect(() => {
         if (typeof window.ethereum !== 'undefined') {
@@ -91,13 +101,20 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 window.ethereum.removeListener('chainChanged', handleChainChanged);
             };
         } else {
+            // Even if not initially detected, check after a small delay on mobile
+            if (isMobile) {
+                const timeout = setTimeout(checkConnection, 1000);
+                return () => clearTimeout(timeout);
+            }
             setLoading(false);
         }
-    }, [checkConnection, handleAccountsChanged]);
+    }, [isMobile, checkConnection, handleAccountsChanged]);
 
     const connect = async () => {
         if (typeof window.ethereum === 'undefined') {
-            setError('Please install MetaMask to use Web3 features');
+            setError(isMobile
+                ? 'No wallet detected. Please open this dApp inside your wallet\'s browser (MetaMask, Trust Wallet, etc.)'
+                : 'No EVM wallet detected. Please install MetaMask or another browser extension.');
             return;
         }
 
@@ -108,16 +125,22 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             const provider = new BrowserProvider(window.ethereum);
             const accounts = await provider.send('eth_requestAccounts', []);
 
-            const addr = accounts[0];
-            setAccount(addr);
-            setProvider(provider);
+            if (accounts && accounts.length > 0) {
+                const addr = accounts[0];
+                setAccount(addr);
+                setProvider(provider);
 
-            const network = await provider.getNetwork();
-            setChainId(Number(network.chainId));
+                const network = await provider.getNetwork();
+                setChainId(Number(network.chainId));
 
-            await syncUserWithSupabase(addr);
+                await syncUserWithSupabase(addr);
+            }
         } catch (err: any) {
-            setError(err.message || 'Failed to connect wallet');
+            if (err.code === 4001) {
+                setError('Connection rejected by user');
+            } else {
+                setError(err.message || 'Failed to connect wallet');
+            }
         } finally {
             setLoading(false);
         }
@@ -152,6 +175,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 loading,
                 error,
                 isConnected: !!account,
+                isMobile,
                 connect,
                 disconnect,
                 switchNetwork,

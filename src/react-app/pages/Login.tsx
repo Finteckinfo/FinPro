@@ -4,7 +4,7 @@ import { Wallet, Shield, Sparkles, CheckCircle, Lock } from 'lucide-react';
 import { useWallet } from '@/react-app/hooks/useWallet';
 
 export default function LoginPage() {
-  const { account, loading, error, connect, isConnected } = useWallet();
+  const { account, loading, error, connect, isConnected, isMobile } = useWallet();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -12,6 +12,11 @@ export default function LoginPage() {
       navigate('/');
     }
   }, [isConnected, account, navigate]);
+
+  const openMetaMask = () => {
+    const url = window.location.href.replace(/^https?:\/\//, '');
+    window.location.href = `https://metamask.app.link/dapp/${url}`;
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-green-950 to-black flex items-center justify-center p-4">
@@ -92,13 +97,21 @@ export default function LoginPage() {
                   Welcome Back
                 </h2>
                 <p className="text-green-400/70">
-                  Connect your Ethereum wallet to access your projects
+                  {isMobile ? 'Connect your mobile wallet to access projects' : 'Connect your Ethereum wallet to access projects'}
                 </p>
               </div>
 
               {error && (
                 <div className="mb-6 p-4 bg-red-900/30 border border-red-800/50 rounded-xl">
-                  <p className="text-red-300 text-sm text-center">{error}</p>
+                  <p className="text-red-300 text-sm text-center font-medium mb-2">{error}</p>
+                  {isMobile && !window.ethereum && (
+                    <button
+                      onClick={openMetaMask}
+                      className="w-full py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm transition-all"
+                    >
+                      Open in MetaMask
+                    </button>
+                  )}
                 </div>
               )}
 
@@ -114,7 +127,7 @@ export default function LoginPage() {
 
                 <div className="text-center">
                   <p className="text-xs text-green-500/60">
-                    Supports MetaMask, WalletConnect, and other EVM wallets
+                    Supports MetaMask, Trust Wallet, and other EVM wallets
                   </p>
                 </div>
               </div>
