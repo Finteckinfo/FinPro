@@ -136,6 +136,19 @@ export default function CreateSubtaskModal({
 
           <div className="space-y-3">
             <label className="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-2">
+              Stream Description
+            </label>
+            <textarea
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              rows={3}
+              className="w-full px-6 py-4 bg-black/20 border border-white/5 rounded-[22px] focus:border-blue-500/30 outline-none transition-all text-white placeholder-gray-700 font-medium resize-none"
+              placeholder="Describe the component objectives and deliverables..."
+            />
+          </div>
+
+          <div className="space-y-3">
+            <label className="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-2">
               Assigned Participant
             </label>
             <div className="relative">
