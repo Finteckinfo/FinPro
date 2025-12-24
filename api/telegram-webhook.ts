@@ -31,7 +31,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
                 switch (command) {
                     case 'start':
-                        await handleStart(bot, message);
+                        await handleStart(bot, message, supabase);
                         break;
                     case 'projects':
                         await handleProjects(bot, message, supabase);
