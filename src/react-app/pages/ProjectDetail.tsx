@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router';
-import { ArrowLeft, Plus, DollarSign, TrendingUp, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Plus, DollarSign, TrendingUp, CheckCircle, Activity } from 'lucide-react';
 import { useProject } from '@/react-app/hooks/useProjects';
 import { useSubtasks } from '@/react-app/hooks/useSubtasks';
 import SubtaskCard from '@/react-app/components/SubtaskCard';
@@ -69,10 +69,10 @@ export default function ProjectDetailPage() {
 
   if (projectLoading || subtasksLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-green-950 to-black flex items-center justify-center">
+      <div className="min-h-screen bg-[#050B18] flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-green-300">Loading project...</p>
+          <div className="w-16 h-16 border-4 border-[#0D99FF] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-blue-400 font-medium">Synchronizing project data...</p>
         </div>
       </div>
     );
@@ -80,15 +80,15 @@ export default function ProjectDetailPage() {
 
   if (!project) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-green-950 to-black flex items-center justify-center p-4">
-        <div className="bg-gradient-to-br from-green-900/40 to-black/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-green-900/50 border border-green-800/50 p-8 max-w-md w-full text-center">
-          <p className="text-green-300 mb-4">Project not found</p>
+      <div className="min-h-screen bg-[#050B18] flex items-center justify-center p-4">
+        <div className="bg-[#121A2C] backdrop-blur-xl rounded-[32px] border border-white/5 p-8 max-w-md w-full text-center shadow-2xl">
+          <p className="text-gray-400 font-bold text-xl mb-6">Internal Access Error: Project not found</p>
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-green-400 hover:text-green-300 font-medium"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-500/10 text-blue-400 rounded-xl hover:bg-blue-500/20 transition-all font-bold"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Projects
+            Return to Overview
           </Link>
         </div>
       </div>
@@ -100,31 +100,30 @@ export default function ProjectDetailPage() {
   const completionRate = subtasks.length > 0 ? (approvedSubtasks / subtasks.length) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-green-950 to-black">
+    <div className="min-h-screen bg-[#050B18]">
       {/* Header */}
-      <header className="bg-black/60 backdrop-blur-lg border-b border-green-900/50 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+      <header className="bg-[#050B18]/80 backdrop-blur-xl border-b border-white/5 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <Link
               to="/"
-              className="flex items-center gap-2 text-green-400 hover:text-green-300 transition-colors text-sm sm:text-base"
+              className="group flex items-center gap-3 text-gray-500 hover:text-white transition-all"
             >
-              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="font-medium">Back to Projects</span>
+              <div className="p-2 bg-white/5 rounded-xl group-hover:bg-blue-500/10 group-hover:text-blue-400 transition-all">
+                <ArrowLeft className="w-5 h-5" />
+              </div>
+              <span className="font-bold uppercase tracking-widest text-xs">Back to Overview</span>
             </Link>
 
             <div className="flex items-center gap-3 w-full sm:w-auto">
-              <div className="flex-1 sm:flex-initial">
-                <WalletConnect />
-              </div>
+              <WalletConnect />
               <button
                 onClick={() => setIsCreateSubtaskModalOpen(true)}
                 disabled={availableFunds <= 0}
-                className="flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-medium hover:shadow-lg hover:shadow-green-900/50 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-green-500/30 text-sm sm:text-base whitespace-nowrap"
+                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#0D99FF] to-[#0066FF] text-white rounded-[18px] font-black hover:shadow-[0_8px_25px_rgba(13,153,255,0.4)] hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-white/10 text-sm"
               >
-                <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="hidden sm:inline">New Subtask</span>
-                <span className="sm:hidden">New</span>
+                <Plus className="w-5 h-5" />
+                <span>Initialize Component</span>
               </button>
             </div>
           </div>
@@ -132,98 +131,93 @@ export default function ProjectDetailPage() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        {/* Project Header */}
-        <div className="bg-gradient-to-br from-green-900/40 to-black/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-green-900/50 border border-green-800/50 p-6 sm:p-8 mb-6 sm:mb-8">
-          <div className="flex flex-col sm:flex-row items-start justify-between mb-6 gap-4">
-            <div className="flex-1">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-green-100 mb-2">
-                {project.name}
-              </h1>
-              {project.description && (
-                <p className="text-base sm:text-lg text-green-300/70">{project.description}</p>
-              )}
-            </div>
-            <span className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium border whitespace-nowrap ${project.status === 'active'
-                ? 'bg-green-900/50 text-green-300 border-green-700/50'
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+        {/* Project Profile Section */}
+        <div className="bg-[#121A2C] rounded-[40px] border border-white/5 p-8 sm:p-10 mb-10 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/5 rounded-full -mr-48 -mt-48 blur-3xl pointer-events-none" />
+
+          <div className="relative z-10">
+            <div className="flex flex-col sm:flex-row items-start justify-between mb-10 gap-6">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="px-3 py-1 bg-blue-500/10 text-blue-400 rounded-lg text-[10px] font-black uppercase tracking-widest border border-blue-500/20">
+                    Project Profile
+                  </div>
+                  <div className="w-1.5 h-1.5 bg-gray-700 rounded-full" />
+                  <div className="text-gray-500 text-[10px] font-black uppercase tracking-widest">
+                    ID: {project.id.toString().substring(0, 8)}...
+                  </div>
+                </div>
+                <h1 className="text-4xl sm:text-5xl font-black text-white mb-4 tracking-tight">
+                  {project.name}
+                </h1>
+                {project.description && (
+                  <p className="text-lg text-gray-400 leading-relaxed max-w-2xl">{project.description}</p>
+                )}
+              </div>
+              <span className={`px-5 py-2 rounded-2xl text-xs font-black uppercase tracking-widest border shadow-lg ${project.status === 'active'
+                ? 'bg-blue-500/10 text-[#0D99FF] border-blue-500/20'
                 : project.status === 'completed'
-                  ? 'bg-emerald-900/50 text-emerald-300 border-emerald-700/50'
-                  : 'bg-gray-900/50 text-gray-400 border-gray-700/50'
-              }`}>
-              {project.status}
-            </span>
-          </div>
-
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
-            <div className="bg-gradient-to-br from-green-800/30 to-emerald-900/30 rounded-xl p-4 sm:p-5 border border-green-700/30">
-              <div className="flex items-center gap-2 sm:gap-3 mb-2">
-                <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-green-400 flex-shrink-0" />
-                <span className="text-xs sm:text-sm font-medium text-green-300/70">Total Budget</span>
-              </div>
-              <p className="text-lg sm:text-2xl font-bold text-green-100">
-                ${project.total_funds.toLocaleString()}
-              </p>
+                  ? 'bg-green-500/10 text-green-400 border-green-500/20'
+                  : 'bg-gray-800 text-gray-400 border-gray-700'
+                }`}>
+                {project.status}
+              </span>
             </div>
 
-            <div className="bg-gradient-to-br from-emerald-800/30 to-green-900/30 rounded-xl p-4 sm:p-5 border border-emerald-700/30">
-              <div className="flex items-center gap-2 sm:gap-3 mb-2">
-                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400 flex-shrink-0" />
-                <span className="text-xs sm:text-sm font-medium text-green-300/70">Available</span>
-              </div>
-              <p className="text-lg sm:text-2xl font-bold text-green-100">
-                ${availableFunds.toLocaleString()}
-              </p>
-            </div>
-
-            <div className="bg-gradient-to-br from-blue-900/30 to-green-900/30 rounded-xl p-4 sm:p-5 border border-blue-800/30">
-              <div className="flex items-center gap-2 sm:gap-3 mb-2">
-                <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400 flex-shrink-0" />
-                <span className="text-xs sm:text-sm font-medium text-green-300/70">Tasks</span>
-              </div>
-              <p className="text-lg sm:text-2xl font-bold text-green-100">
-                {approvedSubtasks}/{subtasks.length}
-              </p>
-            </div>
-
-            <div className="bg-gradient-to-br from-yellow-900/30 to-green-900/30 rounded-xl p-4 sm:p-5 border border-yellow-800/30">
-              <div className="flex items-center gap-2 sm:gap-3 mb-2">
-                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 flex-shrink-0" />
-                <span className="text-xs sm:text-sm font-medium text-green-300/70">Completion</span>
-              </div>
-              <p className="text-lg sm:text-2xl font-bold text-green-100">
-                {completionRate.toFixed(0)}%
-              </p>
+            {/* Precision Stats Matrix */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                { icon: DollarSign, label: 'Capitalization', value: `$${project.total_funds.toLocaleString()}`, color: 'blue' },
+                { icon: TrendingUp, label: 'Free Resource', value: `$${availableFunds.toLocaleString()}`, color: 'emerald' },
+                { icon: CheckCircle, label: 'Component Status', value: `${approvedSubtasks}/${subtasks.length}`, color: 'blue' },
+                { icon: Activity, label: 'Velocity Rate', value: `${completionRate.toFixed(0)}%`, color: 'blue' }
+              ].map((stat, i) => (
+                <div key={i} className="bg-white/5 rounded-[28px] p-6 border border-white/5 hover:border-white/10 transition-all group">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className={`p-2 bg-${stat.color}-500/10 rounded-xl text-${stat.color}-400 group-hover:scale-110 transition-transform`}>
+                      <stat.icon className="w-4 h-4" />
+                    </div>
+                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{stat.label}</span>
+                  </div>
+                  <p className="text-2xl font-black text-white">{stat.value}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Subtasks Section */}
+        {/* Development Streams (Subtasks) */}
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-green-100 mb-4 sm:mb-6 px-2 sm:px-0">Subtasks</h2>
+          <div className="flex items-center justify-between mb-8 px-4">
+            <div>
+              <h2 className="text-2xl font-black text-white">Development Streams</h2>
+              <p className="text-gray-500 font-medium">Breakdown of initialized components and assets</p>
+            </div>
+          </div>
 
           {subtasks.length === 0 ? (
-            <div className="bg-gradient-to-br from-green-900/40 to-black/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-green-900/50 border border-green-800/50 p-8 sm:p-12 text-center">
-              <div className="inline-block p-4 sm:p-6 bg-green-900/30 rounded-2xl mb-4 border border-green-800/50">
-                <Plus className="w-10 h-10 sm:w-12 sm:h-12 text-green-400 mx-auto" />
+            <div className="bg-[#121A2C] rounded-[40px] border border-white/5 border-dashed p-16 text-center shadow-inner">
+              <div className="inline-block p-8 bg-blue-500/5 rounded-[32px] mb-8 border border-blue-500/10">
+                <Plus className="w-16 h-16 text-blue-500/40 mx-auto" />
               </div>
-              <h3 className="text-lg sm:text-xl font-semibold text-green-100 mb-2">
-                No Subtasks Yet
+              <h3 className="text-2xl font-black text-white mb-3">
+                No Active Streams
               </h3>
-              <p className="text-sm sm:text-base text-green-400/70 mb-6 max-w-md mx-auto px-4">
-                Break down your project into smaller tasks and allocate funds for each one.
+              <p className="text-gray-500 mb-10 max-w-md mx-auto font-medium">
+                Decompose your project high-level goals into actionable development streams and allocate capital.
               </p>
               <button
                 onClick={() => setIsCreateSubtaskModalOpen(true)}
                 disabled={availableFunds <= 0}
-                className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-medium hover:shadow-xl hover:shadow-green-900/50 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-green-500/30 text-sm sm:text-base"
+                className="inline-flex items-center gap-2 px-10 py-5 bg-gradient-to-r from-[#0D99FF] to-[#0066FF] text-white rounded-[24px] font-black hover:shadow-[0_12px_40px_rgba(13,153,255,0.4)] transition-all disabled:opacity-30"
               >
-                <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-                Create First Subtask
+                <Plus className="w-5 h-5" />
+                Initialize First Stream
               </button>
             </div>
           ) : (
-            <div className="space-y-3 sm:space-y-4">
+            <div className="grid grid-cols-1 gap-4">
               {subtasks.map((subtask) => (
                 <SubtaskCard
                   key={subtask.id}

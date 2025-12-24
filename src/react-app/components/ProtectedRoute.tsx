@@ -10,10 +10,10 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-green-950 to-black flex items-center justify-center">
+      <div className="min-h-screen bg-[#050B18] flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-green-300">Connecting to wallet...</p>
+          <div className="w-16 h-16 border-4 border-[#0D99FF] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-blue-400 font-medium tracking-widest uppercase text-xs">Synchronizing Session...</p>
         </div>
       </div>
     );

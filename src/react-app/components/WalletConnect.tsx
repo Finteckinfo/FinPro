@@ -10,9 +10,9 @@ export default function WalletConnect() {
 
   if (error) {
     return (
-      <div className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-red-900/20 border border-red-800 rounded-lg">
-        <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
-        <span className="text-xs sm:text-sm text-red-400 truncate">{error}</span>
+      <div className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-lg">
+        <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+        <span className="text-xs sm:text-sm text-red-500 truncate font-medium">{error}</span>
       </div>
     );
   }
@@ -20,18 +20,18 @@ export default function WalletConnect() {
   if (isConnected && account) {
     return (
       <div className="flex items-center gap-2 sm:gap-3">
-        <div className="px-3 sm:px-4 py-2 bg-gradient-to-r from-green-900/40 to-emerald-900/40 border border-green-700/50 rounded-lg flex-1 sm:flex-initial">
+        <div className="px-4 py-2 bg-blue-500/5 border border-blue-500/20 rounded-xl flex-1 sm:flex-initial backdrop-blur-sm">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse flex-shrink-0" />
-            <span className="text-xs sm:text-sm font-mono text-green-100 truncate">{formatAddress(account)}</span>
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse flex-shrink-0 shadow-[0_0_8px_rgba(13,153,255,0.8)]" />
+            <span className="text-sm font-bold text-white truncate tracking-wide">{formatAddress(account)}</span>
           </div>
         </div>
         <button
           onClick={disconnect}
-          className="p-2 hover:bg-green-900/20 rounded-lg transition-colors border border-green-800/50 flex-shrink-0"
+          className="p-2 hover:bg-blue-500/10 rounded-xl transition-all border border-blue-500/20 flex-shrink-0 text-blue-400 hover:text-blue-300"
           title="Disconnect Wallet"
         >
-          <LogOut className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
+          <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
       </div>
     );
@@ -41,7 +41,7 @@ export default function WalletConnect() {
     <button
       onClick={connect}
       disabled={loading}
-      className="flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-green-900/50 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-green-500/30 text-sm sm:text-base w-full sm:w-auto justify-center"
+      className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#0D99FF] to-[#0066FF] text-white rounded-xl font-bold hover:shadow-[0_8px_25px_rgba(13,153,255,0.4)] hover:scale-[1.02] transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed border border-white/10 text-sm sm:text-base w-full sm:w-auto justify-center"
     >
       <Wallet className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
       <span className="truncate">{loading ? 'Connecting...' : 'Connect Wallet'}</span>
