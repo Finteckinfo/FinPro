@@ -1,8 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import TelegramBot from 'node-telegram-bot-api';
 import { createClient } from '@supabase/supabase-js';
-import { handleStart, handleProjects, handleHelp } from '../telegram-bot/handlers/commands.js';
-import { handleMessage } from '../telegram-bot/handlers/messages.js';
 
 // Initialize bot (without polling for serverless)
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN!, { polling: false });
@@ -14,12 +12,15 @@ const supabase = createClient(
 );
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+    console.log('Webhook received:', JSON.stringify(req.body, null, 2));
+    
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
         const update = req.body;
+        console.log('Processing update:', update);
 
         // Handle different types of updates
         if (update.message) {
@@ -28,23 +29,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             // Handle commands
             if (message.text?.startsWith('/')) {
                 const command = message.text.split(' ')[0].substring(1);
+                console.log('Command received:', command);
 
                 switch (command) {
                     case 'start':
-                        await handleStart(bot, message, supabase);
-                        break;
-                    case 'projects':
-                        await handleProjects(bot, message, supabase);
+                        await bot.sendMessage(message.chat.id, 'Welcome to FinPro! 🚀\n\nUse /projects to view your projects or /help for more commands.');
                         break;
                     case 'help':
-                        await handleHelp(bot, message);
+                        await bot.sendMessage(message.chat.id, 'Available commands:\n/start - Welcome message\n/projects - View projects\n/help - Show this help');
                         break;
                     default:
                         await bot.sendMessage(message.chat.id, 'Unknown command. Use /help to see available commands.');
                 }
-            } else {
-                // Handle regular messages
-                await handleMessage(bot, message, supabase);
             }
         }
 
