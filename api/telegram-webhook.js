@@ -1,19 +1,18 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
 import TelegramBot from 'node-telegram-bot-api';
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize bot (without polling for serverless)
-const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN!, { polling: false });
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: false });
 
 // Initialize Supabase
 const supabase = createClient(
-    process.env.VITE_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_KEY!
+    process.env.VITE_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_KEY
 );
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req, res) {
     console.log('Webhook received:', JSON.stringify(req.body, null, 2));
-    
+
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
@@ -27,7 +26,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const message = update.message;
 
             // Handle commands
-            if (message.text?.startsWith('/')) {
+            if (message.text && message.text.startsWith('/')) {
                 const command = message.text.split(' ')[0].substring(1);
                 console.log('Command received:', command);
 

@@ -1,8 +1,7 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
 import TelegramBot from 'node-telegram-bot-api';
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-    const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN!, { polling: false });
+export default async function handler(req, res) {
+    const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: false });
 
     try {
         const webhookUrl = `${process.env.TELEGRAM_WEBHOOK_URL}/api/telegram-webhook`;
@@ -19,7 +18,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.error('Error setting webhook:', error);
         res.status(500).json({
             success: false,
-            error: error instanceof Error ? error.message : 'Unknown error'
+            error: error.message || 'Unknown error'
         });
     }
 }
