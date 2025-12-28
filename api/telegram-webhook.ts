@@ -1,15 +1,5 @@
 import TelegramBot from 'node-telegram-bot-api';
 import { createClient } from '@supabase/supabase-js';
-
-// Initialize bot (without polling for serverless)
-const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN || '', { polling: false });
-
-// Initialize Supabase
-const supabase = createClient(
-    process.env.VITE_SUPABASE_URL || '',
-    process.env.SUPABASE_SERVICE_KEY || ''
-);
-
 import {
     handleStart,
     handleProjects,
@@ -21,16 +11,38 @@ import {
 } from '../telegram-bot/handlers/commands.js';
 import { handleSupabaseWebhook as sharedHandleSupabaseWebhook } from '../telegram-bot/handlers/webhooks.js';
 
+// Initialize bot (without polling for serverless)
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN || '', { polling: false });
+
+// Initialize Supabase
+const supabase = createClient(
+    process.env.VITE_SUPABASE_URL || '',
+    process.env.SUPABASE_SERVICE_KEY || ''
+);
+
 export default async function handler(req: any, res: any) {
-    console.log('Webhook received:', JSON.stringify(req.body, null, 2));
+    console.log('Environment Check:', {
+        hasToken: !!process.env.TELEGRAM_BOT_TOKEN,
+        hasSupabaseUrl: !!process.env.VITE_SUPABASE_URL,
+        hasSupabaseKey: !!process.env.SUPABASE_SERVICE_KEY,
+        hasMiniAppUrl: !!process.env.TELEGRAM_MINI_APP_URL
+    });
+
+    console.log('Webhook triggered with method:', req.method);
 
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    try {
-        const payload = req.body;
+    if (!process.env.TELEGRAM_BOT_TOKEN) {
+        console.error('CRITICAL: TELEGRAM_BOT_TOKEN is missing in environment!');
+        return res.status(500).json({ error: 'Bot token not configured' });
+    }
 
+    const payload = req.body;
+    console.log('Webhook payload:', JSON.stringify(payload, null, 2));
+
+    try {
         // 1. Detect if this is a Supabase Webhook
         if (payload.record && payload.table && payload.type) {
             console.log('Supabase Webhook detected:', payload.table, payload.type);
@@ -82,5 +94,3 @@ export default async function handler(req: any, res: any) {
         res.status(500).json({ error: 'Internal server error' });
     }
 }
-
-// Local handleProjectsCommand removed in favor of shared handler
