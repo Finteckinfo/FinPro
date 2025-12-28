@@ -79,7 +79,7 @@ BEGIN
   NEW.updated_at = CURRENT_TIMESTAMP;
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 -- 8. Create trigger for messages table
 DROP TRIGGER IF EXISTS update_messages_updated_at_trigger ON messages;

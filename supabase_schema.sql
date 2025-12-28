@@ -137,7 +137,7 @@ BEGIN
       updated_at = CURRENT_TIMESTAMP
   WHERE id = p_project_id;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 -- 11. Enable Row Level Security (RLS)
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
