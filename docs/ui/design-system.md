@@ -25,15 +25,15 @@ FinPro uses CSS variables defined in `src/index.css` (e.g. `--erp-page-bg`, `--e
 ## Typography
 
 ### Goals
-- Body text should never be “washed out” in light mode or “dim” in dark mode.
+- Body text should never be "washed out" in light mode or "dim" in dark mode.
 - Avoid gray-on-gray combinations that fail contrast.
 
 ### Recommended scale (can be adjusted)
 
-- **H1**: 40–56px (desktop), 28–36px (mobile)
-- **H2**: 28–36px (desktop), 22–28px (mobile)
-- **Body**: 14–16px
-- **Captions**: 12–13px (only for secondary meta text)
+- **H1**: 40-56px (desktop), 28-36px (mobile)
+- **H2**: 28-36px (desktop), 22-28px (mobile)
+- **Body**: 14-16px
+- **Captions**: 12-13px (only for secondary meta text)
 
 ## Layout + spacing
 
@@ -68,7 +68,7 @@ FinPro uses CSS variables defined in `src/index.css` (e.g. `--erp-page-bg`, `--e
    - landing
    - dashboard
    - project create/fund flows
-3. Add a “contrast guardrail” pass for:
+3. Add a "contrast guardrail" pass for:
    - muted text
    - borders
    - card backgrounds

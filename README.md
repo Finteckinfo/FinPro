@@ -1,67 +1,77 @@
 # FinPro
 
-FinPro is a decentralized project management platform that integrates blockchain technology for secure funding and task tracking. It features a React-based web application and a companion Telegram bot for managing projects on the go.
+FinPro is a decentralized project management and decentralized finance (DeFi) platform. It integrates blockchain technology for secure funding, task tracking, and token management. The system consists of a React-based web application, a companion Telegram bot, and a suite of smart contracts.
+
+## Architecture and Components
+
+The project is structured into three main layers:
+
+### 1. Web Application (React)
+- Located in `src/react-app`.
+- Built with React, Vite, and TypeScript.
+- Uses Ethers.js for EVM-compatible wallet integration.
+- Implements real-time synchronization with Supabase via Postgres listeners.
+- Features include project creation, subtask management, and token swapping.
+
+### 2. Telegram Integration
+- **Telegram Bot**: Located in `telegram-bot`. A Node.js service using `node-telegram-bot-api`.
+- **Mini App**: Integrated directly into the Telegram interface for seamless wallet linking.
+- **Webhook Handler**: Located in `api/telegram-webhook.ts`, deployed as a serverless function to handle both Telegram commands and database change notifications.
+
+### 3. Smart Contracts
+- Located in `contracts`.
+- Developed using Hardhat and Solidity (v0.8.20+).
+- Core contracts:
+    - `FINToken.sol`: The platform's native ERC20 token.
+    - `ProjectEscrow.sol`: Handles fund holding and release based on task completion.
+    - `FINSwap.sol`: Decentralized exchange logic for platform tokens.
+    - `MultiSigWallet.sol`: Secure management for administrative operations.
 
 ## Features
 
-### Web Application
-- **Wallet Authentication**: Secure login using EVM-compatible wallets.
-- **Project Management**: Create and manage projects with funding goals and timelines.
-- **Subtask Tracking**: Break down projects into actionable subtasks with status tracking.
-- **Data Isolation**: Users can only view and manage their own projects.
-- **Supabase Integration**: Real-time database updates and secure user mapping.
+- **Wallet-Only Authentication**: Secure access using blockchain identity.
+- **Project Governance**: Create projects with defined capital reserves and timelines.
+- **Task Assignment**: Break down projects into subtasks with specific allocations.
+- **Real-time Notifications**: Instant updates via Telegram when projects are created or tasks are assigned.
+- **Integrated DeFi**: Token faucet and swap functionality for ecosystem testing.
 
-### Telegram Bot
-- **Project Awareness**: View your active projects directly from Telegram.
-- **User Linking**: Securely link your Telegram account to your blockchain wallet via the Mini App.
-- **Commands**:
-    - `/start`: Initialize the bot and view welcome instructions.
-    - `/projects`: List all projects associated with your linked wallet.
-    - `/help`: detailed usage instructions.
-
-## Setup Instructions
+## Setup and Installation
 
 ### Prerequisites
-- Node.js (v18+)
-- Vercel CLI (for deployment)
-- Supabase Project
+- Node.js (v18 or higher)
+- Supabase account and project
+- Telegram Bot Token (from BotFather)
 
-### Installation
-1.  Clone the repository:
-    ```bash
-    git clone https://github.com/Finteckinfo/FinPro.git
-    cd FinPro
-    ```
-
-2.  Install dependencies:
+### Local Configuration
+1. Clone the repository and install dependencies:
     ```bash
     npm install
     ```
+2. Set up environment variables:
+    Create a `.env` file in the root directory. Refer to `.env.example` for the required keys.
+    Important: Do not prefix sensitive service keys with VITE_ to prevent exposure to the client.
 
-3.  Configure Environment Variables:
-    Create a `.env` file based on `.env.example` and add your credentials:
-    ```env
-    VITE_SUPABASE_URL=your_supabase_url
-    SUPABASE_SERVICE_KEY=your_supabase_anon_key
-    TELEGRAM_BOT_TOKEN=your_bot_token
-    TELEGRAM_WEBHOOK_URL=your_vercel_url
+3. Start the development server:
+    ```bash
+    npm run dev
     ```
 
-### Running Locally
-To start the development server:
+### Telegram Bot Setup
+The bot requires a valid Vercel deployment URL for webhook registration. Use the following command to set the webhook:
 ```bash
-npm run dev
+curl -X POST "https://api.telegram.org/bot<YOUR_TOKEN>/setWebhook?url=<YOUR_DEPLOYMENT_URL>/api/telegram-webhook"
 ```
 
-### Deployment
-This project is configured for deployment on Vercel.
-1.  Push to GitHub.
-2.  Import the project in Vercel.
-3.  Configure Environment Variables in Vercel Settings.
-4.  Deploy.
+## Security and Verification
 
-## Telegram Bot Setup
-For detailed instructions on configuring the Telegram Bot and Webhook, please refer to the [Telegram Setup Guide](TELEGRAM_SETUP_GUIDE.md).
+The project includes built-in security auditing tools:
+- **Slither**: For static analysis of smart contracts.
+- **npm audit**: For dependency vulnerability checks.
+
+Before deployment, it is recommended to run the build command to verify configuration:
+```bash
+npm run build
+```
 
 ## License
-Private Property of FinPro.
+All rights reserved. Private Property of Finteckinfo/FinPro.

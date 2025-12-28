@@ -30,6 +30,30 @@ export function useSubtasks(projectId: number | null) {
 
   useEffect(() => {
     fetchSubtasks();
+
+    if (!projectId) return;
+
+    // Set up real-time listener for subtasks of this project
+    const channel = supabase
+      .channel(`subtasks-${projectId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'subtasks',
+          filter: `project_id=eq.${projectId}`
+        },
+        (payload) => {
+          console.log('Real-time subtask change detected:', payload);
+          fetchSubtasks();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [projectId]);
 
   return { subtasks, loading, error, refetch: fetchSubtasks };

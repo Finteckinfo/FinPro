@@ -67,9 +67,9 @@ FIN is intended to be used inside FinPro for:
 - Potential incentives (e.g., usage rewards, fee rebates) *(optional)*
 - Governance features *(optional; not enabled by default)*
 
-### 4.2 “Peg” / Price Stability (Clarification)
+### 4.2 "Peg" / Price Stability (Clarification)
 
-Some documentation refers to “1 FIN = 1 USDT”. A DEX pool + liquidity **does not guarantee a peg** by itself.
+Some documentation refers to "1 FIN = 1 USDT". A DEX pool + liquidity **does not guarantee a peg** by itself.
 
 If a stable value is required, FinPro should implement one of:
 
@@ -168,7 +168,7 @@ FinPro includes:
 
 Example structure:
 
-- **Phase 1**: MVP — wallet auth, escrow funding/release, basic project flows
+- **Phase 1**: MVP - wallet auth, escrow funding/release, basic project flows
 - **Phase 2**: production-grade backend, audit, monitoring, alerting
 - **Phase 3**: governance/treasury tooling, integrations, compliance hardening
 
@@ -193,7 +193,7 @@ You should decide and document:
 
 ---
 
-## Appendix A — Open Questions (Need Your Answers)
+## Appendix A - Open Questions (Need Your Answers)
 
 1. Is FIN meant to be:
    - a pure utility token, or

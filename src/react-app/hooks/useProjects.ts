@@ -38,7 +38,24 @@ export function useProjects() {
 
   useEffect(() => {
     fetchProjects();
-  }, [account]); // Re-fetch when account changes
+
+    // Set up real-time listener
+    const channel = supabase
+      .channel('projects-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'projects' },
+        (payload) => {
+          console.log('Real-time project change detected:', payload);
+          fetchProjects(); // Simplest approach: refetch everything
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [account]); // Re-fetch/re-subscribe when account changes
 
   return { projects, loading, error, refetch: fetchProjects };
 }

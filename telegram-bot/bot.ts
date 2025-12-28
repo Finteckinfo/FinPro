@@ -18,13 +18,23 @@ const supabase = createClient(config.supabase.url, config.supabase.serviceKey);
 const app = express();
 app.use(express.json());
 
-// Webhook endpoint
-app.post('/webhook', async (req, res) => {
-    try {
-        const update = req.body;
+import { handleSupabaseWebhook } from './handlers/webhooks';
 
-        if (update.message) {
-            const message = update.message;
+// Webhook endpoint
+app.post('/webhook', async (req: express.Request, res: express.Response) => {
+    try {
+        const payload = req.body;
+
+        // 1. Detect if this is a Supabase Webhook
+        if (payload.record && payload.table && payload.type) {
+            console.log('Supabase Webhook detected:', payload.table, payload.type);
+            await handleSupabaseWebhook(bot, supabase, payload);
+            return res.sendStatus(200);
+        }
+
+        // 2. Handle Telegram Bot Updates
+        if (payload.message) {
+            const message = payload.message;
             const chatId = message.chat.id;
             const text = message.text || '';
 
@@ -57,20 +67,20 @@ app.post('/webhook', async (req, res) => {
 });
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/health', (req: express.Request, res: express.Response) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 // Start server
 app.listen(config.port, async () => {
-    console.log(`🤖 Telegram bot server running on port ${config.port}`);
+    console.log(`Telegram bot server running on port ${config.port}`);
 
     // Set webhook
     try {
         await bot.setWebHook(`${config.webhookUrl}/webhook`);
-        console.log(`✅ Webhook set to: ${config.webhookUrl}/webhook`);
+        console.log(`Webhook set to: ${config.webhookUrl}/webhook`);
     } catch (error) {
-        console.error('❌ Failed to set webhook:', error);
+        console.error('Failed to set webhook:', error);
     }
 });
 

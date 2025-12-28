@@ -17,7 +17,7 @@ For FinPro's FIN token launch, we recommend a multi-chain deployment strategy st
 | **Security** | Ethereum L2 (inherits Ethereum security) |
 | **Ecosystem** | Coinbase integration = 100M+ user access |
 | **Developer UX** | EVM-compatible, no code changes needed |
-| **Fiat Onramp** | Direct Coinbase fiat → crypto integration |
+| **Fiat Onramp** | Direct Coinbase fiat -> crypto integration |
 
 ### Base Chain Details
 - **Chain ID**: 8453 (Mainnet), 84532 (Sepolia testnet)

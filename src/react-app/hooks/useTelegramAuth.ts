@@ -100,57 +100,66 @@ export function useTelegramAuth(): TelegramAuthData {
  */
 export function useTelegramUserSync(telegramUser: TelegramUser | null, walletAddress: string | null) {
     const [synced, setSynced] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
+    const syncUser = async () => {
         if (!telegramUser || !walletAddress) return;
 
-        const syncUser = async () => {
-            try {
-                const { supabase } = await import('@/react-app/lib/supabase');
+        setLoading(true);
+        setError(null);
 
-                // Check if Telegram user already exists
-                const { data: existing } = await supabase
+        try {
+            const { supabase } = await import('@/react-app/lib/supabase');
+            const normalizedAddress = walletAddress.toLowerCase();
+
+            // Check if Telegram user already exists
+            const { data: existing } = await supabase
+                .from('telegram_users')
+                .select('*')
+                .eq('telegram_id', telegramUser.id)
+                .maybeSingle();
+
+            if (!existing) {
+                // Create new Telegram user record
+                const { error: insertError } = await supabase
                     .from('telegram_users')
-                    .select('*')
-                    .eq('telegram_id', telegramUser.id)
-                    .single();
+                    .insert({
+                        telegram_id: telegramUser.id,
+                        telegram_username: telegramUser.username,
+                        telegram_first_name: telegramUser.first_name,
+                        telegram_last_name: telegramUser.last_name,
+                        user_id: normalizedAddress,
+                        role: 'assignee', // Default role
+                    });
 
-                if (!existing) {
-                    // Create new Telegram user record
-                    const { error: insertError } = await supabase
-                        .from('telegram_users')
-                        .insert({
-                            telegram_id: telegramUser.id,
-                            telegram_username: telegramUser.username,
-                            telegram_first_name: telegramUser.first_name,
-                            telegram_last_name: telegramUser.last_name,
-                            user_id: walletAddress,
-                            role: 'assignee', // Default role
-                        });
+                if (insertError) throw insertError;
+            } else if (existing.user_id !== normalizedAddress) {
+                // Update user_id if wallet changed
+                const { error: updateError } = await supabase
+                    .from('telegram_users')
+                    .update({ user_id: normalizedAddress })
+                    .eq('telegram_id', telegramUser.id);
 
-                    if (insertError) throw insertError;
-                } else if (existing.user_id !== walletAddress) {
-                    // Update user_id if wallet changed
-                    const { error: updateError } = await supabase
-                        .from('telegram_users')
-                        .update({ user_id: walletAddress })
-                        .eq('telegram_id', telegramUser.id);
-
-                    if (updateError) throw updateError;
-                }
-
-                setSynced(true);
-            } catch (err) {
-                console.error('Error syncing Telegram user:', err);
-                setError(err instanceof Error ? err.message : 'Failed to sync user');
+                if (updateError) throw updateError;
             }
-        };
 
-        syncUser();
+            setSynced(true);
+        } catch (err) {
+            console.error('Error syncing Telegram user:', err);
+            setError(err instanceof Error ? err.message : 'Failed to sync user');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (telegramUser && walletAddress && !synced) {
+            syncUser();
+        }
     }, [telegramUser, walletAddress]);
 
-    return { synced, error };
+    return { synced, loading, error, syncUser };
 }
 
 /**

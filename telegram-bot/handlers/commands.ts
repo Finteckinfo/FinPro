@@ -18,7 +18,7 @@ export async function handleStart(
     const lastName = message.from?.last_name || '';
 
     if (!telegramId) {
-        await bot.sendMessage(chatId, '❌ Unable to identify your Telegram account.');
+        await bot.sendMessage(chatId, 'Unable to identify your Telegram account.');
         return;
     }
 
@@ -74,7 +74,7 @@ export async function handleStart(
         }
     } catch (error) {
         console.error('Error in /start handler:', error);
-        await bot.sendMessage(chatId, '❌ An error occurred. Please try again later.');
+        await bot.sendMessage(chatId, 'An error occurred. Please try again later.');
     }
 }
 
@@ -91,7 +91,7 @@ export async function handleProjects(
     const telegramId = message.from?.id;
 
     if (!telegramId) {
-        await bot.sendMessage(chatId, '❌ Unable to identify your Telegram account.');
+        await bot.sendMessage(chatId, 'Unable to identify your Telegram account.');
         return;
     }
 
@@ -106,7 +106,7 @@ export async function handleProjects(
         if (!telegramUser) {
             await bot.sendMessage(
                 chatId,
-                '❌ Your account is not linked yet. Please use /start to get started.'
+                'Your account is not linked yet. Please use /start to get started.'
             );
             return;
         }
