@@ -64,7 +64,9 @@ export async function handleStart(
                 chatId,
                 `Welcome to FinPro, ${firstName}!\n\n` +
                 `To get started, please open the app and connect your wallet.\n` +
-                `Your Telegram account will be automatically linked.`,
+                `Your Telegram account will be automatically linked.\n\n` +
+                `如果你不能打开上面的按钮，请尝试这个链接:\n` +
+                `${config.miniAppUrl}`,
                 {
                     reply_markup: {
                         inline_keyboard: [
@@ -373,8 +375,9 @@ export async function registerCommands(bot: TelegramBot) {
     ];
 
     try {
-        await bot.setMyCommands(commands);
-        console.log('Bot commands registered successfully');
+        // Set commands for private chats specifically to force update
+        await bot.setMyCommands(commands, { scope: { type: 'all_private_chats' } });
+        console.log('Bot commands registered successfully for private chats');
     } catch (error) {
         console.error('Failed to register bot commands:', error);
     }
