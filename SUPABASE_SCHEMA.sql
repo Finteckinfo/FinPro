@@ -148,7 +148,8 @@ ALTER TABLE task_attachments ENABLE ROW LEVEL SECURITY;
 -- STEP 4: Create basic RLS policies (allowing all operations for now - adjust as needed)
 CREATE POLICY "Enable all operations on projects" ON projects FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Enable all operations on departments" ON departments FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Enable read access to users" ON users FOR SELECT USING (true);
+-- Consolidated into Public Users Access in subsequent migrations
+-- CREATE POLICY "Enable read access to users" ON users FOR SELECT USING (true);
 CREATE POLICY "Enable update for own user data" ON users FOR UPDATE USING (auth.uid() = id);
 CREATE POLICY "Enable all operations on user roles" ON user_roles FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Enable all operations on tasks" ON tasks FOR ALL USING (true) WITH CHECK (true);

@@ -181,6 +181,9 @@ export async function handleHelp(bot: TelegramBot, message: TelegramBot.Message)
 
 /start - Link your Telegram account
 /projects - View your projects
+/tasks - View your assigned tasks
+/profile - Your account information
+/stats - Platform statistics
 /help - Show this help message
 
 *Quick Actions*
@@ -200,4 +203,139 @@ Tap the button below to open the full FinPro app within Telegram!
             ]
         }
     });
+}
+
+/**
+ * Handle /tasks command
+ * Shows tasks assigned to the user
+ */
+export async function handleTasks(
+    bot: TelegramBot,
+    message: TelegramBot.Message,
+    supabase: SupabaseClient
+) {
+    const chatId = message.chat.id;
+    const telegramId = message.from?.id;
+
+    if (!telegramId) return;
+
+    try {
+        const { data: telegramUser } = await supabase
+            .from('telegram_users')
+            .select('user_id')
+            .eq('telegram_id', telegramId)
+            .single();
+
+        if (!telegramUser) {
+            await bot.sendMessage(chatId, 'Account not linked. Use /start first.');
+            return;
+        }
+
+        const { data: tasks } = await supabase
+            .from('subtasks')
+            .select('title, status, allocated_amount, projects(name)')
+            .eq('assigned_to', telegramUser.user_id)
+            .order('created_at', { ascending: false })
+            .limit(10);
+
+        if (!tasks || tasks.length === 0) {
+            await bot.sendMessage(chatId, 'No tasks assigned to you.');
+            return;
+        }
+
+        let response = '*Your Recent Tasks:*\n\n';
+        tasks.forEach((task: any) => {
+            const project = Array.isArray(task.projects) ? task.projects[0] : task.projects;
+            response += `*${task.title}*\n`;
+            response += `Project: ${project?.name || 'Unknown'}\n`;
+            response += `Status: ${task.status}\n`;
+            response += `Reward: $${task.allocated_amount}\n\n`;
+        });
+
+        await bot.sendMessage(chatId, response, { parse_mode: 'Markdown' });
+    } catch (error) {
+        console.error('Error in /tasks:', error);
+        await bot.sendMessage(chatId, 'Error fetching tasks.');
+    }
+}
+
+/**
+ * Handle /profile command
+ * Shows user profile and wallet
+ */
+export async function handleProfile(
+    bot: TelegramBot,
+    message: TelegramBot.Message,
+    supabase: SupabaseClient
+) {
+    const chatId = message.chat.id;
+    const telegramId = message.from?.id;
+
+    if (!telegramId) return;
+
+    try {
+        const { data: user } = await supabase
+            .from('telegram_users')
+            .select('role, user_id, telegram_username')
+            .eq('telegram_id', telegramId)
+            .single();
+
+        if (!user) {
+            await bot.sendMessage(chatId, 'Profile not found. Use /start.');
+            return;
+        }
+
+        const response = `
+*Your Profile*
+
+Telegram ID: \`${telegramId}\`
+Wallet: \`${user.user_id}\`
+Role: ${user.role}
+Username: @${user.telegram_username || 'None'}
+        `;
+
+        await bot.sendMessage(chatId, response, { parse_mode: 'Markdown' });
+    } catch (error) {
+        console.error('Error in /profile:', error);
+    }
+}
+
+/**
+ * Handle /stats command
+ * Shows platform statistics
+ */
+export async function handleStats(
+    bot: TelegramBot,
+    message: TelegramBot.Message,
+    supabase: SupabaseClient
+) {
+    const chatId = message.chat.id;
+
+    try {
+        const { count: projectCount } = await supabase
+            .from('projects')
+            .select('*', { count: 'exact', head: true });
+
+        const { count: taskCount } = await supabase
+            .from('subtasks')
+            .select('*', { count: 'exact', head: true });
+
+        const { data: funds } = await supabase
+            .from('projects')
+            .select('total_funds');
+
+        const totalValue = funds?.reduce((acc, p) => acc + p.total_funds, 0) || 0;
+
+        const response = `
+*FinPro Platform Stats*
+
+Total Projects: ${projectCount || 0}
+Total Tasks: ${taskCount || 0}
+Total Locked Value: $${totalValue.toLocaleString()}
+        `;
+
+        await bot.sendMessage(chatId, response, { parse_mode: 'Markdown' });
+    } catch (error) {
+        console.error('Error in /stats:', error);
+    }
 }

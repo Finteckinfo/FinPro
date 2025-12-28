@@ -87,7 +87,7 @@ Complete step-by-step guide to set up MetaMask and connect to FinPro.
 
 **OR** Add manually:
 
-1. Click network dropdown → **"Add Network"**
+1. Click network dropdown -> **"Add Network"**
 2. Click **"Add a network manually"**
 3. Enter these details:
 

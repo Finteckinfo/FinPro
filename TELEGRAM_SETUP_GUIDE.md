@@ -183,10 +183,11 @@ VALUES (
 
 1. Open Telegram and find your bot
 2. Send `/start`. It should reply with a welcome message.
-3. Click "Open FinPro App" - the Mini App should load within Telegram
-4. Connect your wallet - your Telegram account will be linked
-5. Create a project - other admins should receive a notification
-6. Assign a subtask - the assignee should receive a notification
+3. Try commands: `/projects`, `/tasks`, `/profile`, `/stats`.
+4. Click "Open FinPro App" - the Mini App should load within Telegram
+5. Connect your wallet - your Telegram account will be linked
+6. Create a project - other admins should receive a notification
+7. Assign a subtask - the assignee should receive a notification
 
 ## Troubleshooting
 
@@ -213,12 +214,12 @@ VALUES (
 ## Next Steps
 
 After basic setup:
-
 1. **Customize Bot Commands**: Edit `telegram-bot/handlers/commands.ts`
-2. **Add More Notifications**: Extend `telegram-bot/notifications.ts`
-3. **Implement Messaging UI**: Create messaging components in the React app
-4. **Add Role Management**: Create admin panel for managing user roles
-5. **Deploy DEX Enhancements**: Implement fee system and meta-transactions
+2. **Implement New Features**: Use commands like `/tasks` or `/stats` for dashboard summaries.
+3. **Add More Notifications**: Extend `telegram-bot/notifications.ts`
+4. **Implement Messaging UI**: Create messaging components in the React app
+5. **Add Role Management**: Create admin panel for managing user roles
+6. **Deploy DEX Enhancements**: Implement fee system and meta-transactions
 
 ## Security Checklist
 

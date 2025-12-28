@@ -2,7 +2,7 @@ import TelegramBot from 'node-telegram-bot-api';
 import express from 'express';
 import { createClient } from '@supabase/supabase-js';
 import { config, validateConfig } from './config';
-import { handleStart, handleProjects, handleHelp } from './handlers/commands';
+import { handleStart, handleProjects, handleHelp, handleTasks, handleProfile, handleStats } from './handlers/commands';
 import { handleMessage } from './handlers/messages';
 
 // Validate configuration on startup
@@ -46,6 +46,15 @@ app.post('/webhook', async (req: express.Request, res: express.Response) => {
                         break;
                     case '/projects':
                         await handleProjects(bot, message, supabase);
+                        break;
+                    case '/tasks':
+                        await handleTasks(bot, message, supabase);
+                        break;
+                    case '/profile':
+                        await handleProfile(bot, message, supabase);
+                        break;
+                    case '/stats':
+                        await handleStats(bot, message, supabase);
                         break;
                     case '/help':
                         await handleHelp(bot, message);

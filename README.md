@@ -17,6 +17,9 @@ The project is structured into three main layers:
 - **Telegram Bot**: Located in `telegram-bot`. A Node.js service using `node-telegram-bot-api`.
 - **Mini App**: Integrated directly into the Telegram interface for seamless wallet linking.
 - **Webhook Handler**: Located in `api/telegram-webhook.ts`, deployed as a serverless function to handle both Telegram commands and database change notifications.
+- Bot notifications for project/task updates
+- Command-line access to projects (`/projects`), tasks (`/tasks`), profile (`/profile`), and stats (`/stats`)
+- Interactive Telegram Mini App (TMA)
 
 ### 3. Smart Contracts
 - Located in `contracts`.

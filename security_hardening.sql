@@ -1,7 +1,7 @@
--- FinPro Database Security Hardening Script
--- Execute this in your Supabase SQL Editor to resolve "mutable search_path" warnings.
+-- FinPro Database Security & Performance Hardening Script (Updated)
+-- Execute this in your Supabase SQL Editor to resolve RLS performance and redundancy warnings.
 
--- 1. Hardening allocate_project_funds
+-- 1. Hardening Functions (search_path fix)
 CREATE OR REPLACE FUNCTION public.allocate_project_funds(p_project_id BIGINT, p_amount DOUBLE PRECISION)
 RETURNS void AS $$
 BEGIN
@@ -12,7 +12,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SET search_path = public;
 
--- 2. Hardening update_messages_updated_at
 CREATE OR REPLACE FUNCTION public.update_messages_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -21,7 +20,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SET search_path = public;
 
--- 3. Hardening update_updated_at_column
 CREATE OR REPLACE FUNCTION public.update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -30,8 +28,38 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SET search_path = public;
 
+-- 2. Consolidating Redundant Policies (users table)
+DROP POLICY IF EXISTS "Enable read access to users" ON users;
+-- Note: "Public Users Access" already exists and covers this.
+
+-- 3. Optimizing RLS Policy Performance (messages table)
+-- Wrapping current_setting in a subquery prevents re-evaluation for every row.
+
+DROP POLICY IF EXISTS "Users can view their own messages" ON messages;
+CREATE POLICY "Users can view their own messages" 
+  ON messages 
+  FOR SELECT 
+  TO anon 
+  USING ((SELECT current_setting('request.jwt.claims', true))::json->>'user_id' = from_user_id 
+         OR (SELECT current_setting('request.jwt.claims', true))::json->>'user_id' = to_user_id);
+
+DROP POLICY IF EXISTS "Users can send messages" ON messages;
+CREATE POLICY "Users can send messages" 
+  ON messages 
+  FOR INSERT 
+  TO anon 
+  WITH CHECK ((SELECT current_setting('request.jwt.claims', true))::json->>'user_id' = from_user_id);
+
+DROP POLICY IF EXISTS "Users can update their received messages" ON messages;
+CREATE POLICY "Users can update their received messages" 
+  ON messages 
+  FOR UPDATE 
+  TO anon 
+  USING ((SELECT current_setting('request.jwt.claims', true))::json->>'user_id' = to_user_id)
+  WITH CHECK ((SELECT current_setting('request.jwt.claims', true))::json->>'user_id' = to_user_id);
+
 -- Success message
 DO $$
 BEGIN
-  RAISE NOTICE 'Security hardening completed: All functions now have an explicit search_path.';
+  RAISE NOTICE 'Hardening completed: Functions secured, users policies consolidated, and messages policies optimized.';
 END $$;

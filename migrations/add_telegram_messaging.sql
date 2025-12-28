@@ -54,23 +54,23 @@ CREATE POLICY "Users can view their own messages"
   ON messages 
   FOR SELECT 
   TO anon 
-  USING (from_user_id = current_setting('request.jwt.claims', true)::json->>'user_id' 
-         OR to_user_id = current_setting('request.jwt.claims', true)::json->>'user_id');
+  USING ((SELECT current_setting('request.jwt.claims', true))::json->>'user_id' = from_user_id 
+         OR (SELECT current_setting('request.jwt.claims', true))::json->>'user_id' = to_user_id);
 
 DROP POLICY IF EXISTS "Users can send messages" ON messages;
 CREATE POLICY "Users can send messages" 
   ON messages 
   FOR INSERT 
   TO anon 
-  WITH CHECK (from_user_id = current_setting('request.jwt.claims', true)::json->>'user_id');
+  WITH CHECK ((SELECT current_setting('request.jwt.claims', true))::json->>'user_id' = from_user_id);
 
 DROP POLICY IF EXISTS "Users can update their received messages" ON messages;
 CREATE POLICY "Users can update their received messages" 
   ON messages 
   FOR UPDATE 
   TO anon 
-  USING (to_user_id = current_setting('request.jwt.claims', true)::json->>'user_id')
-  WITH CHECK (to_user_id = current_setting('request.jwt.claims', true)::json->>'user_id');
+  USING ((SELECT current_setting('request.jwt.claims', true))::json->>'user_id' = to_user_id)
+  WITH CHECK ((SELECT current_setting('request.jwt.claims', true))::json->>'user_id' = to_user_id);
 
 -- 7. Create function to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_messages_updated_at()
