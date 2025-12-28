@@ -11,15 +11,12 @@ describe("FinPro Phase 2 - DEX & MultiSig", function () {
 
     let owner: SignerWithAddress;
     let user1: SignerWithAddress;
-    let user2: SignerWithAddress;
     let signer1: SignerWithAddress;
     let signer2: SignerWithAddress;
     let signer3: SignerWithAddress;
 
-    const INITIAL_SUPPLY = ethers.parseEther("100000000"); // 100M
-
     beforeEach(async function () {
-        [owner, user1, user2, signer1, signer2, signer3] = await ethers.getSigners();
+        [owner, user1, signer1, signer2, signer3] = await ethers.getSigners();
 
         // Deploy FIN Token
         const FINTokenFactory = await ethers.getContractFactory("FINToken");

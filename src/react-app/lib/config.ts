@@ -12,4 +12,12 @@ export const APP_CONFIG = {
     // App Metadata
     name: 'FinPro',
     description: 'Decentralized Project Management with Blockchain Escrow',
+
+    // Contract Addresses (Local Anvil)
+    contracts: {
+        finToken: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788',
+        projectEscrow: '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e',
+        finSwap: '0x9A676e781A523b5d0C0e43731313A708CB607508',
+        multiSigWallet: '0x0B306BF915C4d645ff596e518fAf3F9669b97016',
+    },
 };

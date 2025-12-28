@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { X, Sparkles, DollarSign, ArrowRight } from 'lucide-react';
-import type { CreateProjectRequest } from '@/shared/types';
+import { X, Sparkles, ArrowRight, DollarSign } from 'lucide-react';
 import { supabase } from '@/react-app/lib/supabase';
 import { useWallet } from '@/react-app/hooks/useWallet';
+import { useContract, parseEther } from '@/react-app/hooks/useWallet';
+import { FIN_TOKEN_ABI, PROJECT_ESCROW_ABI, CONTRACT_ADDRESSES } from '@/react-app/lib/contracts';
 
 interface CreateProjectModalProps {
   isOpen: boolean;
@@ -11,14 +12,22 @@ interface CreateProjectModalProps {
 }
 
 export default function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProjectModalProps) {
-  const { account } = useWallet();
-  const [formData, setFormData] = useState<CreateProjectRequest>({
+  const { account, provider } = useWallet();
+  const [formData, setFormData] = useState({
     name: '',
     description: '',
     total_funds: 0,
+    type: 'PROGRESSIVE' as 'PROGRESSIVE' | 'PARALLEL',
+    priority: 'MEDIUM' as 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL',
+    start_date: new Date().toISOString().split('T')[0],
+    end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
   });
   const [loading, setLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const finToken = useContract(CONTRACT_ADDRESSES.finToken, FIN_TOKEN_ABI);
+  const projectEscrow = useContract(CONTRACT_ADDRESSES.projectEscrow, PROJECT_ESCROW_ABI);
 
   if (!isOpen) return null;
 
@@ -28,23 +37,73 @@ export default function CreateProjectModal({ isOpen, onClose, onSuccess }: Creat
     setError(null);
 
     try {
+      if (!account || !provider || !finToken || !projectEscrow) {
+        throw new Error('Wallet connection or contract initialization failed');
+      }
+
+      const amount = parseEther(formData.total_funds.toString());
+
+      // 1. Approve FIN Token
+      setLoadingStep('Authorizing Treasury Transfer...');
+      const approveTx = await finToken.approve(CONTRACT_ADDRESSES.projectEscrow, amount);
+      await approveTx.wait();
+
+      // 2. Fund Project On-chain
+      setLoadingStep('Initializing Protocol Registry...');
+      const fundTx = await projectEscrow.fundProject(amount);
+      const receipt = await fundTx.wait();
+
+      // 3. Extract On-chain Project ID
+      const event = receipt.logs
+        .map((log: any) => {
+          try {
+            return projectEscrow.interface.parseLog(log);
+          } catch (e) {
+            return null;
+          }
+        })
+        .find((e: any) => e && e.name === 'ProjectFunded');
+
+      const onChainId = event ? event.args.projectId.toString() : null;
+
+      // 4. Create record in Supabase
+      setLoadingStep('Finalizing Registry Backup...');
       const { error: insertError } = await supabase
         .from('projects')
         .insert({
-          ...formData,
-          owner_id: account?.toLowerCase() || 'demo-user',
+          name: formData.name,
+          description: formData.description,
+          total_funds: formData.total_funds,
+          on_chain_id: onChainId,
+          type: formData.type,
+          priority: formData.priority,
+          start_date: formData.start_date,
+          end_date: formData.end_date,
+          owner_id: account.toLowerCase(),
+          wallet_address: account,
+          is_public: true,
+          allow_guests: false,
           status: 'active'
         });
 
       if (insertError) throw insertError;
 
-      setFormData({ name: '', description: '', total_funds: 0 });
+      setFormData({
+        name: '',
+        description: '',
+        total_funds: 0,
+        type: 'PROGRESSIVE' as 'PROGRESSIVE' | 'PARALLEL',
+        priority: 'MEDIUM' as 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL',
+        start_date: new Date().toISOString().split('T')[0],
+        end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      });
       onSuccess();
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
+      setLoadingStep(null);
     }
   };
 
@@ -109,7 +168,7 @@ export default function CreateProjectModal({ isOpen, onClose, onSuccess }: Creat
 
           <div className="space-y-3">
             <label className="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-2">
-              Capital Reserve (USD)
+              Treasury Allocation (FIN)
             </label>
             <div className="relative">
               <DollarSign className="absolute left-6 top-1/2 -translate-y-1/2 text-blue-500 w-5 h-5" />
@@ -126,13 +185,73 @@ export default function CreateProjectModal({ isOpen, onClose, onSuccess }: Creat
             </div>
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <label className="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-2">
+                Project Type
+              </label>
+              <select
+                value={formData.type}
+                onChange={(e) => setFormData({ ...formData, type: e.target.value as 'PROGRESSIVE' | 'PARALLEL' })}
+                className="w-full px-6 py-4 bg-black/20 border border-white/5 rounded-[22px] focus:border-blue-500/30 outline-none transition-all text-white font-medium"
+              >
+                <option value="PROGRESSIVE">Progressive</option>
+                <option value="PARALLEL">Parallel</option>
+              </select>
+            </div>
+
+            <div className="space-y-3">
+              <label className="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-2">
+                Priority
+              </label>
+              <select
+                value={formData.priority}
+                onChange={(e) => setFormData({ ...formData, priority: e.target.value as 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' })}
+                className="w-full px-6 py-4 bg-black/20 border border-white/5 rounded-[22px] focus:border-blue-500/30 outline-none transition-all text-white font-medium"
+              >
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+                <option value="CRITICAL">Critical</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <label className="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-2">
+                Start Date
+              </label>
+              <input
+                type="date"
+                required
+                value={formData.start_date}
+                onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                className="w-full px-6 py-4 bg-black/20 border border-white/5 rounded-[22px] focus:border-blue-500/30 outline-none transition-all text-white font-medium"
+              />
+            </div>
+
+            <div className="space-y-3">
+              <label className="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-2">
+                End Date
+              </label>
+              <input
+                type="date"
+                required
+                value={formData.end_date}
+                onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
+                className="w-full px-6 py-4 bg-black/20 border border-white/5 rounded-[22px] focus:border-blue-500/30 outline-none transition-all text-white font-medium"
+              />
+            </div>
+          </div>
+
           <div className="flex flex-col sm:flex-row gap-4 pt-6">
             <button
               type="submit"
               disabled={loading}
               className="group relative flex-[2] flex items-center justify-center gap-3 px-8 py-5 bg-gradient-to-r from-[#0D99FF] to-[#0066FF] text-white rounded-[24px] font-black text-lg hover:shadow-[0_12px_40px_rgba(13,153,255,0.4)] hover:scale-[1.02] transition-all disabled:opacity-20 border border-white/10"
             >
-              <span>{loading ? 'Initializing...' : 'Initialize Registry'}</span>
+              <span>{loading ? (loadingStep || 'Initializing...') : 'Initialize Registry'}</span>
               <ArrowRight className="w-5 h-5 absolute right-8 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
             </button>
           </div>

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { BrowserProvider, formatEther, parseEther } from 'ethers';
 import { supabase } from '@/react-app/lib/supabase';
+import { switchToLocalNetwork } from '@/react-app/lib/localNetworkConfig';
 
 interface WalletContextType {
     account: string | null;
@@ -13,6 +14,7 @@ interface WalletContextType {
     connect: () => Promise<void>;
     disconnect: () => void;
     switchNetwork: (targetChainId: number) => Promise<void>;
+    connectToLocal: () => Promise<boolean>;
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
@@ -175,6 +177,24 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const connectToLocal = async (): Promise<boolean> => {
+        if (!window.ethereum) {
+            setError('No wallet detected');
+            return false;
+        }
+
+        try {
+            const success = await switchToLocalNetwork();
+            if (success) {
+                await connect();
+            }
+            return success;
+        } catch (error) {
+            setError('Failed to connect to local network');
+            return false;
+        }
+    };
+
     return (
         <WalletContext.Provider
             value={{
@@ -188,6 +208,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 connect,
                 disconnect,
                 switchNetwork,
+                connectToLocal,
             }}
         >
             {children}

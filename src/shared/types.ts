@@ -2,10 +2,24 @@ export interface Project {
   id: number;
   name: string;
   description: string | null;
-  owner_id: string;
+  type: 'PROGRESSIVE' | 'PARALLEL';
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  on_chain_id: string | null;
   total_funds: number;
   allocated_funds: number;
   status: 'active' | 'completed' | 'cancelled';
+  escrow_address: string | null;
+  escrow_funded: boolean;
+  released_funds: number;
+  start_date: string;
+  end_date: string;
+  owner_id: string;
+  wallet_address: string | null;
+  user_id: string | null;
+  is_public: boolean;
+  allow_guests: boolean;
+  tags: string[];
+  notes: string | null;
   created_at: string;
   updated_at: string;
 }

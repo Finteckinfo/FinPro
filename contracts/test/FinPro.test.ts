@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
 import { FINToken, ProjectEscrow } from "../typechain-types";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
+import type { Log } from "ethers";
 
 describe("FinPro Smart Contracts - Security Tests", function () {
     let finToken: FINToken;
@@ -15,7 +16,7 @@ describe("FinPro Smart Contracts - Security Tests", function () {
     let attacker: SignerWithAddress;
 
     const INITIAL_SUPPLY = ethers.parseEther("100000000"); // 100M FIN
-    const APPROVAL_THRESHOLD = ethers.parseEther("10000"); // 10K FIN
+    // const APPROVAL_THRESHOLD = ethers.parseEther("10000"); // 10K FIN
     const REFUND_TIMELOCK = 24 * 60 * 60; // 24 hours
 
     beforeEach(async function () {
@@ -103,7 +104,7 @@ describe("FinPro Smart Contracts - Security Tests", function () {
             // Fund project
             const tx = await projectEscrow.connect(employer).fundProject(fundAmount);
             const receipt = await tx.wait();
-            const event = receipt?.logs.find((log: any) => {
+            const event = receipt?.logs.find((log: Log) => {
                 try {
                     return projectEscrow.interface.parseLog(log)?.name === "ProjectFunded";
                 } catch {
@@ -140,7 +141,7 @@ describe("FinPro Smart Contracts - Security Tests", function () {
             const largeAmount = ethers.parseEther("15000");
             const tx = await projectEscrow.allocateTask(projectId, worker1.address, largeAmount);
             const receipt = await tx.wait();
-            const event = receipt?.logs.find((log: any) => {
+            const event = receipt?.logs.find((log: Log) => {
                 try {
                     return projectEscrow.interface.parseLog(log)?.name === "TaskAllocated";
                 } catch {
@@ -201,7 +202,7 @@ describe("FinPro Smart Contracts - Security Tests", function () {
             const taskAmount = ethers.parseEther("5000");
             const tx = await projectEscrow.allocateTask(projectId, worker1.address, taskAmount);
             const receipt = await tx.wait();
-            const event = receipt?.logs.find((log: any) => {
+            const event = receipt?.logs.find((log: Log) => {
                 try {
                     return projectEscrow.interface.parseLog(log)?.name === "TaskAllocated";
                 } catch {
@@ -244,7 +245,7 @@ describe("FinPro Smart Contracts - Security Tests", function () {
             await finToken.connect(employer).approve(await projectEscrow.getAddress(), fundAmount);
             const fundTx = await projectEscrow.connect(employer).fundProject(fundAmount);
             const fundReceipt = await fundTx.wait();
-            const fundEvent = fundReceipt?.logs.find((log: any) => {
+            const fundEvent = fundReceipt?.logs.find((log: Log) => {
                 try {
                     return projectEscrow.interface.parseLog(log)?.name === "ProjectFunded";
                 } catch {
@@ -259,7 +260,7 @@ describe("FinPro Smart Contracts - Security Tests", function () {
 
             const task1Tx = await projectEscrow.allocateTask(projectId, worker1.address, task1Amount);
             const task1Receipt = await task1Tx.wait();
-            const task1Event = task1Receipt?.logs.find((log: any) => {
+            const task1Event = task1Receipt?.logs.find((log: Log) => {
                 try {
                     return projectEscrow.interface.parseLog(log)?.name === "TaskAllocated";
                 } catch {
@@ -270,7 +271,7 @@ describe("FinPro Smart Contracts - Security Tests", function () {
 
             const task2Tx = await projectEscrow.allocateTask(projectId, worker2.address, task2Amount);
             const task2Receipt = await task2Tx.wait();
-            const task2Event = task2Receipt?.logs.find((log: any) => {
+            const task2Event = task2Receipt?.logs.find((log: Log) => {
                 try {
                     return projectEscrow.interface.parseLog(log)?.name === "TaskAllocated";
                 } catch {

@@ -292,8 +292,8 @@ contract ProjectEscrow is
             "ProjectEscrow: timelock not expired"
         );
         
-        // Calculate refund: total funded minus allocated and already released
-        uint256 refundAmount = project.totalFunded - project.totalAllocated - project.totalReleased;
+        // Calculate refund: total funded minus allocated
+        uint256 refundAmount = project.totalFunded - project.totalAllocated;
         require(refundAmount > 0, "ProjectEscrow: no funds to refund");
         
         project.status = ProjectStatus.COMPLETED;

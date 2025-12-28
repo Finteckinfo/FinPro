@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS projects (
   name TEXT NOT NULL,
   description TEXT,
   owner_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  on_chain_id TEXT,
   total_funds DOUBLE PRECISION NOT NULL DEFAULT 0,
   allocated_funds DOUBLE PRECISION NOT NULL DEFAULT 0,
   status TEXT NOT NULL DEFAULT 'active',

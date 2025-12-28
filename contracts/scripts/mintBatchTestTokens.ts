@@ -54,8 +54,9 @@ async function main() {
       const tx = await finToken.mint(account, amountPerAccount);
       await tx.wait();
       console.log(`   Success!`);
-    } catch (error: any) {
-      console.error(`   Failed: ${error.message}`);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error(`   Failed: ${err.message}`);
     }
   }
 

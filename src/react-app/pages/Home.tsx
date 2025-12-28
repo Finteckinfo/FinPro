@@ -1,19 +1,25 @@
 import { useState } from 'react';
-import { Plus, Sparkles, TrendingUp, Briefcase, Wallet } from 'lucide-react';
+import { Plus, Sparkles, TrendingUp, Briefcase, Wallet, Settings } from 'lucide-react';
 import { useProjects } from '@/react-app/hooks/useProjects';
 import ProjectCard from '@/react-app/components/ProjectCard';
 import CreateProjectModal from '@/react-app/components/CreateProjectModal';
 import WalletConnect from '@/react-app/components/WalletConnect';
 import { Navigation } from '@/react-app/components/Navigation';
+import { useWallet } from '@/react-app/hooks/useWallet';
 
 export default function HomePage() {
   const { projects, loading, error, refetch } = useProjects();
+  const { connectToLocal, chainId } = useWallet();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-  // Calculate dashboard stats
-  const totalBalance = projects.reduce((acc, p) => acc + p.total_funds, 0);
-  const totalAllocated = projects.reduce((acc, p) => acc + p.allocated_funds, 0);
-  const activeProjectsCount = projects.filter(p => p.status === 'active').length;
+  // Calculate dashboard stats based on new schema
+  const totalReleased = projects.reduce((acc, p) => acc + (p.released_funds || 0), 0);
+  const activeProjectsCount = projects.filter(p => new Date(p.end_date) > new Date()).length;
+  const escrowFundedCount = projects.filter(p => p.escrow_funded).length;
+
+  const handleConnectToLocal = async () => {
+    await connectToLocal();
+  };
 
   if (loading) {
     return (
@@ -52,13 +58,13 @@ export default function HomePage() {
                 <span className="text-sm font-bold uppercase tracking-widest">Total Managed Capital</span>
               </div>
               <div className="flex items-end gap-3 mb-8">
-                <h1 className="text-5xl font-black">${totalBalance.toLocaleString()}</h1>
+                <h1 className="text-5xl font-black">${totalReleased.toLocaleString()}</h1>
                 <span className="text-blue-100 mb-2 font-medium">USD</span>
               </div>
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-2xl backdrop-blur-md">
                   <TrendingUp className="w-4 h-4 text-white" />
-                  <span className="text-sm font-bold">${totalAllocated.toLocaleString()} Allocated</span>
+                  <span className="text-sm font-bold">{escrowFundedCount} Escrowed</span>
                 </div>
                 <div className="flex items-center gap-2 px-4 py-2 bg-black/10 rounded-2xl backdrop-blur-md">
                   <Briefcase className="w-4 h-4 text-white" />
@@ -89,6 +95,22 @@ export default function HomePage() {
                   →
                 </div>
               </button>
+              {chainId !== 31337 && (
+                <button
+                  onClick={handleConnectToLocal}
+                  className="w-full flex items-center justify-between p-4 bg-green-500/5 hover:bg-green-500/10 border border-green-500/20 rounded-2xl transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-green-500 text-white rounded-xl">
+                      <Settings className="w-5 h-5" />
+                    </div>
+                    <span className="font-bold text-white">Connect to Local</span>
+                  </div>
+                  <div className="w-8 h-8 flex items-center justify-center rounded-full bg-green-500/20 text-green-400 group-hover:translate-x-1 transition-transform">
+                    →
+                  </div>
+                </button>
+              )}
               <WalletConnect />
             </div>
           </div>

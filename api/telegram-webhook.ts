@@ -1,3 +1,4 @@
+import type { Request, Response } from 'express';
 import TelegramBot from 'node-telegram-bot-api';
 import { createClient } from '@supabase/supabase-js';
 import {
@@ -21,7 +22,7 @@ const supabase = createClient(
     process.env.SUPABASE_SERVICE_KEY || ''
 );
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: Request, res: Response) {
     console.log('Environment Check:', {
         hasToken: !!process.env.TELEGRAM_BOT_TOKEN,
         hasSupabaseUrl: !!process.env.VITE_SUPABASE_URL,

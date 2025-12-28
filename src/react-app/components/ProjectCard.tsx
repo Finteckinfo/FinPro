@@ -7,10 +7,9 @@ interface ProjectCardProps {
 }
 
 export default function ProjectCard({ project }: ProjectCardProps) {
-  const availableFunds = project.total_funds - project.allocated_funds;
-  const percentAllocated = project.total_funds > 0
-    ? (project.allocated_funds / project.total_funds) * 100
-    : 0;
+  const availableFunds = (project.released_funds || 0);
+  const isEscrowFunded = project.escrow_funded;
+  const isActive = new Date(project.end_date) > new Date();
 
   return (
     <Link to={`/projects/${project.id}`}>
@@ -32,14 +31,24 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                 </p>
               </div>
             </div>
-            <span className={`px-3 py-1 rounded-full text-xs font-bold border flex-shrink-0 ${project.status === 'active'
+            <div className="flex flex-col gap-2 flex-shrink-0">
+              <span className={`px-3 py-1 rounded-full text-xs font-bold border ${project.type === 'PROGRESSIVE'
                 ? 'bg-blue-500/10 text-[#0D99FF] border-blue-500/20'
-                : project.status === 'completed'
-                  ? 'bg-green-500/10 text-green-400 border-green-500/20'
-                  : 'bg-gray-800 text-gray-400 border-gray-700'
+                : 'bg-purple-500/10 text-purple-400 border-purple-500/20'
               }`}>
-              {project.status.toUpperCase()}
-            </span>
+                {project.type}
+              </span>
+              <span className={`px-3 py-1 rounded-full text-xs font-bold border ${project.priority === 'CRITICAL'
+                ? 'bg-red-500/10 text-red-400 border-red-500/20'
+                : project.priority === 'HIGH'
+                  ? 'bg-orange-500/10 text-orange-400 border-orange-500/20'
+                  : project.priority === 'MEDIUM'
+                    ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                    : 'bg-green-500/10 text-green-400 border-green-500/20'
+              }`}>
+                {project.priority}
+              </span>
+            </div>
           </div>
 
           {project.description && (
@@ -52,23 +61,25 @@ export default function ProjectCard({ project }: ProjectCardProps) {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-gray-400 text-sm">
                 <DollarSign className="w-4 h-4" />
-                <span>Budget Status</span>
+                <span>Released Funds</span>
               </div>
               <span className="font-bold text-white text-lg">
-                ${project.total_funds.toLocaleString()}
+                ${availableFunds.toLocaleString()}
               </span>
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs font-medium uppercase tracking-wider">
-                <span className="text-blue-400">Allocated: ${project.allocated_funds.toLocaleString()}</span>
-                <span className="text-gray-500">Free: ${availableFunds.toLocaleString()}</span>
+                <span className={`${isEscrowFunded ? 'text-green-400' : 'text-yellow-400'}`}>
+                  Escrow: {isEscrowFunded ? 'Funded' : 'Pending'}
+                </span>
+                <span className={`${isActive ? 'text-blue-400' : 'text-gray-500'}`}>
+                  {isActive ? 'Active' : 'Ended'}
+                </span>
               </div>
-              <div className="h-2 bg-black/40 rounded-full overflow-hidden border border-white/5 p-[1px]">
-                <div
-                  className="h-full bg-gradient-to-r from-[#0D99FF] to-[#0066FF] rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(13,153,255,0.5)]"
-                  style={{ width: `${percentAllocated}%` }}
-                />
+              <div className="flex items-center gap-4 text-xs text-gray-500">
+                <span>Start: {new Date(project.start_date).toLocaleDateString()}</span>
+                <span>End: {new Date(project.end_date).toLocaleDateString()}</span>
               </div>
             </div>
           </div>

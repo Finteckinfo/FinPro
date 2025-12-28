@@ -88,8 +88,9 @@ async function main() {
       
       const newBalance = await finToken.balanceOf(account);
       console.log(`   Success! Balance: ${ethers.formatEther(newBalance)} FIN`);
-    } catch (error: any) {
-      console.error(`   Failed: ${error.message}`);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error(`   Failed: ${err.message}`);
     }
   }
 
