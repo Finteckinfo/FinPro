@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
-import { WalletProvider } from '/home/c0bw3b/FinPro/src/react-app/context/WalletContext.tsx';
+import { WalletProvider } from '../react-app/context/WalletContext';
 import { useTelegramAuth, useTelegramUserSync, getTelegramUserRole } from '../react-app/hooks/useTelegramAuth';
 import { useWallet } from '../react-app/context/WalletContext';
 import AdminView from './views/AdminView';

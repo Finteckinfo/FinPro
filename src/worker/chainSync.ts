@@ -1,10 +1,8 @@
-import { TonClient, Address, beginCell, toNano } from '@ton/ton';
+import { Address, beginCell, toNano } from '@ton/ton';
 import { supabase } from '../react-app/lib/supabase';
 
-const _TON_CLIENT = new TonClient({
-    endpoint: 'https://toncenter.com/api/v2/jsonRPC',
-    apiKey: process.env.TON_API_KEY
-});
+// TON Client initialization removed as it was unused
+
 
 // Omitted unused interfaces ProjectData and SubtaskData
 
