@@ -9,6 +9,10 @@
             "destination": "/api/telegram-webhook"
         },
         {
+            "source": "/bot-webhook",
+            "destination": "/api/telegram-webhook"
+        },
+        {
             "source": "/(.*)",
             "destination": "/index.html"
         }
