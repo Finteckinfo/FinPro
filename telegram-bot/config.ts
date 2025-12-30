@@ -10,11 +10,11 @@ export const config = {
 
     // Mini App URL (deployed React app)
     miniAppUrl: (() => {
-        let url = process.env.TELEGRAM_MINI_APP_URL || 'https://fin1pro.vercel.app';
+        let url = process.env.TELEGRAM_MINI_APP_URL || process.env.VITE_APP_URL || 'https://fin1pro.vercel.app';
         if (!url.startsWith('http')) {
             url = `https://${url}`;
         }
-        return url;
+        return url.replace(/\/$/, ''); // Remove trailing slash
     })(),
 
     // Server port

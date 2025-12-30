@@ -1,5 +1,6 @@
 import { Context } from 'grammy';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { config } from '../config.js';
 
 /**
  * Handle regular text messages
@@ -40,7 +41,7 @@ export async function handleMessage(
                         [
                             {
                                 text: 'Open Messaging',
-                                web_app: { url: process.env.TELEGRAM_MINI_APP_URL || '' }
+                                web_app: { url: config.miniAppUrl }
                             }
                         ]
                     ]

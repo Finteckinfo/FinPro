@@ -5,7 +5,7 @@ export default async function handler(req: Request, res: Response) {
     const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN || '');
 
     try {
-        const webhookUrl = `${process.env.TELEGRAM_WEBHOOK_URL}/webhook`;
+        const webhookUrl = `${process.env.TELEGRAM_WEBHOOK_URL}/api/telegram-webhook`;
         // Note: The vercel.json rewrites /webhook to /api/telegram-webhook
 
         await bot.api.setWebhook(webhookUrl);

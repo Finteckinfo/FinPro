@@ -1,4 +1,4 @@
-import TelegramBot from 'node-telegram-bot-api';
+import { Api } from 'grammy';
 import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface NotificationPayload {
@@ -16,14 +16,14 @@ export interface NotificationPayload {
  * Send push notification to a Telegram user
  */
 export async function sendNotification(
-    bot: TelegramBot,
+    botApi: Api,
     payload: NotificationPayload
 ): Promise<boolean> {
     try {
         const { telegramId, message, type, metadata } = payload;
 
         // Send notification without emojis
-        await bot.sendMessage(telegramId, message, {
+        await botApi.sendMessage(telegramId, message, {
             parse_mode: 'Markdown',
             reply_markup: metadata?.projectId ? {
                 inline_keyboard: [
@@ -31,7 +31,7 @@ export async function sendNotification(
                         {
                             text: 'View in App',
                             web_app: {
-                                url: `${process.env.TELEGRAM_MINI_APP_URL}?project=${metadata.projectId}`
+                                url: `${process.env.TELEGRAM_MINI_APP_URL}/projects/${metadata.projectId}`
                             }
                         }
                     ]
@@ -50,7 +50,7 @@ export async function sendNotification(
  * Notify admin when a new project is created
  */
 export async function notifyProjectCreated(
-    bot: TelegramBot,
+    botApi: Api,
     supabase: SupabaseClient,
     projectId: number,
     projectName: string,
@@ -69,7 +69,7 @@ export async function notifyProjectCreated(
         const message = `*New Project Created*\n\n${projectName}\n\nProject ID: ${projectId}`;
 
         for (const admin of admins) {
-            await sendNotification(bot, {
+            await sendNotification(botApi, {
                 telegramId: admin.telegram_id,
                 message,
                 type: 'project_created',
@@ -85,7 +85,7 @@ export async function notifyProjectCreated(
  * Notify assignee when a subtask is assigned to them
  */
 export async function notifySubtaskAssigned(
-    bot: TelegramBot,
+    botApi: Api,
     supabase: SupabaseClient,
     subtaskId: number,
     subtaskTitle: string,
@@ -104,7 +104,7 @@ export async function notifySubtaskAssigned(
 
         const message = `*New Task Assigned*\n\n${subtaskTitle}\n\nYou have been assigned a new task!`;
 
-        await sendNotification(bot, {
+        await sendNotification(botApi, {
             telegramId: telegramUser.telegram_id,
             message,
             type: 'subtask_assigned',
@@ -119,7 +119,7 @@ export async function notifySubtaskAssigned(
  * Notify admin when a subtask status is updated
  */
 export async function notifySubtaskUpdated(
-    bot: TelegramBot,
+    botApi: Api,
     supabase: SupabaseClient,
     subtaskId: number,
     subtaskTitle: string,
@@ -139,7 +139,7 @@ export async function notifySubtaskUpdated(
 
         const message = `*Task Status Updated*\n\n${subtaskTitle}\n\nNew status: *${newStatus}*`;
 
-        await sendNotification(bot, {
+        await sendNotification(botApi, {
             telegramId: telegramUser.telegram_id,
             message,
             type: 'subtask_updated',
@@ -154,7 +154,7 @@ export async function notifySubtaskUpdated(
  * Notify user when they receive a message
  */
 export async function notifyMessageReceived(
-    bot: TelegramBot,
+    botApi: Api,
     supabase: SupabaseClient,
     toUserId: string,
     fromUserName: string,
@@ -177,7 +177,7 @@ export async function notifyMessageReceived(
 
         const message = `*New Message from ${fromUserName}*\n\n"${preview}"`;
 
-        await sendNotification(bot, {
+        await sendNotification(botApi, {
             telegramId: telegramUser.telegram_id,
             message,
             type: 'message_received',
