@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
 import { WalletProvider } from '../react-app/context/WalletContext';
+import { MultiChainWalletProvider, useMultiChainWallet } from "@/react-app/context/MultiChainWalletContext";
 import { useTelegramAuth, useTelegramUserSync, getTelegramUserRole } from '../react-app/hooks/useTelegramAuth';
 import { useWallet } from '../react-app/context/WalletContext';
 import AdminView from './views/AdminView';
@@ -17,8 +18,10 @@ function TelegramAppContent() {
     const [userRole, setUserRole] = useState<'admin' | 'assignee' | null>(null);
     const [roleLoading, setRoleLoading] = useState(true);
 
-    // Sync Telegram user with wallet address
-    useTelegramUserSync(user, address);
+    const { tonWallet } = useMultiChainWallet();
+
+    // Sync Telegram user with wallet address (EVM & TON)
+    useTelegramUserSync(user, address, tonWallet?.tonAddress || null);
 
     // Fetch user role
     useEffect(() => {
@@ -102,9 +105,11 @@ function TelegramAppContent() {
 export default function TelegramApp() {
     return (
         <BrowserRouter>
-            <WalletProvider>
-                <TelegramAppContent />
-            </WalletProvider>
+            <MultiChainWalletProvider>
+                <WalletProvider>
+                    <TelegramAppContent />
+                </WalletProvider>
+            </MultiChainWalletProvider>
         </BrowserRouter>
     );
 }

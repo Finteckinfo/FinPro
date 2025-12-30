@@ -98,20 +98,28 @@ export function useTelegramAuth(): TelegramAuthData {
 /**
  * Hook to link Telegram user with wallet address in database
  */
-export function useTelegramUserSync(telegramUser: TelegramUser | null, walletAddress: string | null) {
+export function useTelegramUserSync(
+    telegramUser: TelegramUser | null,
+    evmAddress: string | null,
+    tonAddress: string | null
+) {
     const [synced, setSynced] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const syncUser = async () => {
-        if (!telegramUser || !walletAddress) return;
+        if (!telegramUser) return;
+        // Don't sync if neither wallet is connected
+        if (!evmAddress && !tonAddress) return;
 
         setLoading(true);
         setError(null);
 
         try {
             const { supabase } = await import('@/react-app/lib/supabase');
-            const normalizedAddress = walletAddress.toLowerCase();
+            const normalizedEvm = evmAddress?.toLowerCase() || null;
+            // TON addresses are case-sensitive usually, but for safe lookup we store as provided
+            const normalizedTon = tonAddress || null;
 
             // Check if Telegram user already exists
             const { data: existing } = await supabase
@@ -122,26 +130,44 @@ export function useTelegramUserSync(telegramUser: TelegramUser | null, walletAdd
 
             if (!existing) {
                 // Create new Telegram user record
-                const { error: insertError } = await supabase
-                    .from('telegram_users')
-                    .insert({
-                        telegram_id: telegramUser.id,
-                        telegram_username: telegramUser.username,
-                        telegram_first_name: telegramUser.first_name,
-                        telegram_last_name: telegramUser.last_name,
-                        user_id: normalizedAddress,
-                        role: 'assignee', // Default role
-                    });
+                // Note: user_id is NOT NULL constraint reference to users table (EVM address)
+                // If EVM address is missing, we might fail constraint if table requires user_id.
+                // Assuming user_id maps to EVM address based on current architecture.
 
-                if (insertError) throw insertError;
-            } else if (existing.user_id !== normalizedAddress) {
-                // Update user_id if wallet changed
-                const { error: updateError } = await supabase
-                    .from('telegram_users')
-                    .update({ user_id: normalizedAddress })
-                    .eq('telegram_id', telegramUser.id);
+                if (normalizedEvm) {
+                    const { error: insertError } = await supabase
+                        .from('telegram_users')
+                        .insert({
+                            telegram_id: telegramUser.id,
+                            telegram_username: telegramUser.username,
+                            telegram_first_name: telegramUser.first_name,
+                            telegram_last_name: telegramUser.last_name,
+                            user_id: normalizedEvm,
+                            ton_wallet_address: normalizedTon,
+                            role: 'assignee', // Default role
+                        });
+                    if (insertError) throw insertError;
+                } else {
+                    console.warn('Skipping Telegram sync: EVM address required for initial creation (FK constraint)');
+                }
+            } else {
+                // Update existing record
+                const updates: any = {};
+                if (normalizedEvm && existing.user_id !== normalizedEvm) {
+                    updates.user_id = normalizedEvm;
+                }
+                if (normalizedTon && existing.ton_wallet_address !== normalizedTon) {
+                    updates.ton_wallet_address = normalizedTon;
+                }
 
-                if (updateError) throw updateError;
+                if (Object.keys(updates).length > 0) {
+                    const { error: updateError } = await supabase
+                        .from('telegram_users')
+                        .update(updates)
+                        .eq('telegram_id', telegramUser.id);
+
+                    if (updateError) throw updateError;
+                }
             }
 
             setSynced(true);
@@ -154,14 +180,13 @@ export function useTelegramUserSync(telegramUser: TelegramUser | null, walletAdd
     };
 
     useEffect(() => {
-        if (telegramUser && walletAddress && !synced) {
+        if (telegramUser && (evmAddress || tonAddress)) {
             syncUser();
         }
-    }, [telegramUser, walletAddress]);
+    }, [telegramUser, evmAddress, tonAddress]);
 
     return { synced, loading, error, syncUser };
 }
-
 /**
  * Get user role from Telegram users table
  */

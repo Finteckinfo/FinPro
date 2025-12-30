@@ -6,7 +6,7 @@ import LoginPage from "@/react-app/pages/Login";
 import TaskRedirect from "@/react-app/pages/TaskRedirect";
 import { TokenSwap } from "@/react-app/pages/TokenSwap";
 import ProtectedRoute from "@/react-app/components/ProtectedRoute";
-import { MultiChainWalletProvider } from "@/react-app/context/MultiChainWalletContext";
+import { MultiChainWalletProvider, useMultiChainWallet } from "@/react-app/context/MultiChainWalletContext";
 import { useWallet } from "@/react-app/context/WalletContext";
 import { useTelegramAuth, useTelegramUserSync } from "@/react-app/hooks/useTelegramAuth";
 import { toast, Toaster } from "react-hot-toast";
@@ -14,8 +14,15 @@ import { toast, Toaster } from "react-hot-toast";
 // Wrapper component to handle Telegram syncing
 function TelegramSyncWrapper({ children }: { children: React.ReactNode }) {
   const { user: telegramUser, isTelegramEnv } = useTelegramAuth();
-  const { account } = useWallet();
-  const { synced, error } = useTelegramUserSync(telegramUser, account);
+  const { account: evmAddress } = useWallet();
+  const { tonWallet } = useMultiChainWallet();
+
+  // Sync both wallets if available
+  const { synced, error } = useTelegramUserSync(
+    telegramUser,
+    evmAddress,
+    tonWallet?.tonAddress || null
+  );
 
   useEffect(() => {
     if (synced && isTelegramEnv) {
