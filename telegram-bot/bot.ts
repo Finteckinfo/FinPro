@@ -73,21 +73,36 @@ app.get('/health', (req: express.Request, res: express.Response) => {
 });
 
 // Start server
-app.listen(config.port, async () => {
-    console.log(`Telegram bot server running on port ${config.port}`);
-
-    // Register commands with Telegram
+const startServer = async () => {
+    // 1. Register commands with Telegram
     await registerCommands(bot.api);
 
-    // Set webhook
-    try {
-        const webhookUrl = `${config.webhookUrl}/bot-webhook`;
-        await bot.api.setWebhook(webhookUrl);
-        console.log(`Webhook set to: ${webhookUrl}`);
-    } catch (error) {
-        console.error('Failed to set webhook:', error);
+    // 2. Decide update method (Webhook vs Polling)
+    const usePolling = process.env.TELEGRAM_USE_POLLING === 'true';
+
+    if (usePolling) {
+        console.log('Starting bot in POLLING mode...');
+        // Delete any existing webhook before starting polling
+        await bot.api.deleteWebhook({ drop_pending_updates: true });
+        bot.start();
+    } else {
+        // Set webhook
+        try {
+            const webhookUrl = `${config.webhookUrl}/bot-webhook`;
+            await bot.api.setWebhook(webhookUrl);
+            console.log(`Webhook set to: ${webhookUrl}`);
+        } catch (error) {
+            console.error('Failed to set webhook:', error);
+        }
     }
-});
+
+    // 3. Start Express server for Supabase webhooks and health checks
+    app.listen(config.port, () => {
+        console.log(`Express server running on port ${config.port} (Supabase Webhooks & Health)`);
+    });
+};
+
+startServer();
 
 // Export for use in other modules
 export { bot, supabase };

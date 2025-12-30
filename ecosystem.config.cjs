@@ -2,12 +2,13 @@ module.exports = {
     apps: [
         {
             name: 'finpro-bot',
-            script: 'node',
-            args: '--import tsx --no-warnings telegram-bot/bot.ts',
+            script: 'npx',
+            args: 'tsx telegram-bot/bot.ts',
             cwd: './',
             env: {
                 NODE_ENV: 'production',
-                PORT: 3001
+                PORT: 3001,
+                TELEGRAM_USE_POLLING: 'true'
             },
             watch: false,
             max_memory_restart: '500M',
