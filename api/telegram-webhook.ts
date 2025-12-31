@@ -4,7 +4,7 @@ import { Bot, webhookCallback } from 'grammy';
 // Initialize bot
 const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN || '');
 
-// Simple inline handlers only
+// Simple inline handlers
 bot.command('ping', async (ctx) => {
     await ctx.reply('pong');
 });
@@ -39,8 +39,8 @@ export default async function handler(req: Request, res: Response) {
             body: req.body
         });
 
-        // Test basic response
-        return res.status(200).json({ status: 'ok', message: 'Webhook received' });
+        // Handle Telegram Bot Updates using grammy's webhookCallback
+        return await botCallback(req, res);
     } catch (error) {
         console.error('Webhook error:', error);
         console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
