@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { Bot, webhookCallback } from 'grammy';
+import { Bot } from 'grammy';
 
 // Initialize bot
 const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN || '');
@@ -11,14 +11,12 @@ bot.command('ping', async (ctx) => {
 
 bot.command('start', async (ctx) => {
     const firstName = ctx.from?.first_name || 'User';
-    await ctx.reply(`Hello ${firstName}! Bot is working with inline handlers.`);
+    await ctx.reply(`Hello ${firstName}! Bot is working with manual processing.`);
 });
 
 bot.command('help', async (ctx) => {
     await ctx.reply('Available commands: /start, /ping, /help');
 });
-
-const botCallback = webhookCallback(bot, 'express');
 
 export default async function handler(req: Request, res: Response) {
     console.log('Function started successfully');
@@ -33,14 +31,29 @@ export default async function handler(req: Request, res: Response) {
             return res.status(405).json({ error: 'Method not allowed' });
         }
 
-        console.log('Webhook called:', {
-            method: req.method,
-            url: req.url,
-            body: req.body
-        });
+        const update = req.body;
+        console.log('Received update:', update);
 
-        // Handle Telegram Bot Updates using grammy's webhookCallback
-        return await botCallback(req, res);
+        // Manual processing without webhookCallback
+        if (update.message && update.message.text) {
+            const text = update.message.text;
+            const chatId = update.message.chat.id;
+            const userId = update.message.from?.id;
+
+            console.log('Processing command:', text, 'from user:', userId);
+
+            // Manually handle commands
+            if (text === '/ping') {
+                await bot.api.sendMessage(chatId, 'pong');
+            } else if (text === '/start') {
+                const firstName = update.message.from?.first_name || 'User';
+                await bot.api.sendMessage(chatId, `Hello ${firstName}! Bot is working with manual processing.`);
+            } else if (text === '/help') {
+                await bot.api.sendMessage(chatId, 'Available commands: /start, /ping, /help');
+            }
+        }
+
+        return res.status(200).json({ status: 'ok', message: 'Update processed' });
     } catch (error) {
         console.error('Webhook error:', error);
         console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
