@@ -1073,3 +1073,208 @@
 2025-12-30 17:46:16:     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
 2025-12-30 17:46:16: 
 2025-12-30 17:46:16: Node.js v20.19.5
+2025-12-31 03:14:28: Failed to register bot commands: HttpError: Network request for 'setMyCommands' failed!
+2025-12-31 03:14:28:     at /home/c0bw3b/FinPro/node_modules/grammy/out/core/error.js:85:15
+2025-12-31 03:14:28:     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-12-31 03:14:28:     at async ApiClient.call (/home/c0bw3b/FinPro/node_modules/grammy/out/core/client.js:54:29)
+2025-12-31 03:14:28:     at async ApiClient.callApi (/home/c0bw3b/FinPro/node_modules/grammy/out/core/client.js:93:22)
+2025-12-31 03:14:28:     at async registerCommands (/home/c0bw3b/FinPro/telegram-bot/handlers/commands.ts:461:9)
+2025-12-31 03:14:28:     at async startServer (/home/c0bw3b/FinPro/telegram-bot/bot.ts:70:5) {
+2025-12-31 03:14:28:   error: FetchError: request to https://api.telegram.org/bot8490080324:AAGE7gm32wueIDyHBh6qbBLH7L3LleQpGDo/setMyCommands failed, reason: getaddrinfo EAI_AGAIN api.telegram.org
+2025-12-31 03:14:28:       at ClientRequest.<anonymous> (/home/c0bw3b/FinPro/node_modules/grammy/node_modules/node-fetch/lib/index.js:1501:11)
+2025-12-31 03:14:28:       at ClientRequest.emit (node:events:524:28)
+2025-12-31 03:14:28:       at emitErrorEvent (node:_http_client:101:11)
+2025-12-31 03:14:28:       at TLSSocket.socketErrorListener (node:_http_client:504:5)
+2025-12-31 03:14:28:       at TLSSocket.emit (node:events:524:28)
+2025-12-31 03:14:28:       at emitErrorNT (node:internal/streams/destroy:169:8)
+2025-12-31 03:14:28:       at emitErrorCloseNT (node:internal/streams/destroy:128:3)
+2025-12-31 03:14:28:       at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+2025-12-31 03:14:28:     type: 'system',
+2025-12-31 03:14:28:     errno: 'EAI_AGAIN',
+2025-12-31 03:14:28:     code: 'EAI_AGAIN'
+2025-12-31 03:14:28:   }
+2025-12-31 03:14:28: }
+2025-12-31 03:14:28: /home/c0bw3b/FinPro/node_modules/grammy/out/core/error.js:85
+2025-12-31 03:14:28:         throw new HttpError(msg, err);
+2025-12-31 03:14:28:               ^
+2025-12-31 03:14:28: 
+2025-12-31 03:14:28: HttpError: Network request for 'deleteWebhook' failed!
+2025-12-31 03:14:28:     at /home/c0bw3b/FinPro/node_modules/grammy/out/core/error.js:85:15
+2025-12-31 03:14:28:     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-12-31 03:14:28:     at async ApiClient.call (/home/c0bw3b/FinPro/node_modules/grammy/out/core/client.js:54:29)
+2025-12-31 03:14:28:     at async ApiClient.callApi (/home/c0bw3b/FinPro/node_modules/grammy/out/core/client.js:93:22)
+2025-12-31 03:14:28:     at async startServer (/home/c0bw3b/FinPro/telegram-bot/bot.ts:78:9) {
+2025-12-31 03:14:28:   error: FetchError: request to https://api.telegram.org/bot8490080324:AAGE7gm32wueIDyHBh6qbBLH7L3LleQpGDo/deleteWebhook failed, reason: getaddrinfo EAI_AGAIN api.telegram.org
+2025-12-31 03:14:28:       at ClientRequest.<anonymous> (/home/c0bw3b/FinPro/node_modules/grammy/node_modules/node-fetch/lib/index.js:1501:11)
+2025-12-31 03:14:28:       at ClientRequest.emit (node:events:524:28)
+2025-12-31 03:14:28:       at emitErrorEvent (node:_http_client:101:11)
+2025-12-31 03:14:28:       at TLSSocket.socketErrorListener (node:_http_client:504:5)
+2025-12-31 03:14:28:       at TLSSocket.emit (node:events:524:28)
+2025-12-31 03:14:28:       at emitErrorNT (node:internal/streams/destroy:169:8)
+2025-12-31 03:14:28:       at emitErrorCloseNT (node:internal/streams/destroy:128:3)
+2025-12-31 03:14:28:       at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+2025-12-31 03:14:28:     type: 'system',
+2025-12-31 03:14:28:     errno: 'EAI_AGAIN',
+2025-12-31 03:14:28:     code: 'EAI_AGAIN'
+2025-12-31 03:14:28:   }
+2025-12-31 03:14:28: }
+2025-12-31 03:14:28: 
+2025-12-31 03:14:28: Node.js v20.19.5
+2025-12-31 14:03:08: /home/c0bw3b/FinPro/node_modules/grammy/out/core/error.js:47
+2025-12-31 14:03:08:     return new GrammyError(`Call to '${method}' failed!`, err, method, payload);
+2025-12-31 14:03:08:            ^
+2025-12-31 14:03:08: 
+2025-12-31 14:03:08: GrammyError: Call to 'getUpdates' failed! (409: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running)
+2025-12-31 14:03:08:     at toGrammyError (/home/c0bw3b/FinPro/node_modules/grammy/out/core/error.js:47:12)
+2025-12-31 14:03:08:     at ApiClient.callApi (/home/c0bw3b/FinPro/node_modules/grammy/out/core/client.js:97:48)
+2025-12-31 14:03:08:     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-12-31 14:03:08:     at async Bot.fetchUpdates (/home/c0bw3b/FinPro/node_modules/grammy/out/bot.js:423:27)
+2025-12-31 14:03:08:     at async Bot.loop (/home/c0bw3b/FinPro/node_modules/grammy/out/bot.js:394:33)
+2025-12-31 14:03:08:     at async Bot.start (/home/c0bw3b/FinPro/node_modules/grammy/out/bot.js:315:9) {
+2025-12-31 14:03:08:   method: 'getUpdates',
+2025-12-31 14:03:08:   payload: {
+2025-12-31 14:03:08:     offset: 1,
+2025-12-31 14:03:08:     limit: undefined,
+2025-12-31 14:03:08:     timeout: 30,
+2025-12-31 14:03:08:     allowed_updates: undefined
+2025-12-31 14:03:08:   },
+2025-12-31 14:03:08:   ok: false,
+2025-12-31 14:03:08:   error_code: 409,
+2025-12-31 14:03:08:   description: 'Conflict: terminated by other getUpdates request; make sure that only one bot instance is running',
+2025-12-31 14:03:08:   parameters: {}
+2025-12-31 14:03:08: }
+2025-12-31 14:03:08: 
+2025-12-31 14:03:08: Node.js v20.19.5
+2025-12-31 14:03:56: /home/c0bw3b/FinPro/node_modules/grammy/out/core/error.js:47
+2025-12-31 14:03:56:     return new GrammyError(`Call to '${method}' failed!`, err, method, payload);
+2025-12-31 14:03:56:            ^
+2025-12-31 14:03:56: 
+2025-12-31 14:03:56: GrammyError: Call to 'getUpdates' failed! (409: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running)
+2025-12-31 14:03:56:     at toGrammyError (/home/c0bw3b/FinPro/node_modules/grammy/out/core/error.js:47:12)
+2025-12-31 14:03:56:     at ApiClient.callApi (/home/c0bw3b/FinPro/node_modules/grammy/out/core/client.js:97:48)
+2025-12-31 14:03:56:     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-12-31 14:03:56:     at async Bot.fetchUpdates (/home/c0bw3b/FinPro/node_modules/grammy/out/bot.js:423:27)
+2025-12-31 14:03:56:     at async Bot.loop (/home/c0bw3b/FinPro/node_modules/grammy/out/bot.js:394:33)
+2025-12-31 14:03:56:     at async Bot.start (/home/c0bw3b/FinPro/node_modules/grammy/out/bot.js:315:9) {
+2025-12-31 14:03:56:   method: 'getUpdates',
+2025-12-31 14:03:56:   payload: {
+2025-12-31 14:03:56:     offset: 1,
+2025-12-31 14:03:56:     limit: undefined,
+2025-12-31 14:03:56:     timeout: 30,
+2025-12-31 14:03:56:     allowed_updates: undefined
+2025-12-31 14:03:56:   },
+2025-12-31 14:03:56:   ok: false,
+2025-12-31 14:03:56:   error_code: 409,
+2025-12-31 14:03:56:   description: 'Conflict: terminated by other getUpdates request; make sure that only one bot instance is running',
+2025-12-31 14:03:56:   parameters: {}
+2025-12-31 14:03:56: }
+2025-12-31 14:03:56: 
+2025-12-31 14:03:56: Node.js v20.19.5
+2025-12-31 14:04:54: Failed to register bot commands: HttpError: Network request for 'setMyCommands' failed!
+2025-12-31 14:04:54:     at /home/c0bw3b/FinPro/node_modules/grammy/out/core/error.js:85:15
+2025-12-31 14:04:54:     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-12-31 14:04:54:     at async ApiClient.call (/home/c0bw3b/FinPro/node_modules/grammy/out/core/client.js:54:29)
+2025-12-31 14:04:54:     at async ApiClient.callApi (/home/c0bw3b/FinPro/node_modules/grammy/out/core/client.js:93:22)
+2025-12-31 14:04:54:     at async registerCommands (/home/c0bw3b/FinPro/telegram-bot/handlers/commands.ts:461:9)
+2025-12-31 14:04:54:     at async startServer (/home/c0bw3b/FinPro/telegram-bot/bot.ts:70:5) {
+2025-12-31 14:04:54:   error: FetchError: request to https://api.telegram.org/bot8490080324:AAGE7gm32wueIDyHBh6qbBLH7L3LleQpGDo/setMyCommands failed, reason: 
+2025-12-31 14:04:54:       at ClientRequest.<anonymous> (/home/c0bw3b/FinPro/node_modules/grammy/node_modules/node-fetch/lib/index.js:1501:11)
+2025-12-31 14:04:54:       at ClientRequest.emit (node:events:524:28)
+2025-12-31 14:04:54:       at emitErrorEvent (node:_http_client:101:11)
+2025-12-31 14:04:54:       at TLSSocket.socketErrorListener (node:_http_client:504:5)
+2025-12-31 14:04:54:       at TLSSocket.emit (node:events:524:28)
+2025-12-31 14:04:54:       at emitErrorNT (node:internal/streams/destroy:169:8)
+2025-12-31 14:04:54:       at emitErrorCloseNT (node:internal/streams/destroy:128:3)
+2025-12-31 14:04:54:       at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+2025-12-31 14:04:54:     type: 'system',
+2025-12-31 14:04:54:     errno: 'ETIMEDOUT',
+2025-12-31 14:04:54:     code: 'ETIMEDOUT'
+2025-12-31 14:04:54:   }
+2025-12-31 14:04:54: }
+2025-12-31 14:04:55: /home/c0bw3b/FinPro/node_modules/grammy/out/core/error.js:85
+2025-12-31 14:04:55:         throw new HttpError(msg, err);
+2025-12-31 14:04:55:               ^
+2025-12-31 14:04:55: 
+2025-12-31 14:04:55: HttpError: Network request for 'deleteWebhook' failed!
+2025-12-31 14:04:55:     at /home/c0bw3b/FinPro/node_modules/grammy/out/core/error.js:85:15
+2025-12-31 14:04:55:     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-12-31 14:04:55:     at async ApiClient.call (/home/c0bw3b/FinPro/node_modules/grammy/out/core/client.js:54:29)
+2025-12-31 14:04:55:     at async ApiClient.callApi (/home/c0bw3b/FinPro/node_modules/grammy/out/core/client.js:93:22)
+2025-12-31 14:04:55:     at async startServer (/home/c0bw3b/FinPro/telegram-bot/bot.ts:78:9) {
+2025-12-31 14:04:55:   error: FetchError: request to https://api.telegram.org/bot8490080324:AAGE7gm32wueIDyHBh6qbBLH7L3LleQpGDo/deleteWebhook failed, reason: 
+2025-12-31 14:04:55:       at ClientRequest.<anonymous> (/home/c0bw3b/FinPro/node_modules/grammy/node_modules/node-fetch/lib/index.js:1501:11)
+2025-12-31 14:04:55:       at ClientRequest.emit (node:events:524:28)
+2025-12-31 14:04:55:       at emitErrorEvent (node:_http_client:101:11)
+2025-12-31 14:04:55:       at TLSSocket.socketErrorListener (node:_http_client:504:5)
+2025-12-31 14:04:55:       at TLSSocket.emit (node:events:524:28)
+2025-12-31 14:04:55:       at emitErrorNT (node:internal/streams/destroy:169:8)
+2025-12-31 14:04:55:       at emitErrorCloseNT (node:internal/streams/destroy:128:3)
+2025-12-31 14:04:55:       at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+2025-12-31 14:04:55:     type: 'system',
+2025-12-31 14:04:55:     errno: 'ETIMEDOUT',
+2025-12-31 14:04:55:     code: 'ETIMEDOUT'
+2025-12-31 14:04:55:   }
+2025-12-31 14:04:55: }
+2025-12-31 14:04:55: 
+2025-12-31 14:04:55: Node.js v20.19.5
+2025-12-31 14:05:01: Failed to register bot commands: HttpError: Network request for 'setMyCommands' failed!
+2025-12-31 14:05:01:     at /home/c0bw3b/FinPro/node_modules/grammy/out/core/error.js:85:15
+2025-12-31 14:05:01:     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-12-31 14:05:01:     at async ApiClient.call (/home/c0bw3b/FinPro/node_modules/grammy/out/core/client.js:54:29)
+2025-12-31 14:05:01:     at async ApiClient.callApi (/home/c0bw3b/FinPro/node_modules/grammy/out/core/client.js:93:22)
+2025-12-31 14:05:01:     at async registerCommands (/home/c0bw3b/FinPro/telegram-bot/handlers/commands.ts:461:9)
+2025-12-31 14:05:01:     at async startServer (/home/c0bw3b/FinPro/telegram-bot/bot.ts:70:5) {
+2025-12-31 14:05:01:   error: FetchError: request to https://api.telegram.org/bot8490080324:AAGE7gm32wueIDyHBh6qbBLH7L3LleQpGDo/setMyCommands failed, reason: 
+2025-12-31 14:05:01:       at ClientRequest.<anonymous> (/home/c0bw3b/FinPro/node_modules/grammy/node_modules/node-fetch/lib/index.js:1501:11)
+2025-12-31 14:05:01:       at ClientRequest.emit (node:events:524:28)
+2025-12-31 14:05:01:       at emitErrorEvent (node:_http_client:101:11)
+2025-12-31 14:05:01:       at TLSSocket.socketErrorListener (node:_http_client:504:5)
+2025-12-31 14:05:01:       at TLSSocket.emit (node:events:524:28)
+2025-12-31 14:05:01:       at emitErrorNT (node:internal/streams/destroy:169:8)
+2025-12-31 14:05:01:       at emitErrorCloseNT (node:internal/streams/destroy:128:3)
+2025-12-31 14:05:01:       at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+2025-12-31 14:05:01:     type: 'system',
+2025-12-31 14:05:01:     errno: 'ETIMEDOUT',
+2025-12-31 14:05:01:     code: 'ETIMEDOUT'
+2025-12-31 14:05:01:   }
+2025-12-31 14:05:01: }
+2025-12-31 14:05:12: /home/c0bw3b/FinPro/node_modules/grammy/out/core/error.js:47
+2025-12-31 14:05:12:     return new GrammyError(`Call to '${method}' failed!`, err, method, payload);
+2025-12-31 14:05:12:            ^
+2025-12-31 14:05:12: 
+2025-12-31 14:05:12: GrammyError: Call to 'getUpdates' failed! (409: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running)
+2025-12-31 14:05:12:     at toGrammyError (/home/c0bw3b/FinPro/node_modules/grammy/out/core/error.js:47:12)
+2025-12-31 14:05:12:     at ApiClient.callApi (/home/c0bw3b/FinPro/node_modules/grammy/out/core/client.js:97:48)
+2025-12-31 14:05:12:     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-12-31 14:05:12:     at async Bot.fetchUpdates (/home/c0bw3b/FinPro/node_modules/grammy/out/bot.js:423:27)
+2025-12-31 14:05:12:     at async Bot.loop (/home/c0bw3b/FinPro/node_modules/grammy/out/bot.js:394:33)
+2025-12-31 14:05:12:     at async Bot.start (/home/c0bw3b/FinPro/node_modules/grammy/out/bot.js:315:9) {
+2025-12-31 14:05:12:   method: 'getUpdates',
+2025-12-31 14:05:12:   payload: { offset: 1, limit: undefined, timeout: 30, allowed_updates: [] },
+2025-12-31 14:05:12:   ok: false,
+2025-12-31 14:05:12:   error_code: 409,
+2025-12-31 14:05:12:   description: 'Conflict: terminated by other getUpdates request; make sure that only one bot instance is running',
+2025-12-31 14:05:12:   parameters: {}
+2025-12-31 14:05:12: }
+2025-12-31 14:05:12: 
+2025-12-31 14:05:12: Node.js v20.19.5
+2025-12-31 14:05:39: /home/c0bw3b/FinPro/node_modules/grammy/out/core/error.js:47
+2025-12-31 14:05:39:     return new GrammyError(`Call to '${method}' failed!`, err, method, payload);
+2025-12-31 14:05:39:            ^
+2025-12-31 14:05:39: 
+2025-12-31 14:05:39: GrammyError: Call to 'getUpdates' failed! (409: Conflict: terminated by setWebhook request)
+2025-12-31 14:05:39:     at toGrammyError (/home/c0bw3b/FinPro/node_modules/grammy/out/core/error.js:47:12)
+2025-12-31 14:05:39:     at ApiClient.callApi (/home/c0bw3b/FinPro/node_modules/grammy/out/core/client.js:97:48)
+2025-12-31 14:05:39:     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-12-31 14:05:39:     at async Bot.fetchUpdates (/home/c0bw3b/FinPro/node_modules/grammy/out/bot.js:423:27)
+2025-12-31 14:05:39:     at async Bot.loop (/home/c0bw3b/FinPro/node_modules/grammy/out/bot.js:394:33)
+2025-12-31 14:05:39:     at async Bot.start (/home/c0bw3b/FinPro/node_modules/grammy/out/bot.js:315:9) {
+2025-12-31 14:05:39:   method: 'getUpdates',
+2025-12-31 14:05:39:   payload: { offset: 1, limit: undefined, timeout: 30, allowed_updates: [] },
+2025-12-31 14:05:39:   ok: false,
+2025-12-31 14:05:39:   error_code: 409,
+2025-12-31 14:05:39:   description: 'Conflict: terminated by setWebhook request',
+2025-12-31 14:05:39:   parameters: {}
+2025-12-31 14:05:39: }
+2025-12-31 14:05:39: 
+2025-12-31 14:05:39: Node.js v20.19.5
