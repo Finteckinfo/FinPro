@@ -40,10 +40,11 @@ export default async function handler(req: Request, res: Response) {
             body: req.body
         });
 
-        // Return success for now
-        return res.status(200).json({ status: 'ok' });
+        // Handle Telegram Bot Updates using grammy's webhookCallback
+        return await botCallback(req, res);
     } catch (error) {
         console.error('Webhook error:', error);
+        console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
         if (!res.headersSent) {
             res.status(500).json({ error: 'Internal server error' });
         }
