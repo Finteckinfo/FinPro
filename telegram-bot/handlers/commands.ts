@@ -161,7 +161,7 @@ export async function handleProjects(
 
             const chatLink = await getChatLink(project.id);
             if (chatLink) {
-                keyboard.url(`💬 Chat: ${project.name}`, chatLink);
+                keyboard.url(`Chat: ${project.name}`, chatLink);
                 if ((index + 1) % 2 === 0) keyboard.row();
             }
         }
@@ -417,14 +417,14 @@ export async function handleBroadcast(
 
         for (const u of users) {
             try {
-                await ctx.api.sendMessage(u.telegram_id, `📢 *Broadcast Announcement*\n\n${message}`, { parse_mode: 'Markdown' });
+                await ctx.api.sendMessage(u.telegram_id, `Broadcast Announcement\n\n${message}`, { parse_mode: 'Markdown' });
                 success++;
             } catch (e) {
                 fail++;
             }
         }
 
-        await ctx.reply(`Broadcast complete!\n✅ Success: ${success}\n❌ Failed: ${fail}`);
+        await ctx.reply(`Broadcast complete!\nSuccess: ${success}\nFailed: ${fail}`);
     } catch (error) {
         console.error('Error in /broadcast:', error);
     }

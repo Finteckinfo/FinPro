@@ -53,6 +53,15 @@ contract ProjectEscrow is
     
     /// @notice Number of approvals required for large releases
     uint256 public constant REQUIRED_APPROVALS = 2;
+    
+    /// @notice Maximum platform fee (10% = 1000 basis points)
+    uint256 public constant MAX_PLATFORM_FEE = 1000;
+    
+    /// @notice Platform fee recipient address
+    address public platformFeeRecipient;
+    
+    /// @notice Platform fee in basis points (e.g., 300 = 3%)
+    uint256 public platformFeePercentage;
 
     /// @notice FIN token contract
     IERC20 public finToken;
@@ -83,6 +92,7 @@ contract ProjectEscrow is
         uint256 createdAt;
         uint256 completedAt;
         uint256 approvalCount;
+        uint256 hashrate;
         mapping(address => bool) approvals;
     }
 
@@ -107,6 +117,9 @@ contract ProjectEscrow is
     event RefundRequested(uint256 indexed projectId, address indexed employer, uint256 requestedAt);
     event RefundProcessed(uint256 indexed projectId, address indexed employer, uint256 amount);
     event ProjectCancelled(uint256 indexed projectId, address indexed employer);
+    event HashrateUpdated(uint256 indexed taskId, uint256 hashrate);
+    event PlatformFeeCollected(uint256 indexed taskId, address indexed recipient, uint256 feeAmount, uint256 workerAmount);
+    event TaskStatusUpdated(uint256 indexed taskId, TaskStatus status);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -128,6 +141,8 @@ contract ProjectEscrow is
         __Pausable_init();
 
         finToken = IERC20(_finToken);
+        platformFeeRecipient = admin;
+        platformFeePercentage = 300; // Default 3%
         
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
         _grantRole(MANAGER_ROLE, admin);
@@ -241,6 +256,50 @@ contract ProjectEscrow is
     }
 
     /**
+     * @notice Cancel a pending or in-progress task (refunds allocated funds back to project pool)
+     * @param taskId ID of the task to cancel
+     */
+    function cancelTask(uint256 taskId)
+        external
+        nonReentrant
+        whenNotPaused
+        onlyRole(MANAGER_ROLE)
+    {
+        Task storage task = tasks[taskId];
+        require(
+            task.status == TaskStatus.PENDING || task.status == TaskStatus.IN_PROGRESS,
+            "ProjectEscrow: task cannot be cancelled in current status"
+        );
+        
+        Project storage project = projects[task.projectId];
+        require(project.status == ProjectStatus.ACTIVE, "ProjectEscrow: project not active");
+
+        task.status = TaskStatus.CANCELLED;
+        project.totalAllocated -= task.amount;
+        
+        emit TaskStatusUpdated(taskId, TaskStatus.CANCELLED);
+    }
+
+    /**
+     * @notice Update task hashrate (dynamic metric)
+     * @param taskId ID of the task
+     * @param newHashrate New hashrate value
+     */
+    function updateTaskHashrate(uint256 taskId, uint256 newHashrate)
+        external
+        nonReentrant
+        whenNotPaused
+        onlyRole(MANAGER_ROLE)
+    {
+        Task storage task = tasks[taskId];
+        require(task.worker != address(0), "ProjectEscrow: task not found");
+        
+        task.hashrate = newHashrate;
+        
+        emit HashrateUpdated(taskId, newHashrate);
+    }
+
+    /**
      * @notice Internal function to release payment
      * @param taskId ID of the task
      */
@@ -258,10 +317,26 @@ contract ProjectEscrow is
         task.status = TaskStatus.PAID;
         project.totalReleased += task.amount;
         
-        // Transfer FIN tokens to worker
-        finToken.safeTransfer(task.worker, task.amount);
+        // Calculate platform fee
+        uint256 platformFee = (task.amount * platformFeePercentage) / 10000;
+        uint256 workerAmount = task.amount - platformFee;
         
-        emit PaymentReleased(taskId, task.worker, task.amount);
+        // Transfer platform fee if recipient is set and fee > 0
+        if (platformFeeRecipient != address(0) && platformFee > 0) {
+            finToken.safeTransfer(platformFeeRecipient, platformFee);
+        } else {
+            // If no fee recipient, worker gets full amount
+            workerAmount = task.amount;
+        }
+        
+        // Transfer remaining amount to worker
+        finToken.safeTransfer(task.worker, workerAmount);
+        
+        emit PaymentReleased(taskId, task.worker, workerAmount);
+        
+        if (platformFee > 0 && platformFeeRecipient != address(0)) {
+            emit PlatformFeeCollected(taskId, platformFeeRecipient, platformFee, workerAmount);
+        }
     }
 
     /**
@@ -337,6 +412,33 @@ contract ProjectEscrow is
     }
 
     /**
+     * @notice Set platform fee percentage
+     * @param newFeePercentage New fee in basis points (e.g. 300 = 3%)
+     */
+    function setPlatformFee(uint256 newFeePercentage) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(newFeePercentage <= MAX_PLATFORM_FEE, "ProjectEscrow: fee exceeds maximum");
+        platformFeePercentage = newFeePercentage;
+    }
+
+    /**
+     * @notice Set platform fee recipient
+     * @param newRecipient Address to receive platform fees
+     */
+    function setPlatformFeeRecipient(address newRecipient) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(newRecipient != address(0), "ProjectEscrow: recipient is zero address");
+        platformFeeRecipient = newRecipient;
+    }
+
+    /**
+     * @notice Calculate platform fee for a given amount
+     * @param amount Amount to calculate fee for
+     * @return Platform fee amount
+     */
+    function getPlatformFeeAmount(uint256 amount) external view returns (uint256) {
+        return (amount * platformFeePercentage) / 10000;
+    }
+
+    /**
      * @notice Authorize contract upgrade
      * @param newImplementation Address of new implementation
      */
@@ -382,7 +484,8 @@ contract ProjectEscrow is
         TaskStatus status,
         uint256 createdAt,
         uint256 completedAt,
-        uint256 approvalCount
+        uint256 approvalCount,
+        uint256 hashrate
     ) {
         Task storage task = tasks[taskId];
         return (
@@ -392,7 +495,8 @@ contract ProjectEscrow is
             task.status,
             task.createdAt,
             task.completedAt,
-            task.approvalCount
+            task.approvalCount,
+            task.hashrate
         );
     }
 }

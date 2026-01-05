@@ -3305,9 +3305,9 @@
       "contracts/ProjectEscrow.sol:ProjectEscrow": {
         "src": "contracts/ProjectEscrow.sol:30",
         "version": {
-          "withMetadata": "3e197da2d82ceccf4a9116243353584a87e4f95adaa3cab7cab60572d04edbd9",
-          "withoutMetadata": "4a0da945d248a8b759fd1de0c4767504145569c92530dbbf5d027d6e4d16aca8",
-          "linkedWithoutMetadata": "4a0da945d248a8b759fd1de0c4767504145569c92530dbbf5d027d6e4d16aca8"
+          "withMetadata": "f6d746bd5418848e35606cb4694cdbad492b0616ec790e805c6cd945b6a5d1b2",
+          "withoutMetadata": "0df4da50d58d56aa377de7ac64ba3aea5efbe0512dd393ecbf22ee5c3b2c1033",
+          "linkedWithoutMetadata": "0df4da50d58d56aa377de7ac64ba3aea5efbe0512dd393ecbf22ee5c3b2c1033"
         },
         "inherit": [
           "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol:PausableUpgradeable",
@@ -3331,11 +3331,16 @@
           "allocateTask(uint256,address,uint256)",
           "completeTask(uint256)",
           "approvePayment(uint256)",
+          "cancelTask(uint256)",
+          "updateTaskHashrate(uint256,uint256)",
           "requestRefund(uint256)",
           "processRefund(uint256)",
           "cancelProject(uint256)",
           "pause()",
           "unpause()",
+          "setPlatformFee(uint256)",
+          "setPlatformFeeRecipient(address)",
+          "getPlatformFeeAmount(uint256)",
           "getProject(uint256)",
           "getTask(uint256)"
         ],
@@ -3344,44 +3349,60 @@
         "layout": {
           "storage": [
             {
-              "label": "finToken",
+              "label": "platformFeeRecipient",
               "offset": 0,
               "slot": "0",
+              "type": "t_address",
+              "contract": "ProjectEscrow",
+              "src": "contracts/ProjectEscrow.sol:61"
+            },
+            {
+              "label": "platformFeePercentage",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_uint256",
+              "contract": "ProjectEscrow",
+              "src": "contracts/ProjectEscrow.sol:64"
+            },
+            {
+              "label": "finToken",
+              "offset": 0,
+              "slot": "2",
               "type": "t_contract(IERC20)4003",
               "contract": "ProjectEscrow",
-              "src": "contracts/ProjectEscrow.sol:58"
+              "src": "contracts/ProjectEscrow.sol:67"
             },
             {
               "label": "projects",
               "offset": 0,
-              "slot": "1",
-              "type": "t_mapping(t_uint256,t_struct(Project)12180_storage)",
+              "slot": "3",
+              "type": "t_mapping(t_uint256,t_struct(Project)12190_storage)",
               "contract": "ProjectEscrow",
-              "src": "contracts/ProjectEscrow.sol:90"
+              "src": "contracts/ProjectEscrow.sol:100"
             },
             {
               "label": "tasks",
               "offset": 0,
-              "slot": "2",
-              "type": "t_mapping(t_uint256,t_struct(Task)12201_storage)",
+              "slot": "4",
+              "type": "t_mapping(t_uint256,t_struct(Task)12213_storage)",
               "contract": "ProjectEscrow",
-              "src": "contracts/ProjectEscrow.sol:93"
+              "src": "contracts/ProjectEscrow.sol:103"
             },
             {
               "label": "projectCounter",
               "offset": 0,
-              "slot": "3",
+              "slot": "5",
               "type": "t_uint256",
               "contract": "ProjectEscrow",
-              "src": "contracts/ProjectEscrow.sol:96"
+              "src": "contracts/ProjectEscrow.sol:106"
             },
             {
               "label": "taskCounter",
               "offset": 0,
-              "slot": "4",
+              "slot": "6",
               "type": "t_uint256",
               "contract": "ProjectEscrow",
-              "src": "contracts/ProjectEscrow.sol:99"
+              "src": "contracts/ProjectEscrow.sol:109"
             }
           ],
           "types": {
@@ -3489,7 +3510,7 @@
               "label": "contract IERC20",
               "numberOfBytes": "20"
             },
-            "t_enum(ProjectStatus)12156": {
+            "t_enum(ProjectStatus)12166": {
               "label": "enum ProjectEscrow.ProjectStatus",
               "members": [
                 "ACTIVE",
@@ -3498,7 +3519,7 @@
               ],
               "numberOfBytes": "1"
             },
-            "t_enum(TaskStatus)12163": {
+            "t_enum(TaskStatus)12173": {
               "label": "enum ProjectEscrow.TaskStatus",
               "members": [
                 "PENDING",
@@ -3509,15 +3530,15 @@
               ],
               "numberOfBytes": "1"
             },
-            "t_mapping(t_uint256,t_struct(Project)12180_storage)": {
+            "t_mapping(t_uint256,t_struct(Project)12190_storage)": {
               "label": "mapping(uint256 => struct ProjectEscrow.Project)",
               "numberOfBytes": "32"
             },
-            "t_mapping(t_uint256,t_struct(Task)12201_storage)": {
+            "t_mapping(t_uint256,t_struct(Task)12213_storage)": {
               "label": "mapping(uint256 => struct ProjectEscrow.Task)",
               "numberOfBytes": "32"
             },
-            "t_struct(Project)12180_storage": {
+            "t_struct(Project)12190_storage": {
               "label": "struct ProjectEscrow.Project",
               "members": [
                 {
@@ -3546,7 +3567,7 @@
                 },
                 {
                   "label": "status",
-                  "type": "t_enum(ProjectStatus)12156",
+                  "type": "t_enum(ProjectStatus)12166",
                   "offset": 0,
                   "slot": "4"
                 },
@@ -3565,7 +3586,7 @@
               ],
               "numberOfBytes": "224"
             },
-            "t_struct(Task)12201_storage": {
+            "t_struct(Task)12213_storage": {
               "label": "struct ProjectEscrow.Task",
               "members": [
                 {
@@ -3588,7 +3609,7 @@
                 },
                 {
                   "label": "status",
-                  "type": "t_enum(TaskStatus)12163",
+                  "type": "t_enum(TaskStatus)12173",
                   "offset": 0,
                   "slot": "3"
                 },
@@ -3611,13 +3632,19 @@
                   "slot": "6"
                 },
                 {
+                  "label": "hashrate",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "7"
+                },
+                {
                   "label": "approvals",
                   "type": "t_mapping(t_address,t_bool)",
                   "offset": 0,
-                  "slot": "7"
+                  "slot": "8"
                 }
               ],
-              "numberOfBytes": "256"
+              "numberOfBytes": "288"
             }
           },
           "layoutVersion": "1.2",
@@ -3967,9 +3994,9 @@
       "contracts/TokenPaymaster.sol:TokenPaymaster": {
         "src": "contracts/TokenPaymaster.sol:9",
         "version": {
-          "withMetadata": "43f918c3e8aa1782a7f0478ec37649ba9ce1852635f19396b4e8c098abf4a6b1",
-          "withoutMetadata": "3360c241692e7acd9d6686a7f734d516a9e9275692d950d09f6ae22b32d4b7ef",
-          "linkedWithoutMetadata": "3360c241692e7acd9d6686a7f734d516a9e9275692d950d09f6ae22b32d4b7ef"
+          "withMetadata": "e645d5018e0f599b67fd6d416aa1e098e6f3ad0b80f7aa05b8b06a0e9abe5fab",
+          "withoutMetadata": "f5c49cdb6d6201fad29a150acd39d3098e2a266488af4faaa97dce2f589a8bff",
+          "linkedWithoutMetadata": "f5c49cdb6d6201fad29a150acd39d3098e2a266488af4faaa97dce2f589a8bff"
         },
         "inherit": [
           "@openzeppelin/contracts/access/Ownable.sol:Ownable",

@@ -284,16 +284,22 @@ describe("FinPro Smart Contracts - Security Tests", function () {
             await projectEscrow.connect(worker1).completeTask(task1Id);
             await projectEscrow.connect(worker2).completeTask(task2Id);
 
-            // 4. Check balances
-            expect(await finToken.balanceOf(worker1.address)).to.equal(task1Amount);
+            // 4. Check balances (Accounting for 3% platform fee)
+            const feePercent = 300n; // 3%
+            const task1Fee = (task1Amount * feePercent) / 10000n;
+            const expectedTask1Amount = task1Amount - task1Fee;
+
+            expect(await finToken.balanceOf(worker1.address)).to.equal(expectedTask1Amount);
             expect(await finToken.balanceOf(worker2.address)).to.equal(0); // Task 2 needs approval
 
             // 5. Approve large task
             await projectEscrow.connect(approver1).approvePayment(task2Id);
             await projectEscrow.connect(approver2).approvePayment(task2Id);
 
-            // 6. Verify final balances
-            expect(await finToken.balanceOf(worker2.address)).to.equal(task2Amount);
+            // 6. Verify final balances (Accounting for 3% platform fee)
+            const task2Fee = (task2Amount * feePercent) / 10000n;
+            const expectedTask2Amount = task2Amount - task2Fee;
+            expect(await finToken.balanceOf(worker2.address)).to.equal(expectedTask2Amount);
 
             // 7. Refund remaining funds
             const project = await projectEscrow.getProject(projectId);

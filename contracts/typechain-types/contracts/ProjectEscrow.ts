@@ -30,6 +30,7 @@ export interface ProjectEscrowInterface extends Interface {
       | "APPROVER_ROLE"
       | "DEFAULT_ADMIN_ROLE"
       | "MANAGER_ROLE"
+      | "MAX_PLATFORM_FEE"
       | "REFUND_TIMELOCK"
       | "REQUIRED_APPROVALS"
       | "UPGRADER_ROLE"
@@ -37,9 +38,11 @@ export interface ProjectEscrowInterface extends Interface {
       | "allocateTask"
       | "approvePayment"
       | "cancelProject"
+      | "cancelTask"
       | "completeTask"
       | "finToken"
       | "fundProject"
+      | "getPlatformFeeAmount"
       | "getProject"
       | "getRoleAdmin"
       | "getTask"
@@ -48,6 +51,8 @@ export interface ProjectEscrowInterface extends Interface {
       | "initialize"
       | "pause"
       | "paused"
+      | "platformFeePercentage"
+      | "platformFeeRecipient"
       | "processRefund"
       | "projectCounter"
       | "projects"
@@ -55,19 +60,24 @@ export interface ProjectEscrowInterface extends Interface {
       | "renounceRole"
       | "requestRefund"
       | "revokeRole"
+      | "setPlatformFee"
+      | "setPlatformFeeRecipient"
       | "supportsInterface"
       | "taskCounter"
       | "tasks"
       | "unpause"
+      | "updateTaskHashrate"
       | "upgradeToAndCall"
   ): FunctionFragment;
 
   getEvent(
     nameOrSignatureOrTopic:
+      | "HashrateUpdated"
       | "Initialized"
       | "Paused"
       | "PaymentApproved"
       | "PaymentReleased"
+      | "PlatformFeeCollected"
       | "ProjectCancelled"
       | "ProjectFunded"
       | "RefundProcessed"
@@ -77,6 +87,7 @@ export interface ProjectEscrowInterface extends Interface {
       | "RoleRevoked"
       | "TaskAllocated"
       | "TaskCompleted"
+      | "TaskStatusUpdated"
       | "Unpaused"
       | "Upgraded"
   ): EventFragment;
@@ -95,6 +106,10 @@ export interface ProjectEscrowInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "MANAGER_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "MAX_PLATFORM_FEE",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -126,12 +141,20 @@ export interface ProjectEscrowInterface extends Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "cancelTask",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "completeTask",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "finToken", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "fundProject",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getPlatformFeeAmount",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -161,6 +184,14 @@ export interface ProjectEscrowInterface extends Interface {
   encodeFunctionData(functionFragment: "pause", values?: undefined): string;
   encodeFunctionData(functionFragment: "paused", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "platformFeePercentage",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "platformFeeRecipient",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "processRefund",
     values: [BigNumberish]
   ): string;
@@ -189,6 +220,14 @@ export interface ProjectEscrowInterface extends Interface {
     values: [BytesLike, AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "setPlatformFee",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setPlatformFeeRecipient",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [BytesLike]
   ): string;
@@ -198,6 +237,10 @@ export interface ProjectEscrowInterface extends Interface {
   ): string;
   encodeFunctionData(functionFragment: "tasks", values: [BigNumberish]): string;
   encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "updateTaskHashrate",
+    values: [BigNumberish, BigNumberish]
+  ): string;
   encodeFunctionData(
     functionFragment: "upgradeToAndCall",
     values: [AddressLike, BytesLike]
@@ -217,6 +260,10 @@ export interface ProjectEscrowInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "MANAGER_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "MAX_PLATFORM_FEE",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -247,6 +294,7 @@ export interface ProjectEscrowInterface extends Interface {
     functionFragment: "cancelProject",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "cancelTask", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "completeTask",
     data: BytesLike
@@ -254,6 +302,10 @@ export interface ProjectEscrowInterface extends Interface {
   decodeFunctionResult(functionFragment: "finToken", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "fundProject",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getPlatformFeeAmount",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getProject", data: BytesLike): Result;
@@ -267,6 +319,14 @@ export interface ProjectEscrowInterface extends Interface {
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "paused", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "platformFeePercentage",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "platformFeeRecipient",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "processRefund",
     data: BytesLike
@@ -290,6 +350,14 @@ export interface ProjectEscrowInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "setPlatformFee",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setPlatformFeeRecipient",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "supportsInterface",
     data: BytesLike
   ): Result;
@@ -300,9 +368,26 @@ export interface ProjectEscrowInterface extends Interface {
   decodeFunctionResult(functionFragment: "tasks", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "updateTaskHashrate",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "upgradeToAndCall",
     data: BytesLike
   ): Result;
+}
+
+export namespace HashrateUpdatedEvent {
+  export type InputTuple = [taskId: BigNumberish, hashrate: BigNumberish];
+  export type OutputTuple = [taskId: bigint, hashrate: bigint];
+  export interface OutputObject {
+    taskId: bigint;
+    hashrate: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
 
 export namespace InitializedEvent {
@@ -353,6 +438,31 @@ export namespace PaymentReleasedEvent {
     taskId: bigint;
     worker: string;
     amount: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace PlatformFeeCollectedEvent {
+  export type InputTuple = [
+    taskId: BigNumberish,
+    recipient: AddressLike,
+    feeAmount: BigNumberish,
+    workerAmount: BigNumberish
+  ];
+  export type OutputTuple = [
+    taskId: bigint,
+    recipient: string,
+    feeAmount: bigint,
+    workerAmount: bigint
+  ];
+  export interface OutputObject {
+    taskId: bigint;
+    recipient: string;
+    feeAmount: bigint;
+    workerAmount: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -535,6 +645,19 @@ export namespace TaskCompletedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+export namespace TaskStatusUpdatedEvent {
+  export type InputTuple = [taskId: BigNumberish, status: BigNumberish];
+  export type OutputTuple = [taskId: bigint, status: bigint];
+  export interface OutputObject {
+    taskId: bigint;
+    status: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export namespace UnpausedEvent {
   export type InputTuple = [account: AddressLike];
   export type OutputTuple = [account: string];
@@ -610,6 +733,8 @@ export interface ProjectEscrow extends BaseContract {
 
   MANAGER_ROLE: TypedContractMethod<[], [string], "view">;
 
+  MAX_PLATFORM_FEE: TypedContractMethod<[], [bigint], "view">;
+
   REFUND_TIMELOCK: TypedContractMethod<[], [bigint], "view">;
 
   REQUIRED_APPROVALS: TypedContractMethod<[], [bigint], "view">;
@@ -636,6 +761,8 @@ export interface ProjectEscrow extends BaseContract {
     "nonpayable"
   >;
 
+  cancelTask: TypedContractMethod<[taskId: BigNumberish], [void], "nonpayable">;
+
   completeTask: TypedContractMethod<
     [taskId: BigNumberish],
     [void],
@@ -648,6 +775,12 @@ export interface ProjectEscrow extends BaseContract {
     [amount: BigNumberish],
     [bigint],
     "nonpayable"
+  >;
+
+  getPlatformFeeAmount: TypedContractMethod<
+    [amount: BigNumberish],
+    [bigint],
+    "view"
   >;
 
   getProject: TypedContractMethod<
@@ -671,7 +804,7 @@ export interface ProjectEscrow extends BaseContract {
   getTask: TypedContractMethod<
     [taskId: BigNumberish],
     [
-      [bigint, string, bigint, bigint, bigint, bigint, bigint] & {
+      [bigint, string, bigint, bigint, bigint, bigint, bigint, bigint] & {
         projectId: bigint;
         worker: string;
         amount: bigint;
@@ -679,6 +812,7 @@ export interface ProjectEscrow extends BaseContract {
         createdAt: bigint;
         completedAt: bigint;
         approvalCount: bigint;
+        hashrate: bigint;
       }
     ],
     "view"
@@ -705,6 +839,10 @@ export interface ProjectEscrow extends BaseContract {
   pause: TypedContractMethod<[], [void], "nonpayable">;
 
   paused: TypedContractMethod<[], [boolean], "view">;
+
+  platformFeePercentage: TypedContractMethod<[], [bigint], "view">;
+
+  platformFeeRecipient: TypedContractMethod<[], [string], "view">;
 
   processRefund: TypedContractMethod<
     [projectId: BigNumberish],
@@ -750,6 +888,18 @@ export interface ProjectEscrow extends BaseContract {
     "nonpayable"
   >;
 
+  setPlatformFee: TypedContractMethod<
+    [newFeePercentage: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  setPlatformFeeRecipient: TypedContractMethod<
+    [newRecipient: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
   supportsInterface: TypedContractMethod<
     [interfaceId: BytesLike],
     [boolean],
@@ -761,7 +911,7 @@ export interface ProjectEscrow extends BaseContract {
   tasks: TypedContractMethod<
     [arg0: BigNumberish],
     [
-      [bigint, string, bigint, bigint, bigint, bigint, bigint] & {
+      [bigint, string, bigint, bigint, bigint, bigint, bigint, bigint] & {
         projectId: bigint;
         worker: string;
         amount: bigint;
@@ -769,12 +919,19 @@ export interface ProjectEscrow extends BaseContract {
         createdAt: bigint;
         completedAt: bigint;
         approvalCount: bigint;
+        hashrate: bigint;
       }
     ],
     "view"
   >;
 
   unpause: TypedContractMethod<[], [void], "nonpayable">;
+
+  updateTaskHashrate: TypedContractMethod<
+    [taskId: BigNumberish, newHashrate: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
   upgradeToAndCall: TypedContractMethod<
     [newImplementation: AddressLike, data: BytesLike],
@@ -798,6 +955,9 @@ export interface ProjectEscrow extends BaseContract {
   getFunction(
     nameOrSignature: "MANAGER_ROLE"
   ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "MAX_PLATFORM_FEE"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "REFUND_TIMELOCK"
   ): TypedContractMethod<[], [bigint], "view">;
@@ -824,6 +984,9 @@ export interface ProjectEscrow extends BaseContract {
     nameOrSignature: "cancelProject"
   ): TypedContractMethod<[projectId: BigNumberish], [void], "nonpayable">;
   getFunction(
+    nameOrSignature: "cancelTask"
+  ): TypedContractMethod<[taskId: BigNumberish], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "completeTask"
   ): TypedContractMethod<[taskId: BigNumberish], [void], "nonpayable">;
   getFunction(
@@ -832,6 +995,9 @@ export interface ProjectEscrow extends BaseContract {
   getFunction(
     nameOrSignature: "fundProject"
   ): TypedContractMethod<[amount: BigNumberish], [bigint], "nonpayable">;
+  getFunction(
+    nameOrSignature: "getPlatformFeeAmount"
+  ): TypedContractMethod<[amount: BigNumberish], [bigint], "view">;
   getFunction(
     nameOrSignature: "getProject"
   ): TypedContractMethod<
@@ -857,7 +1023,7 @@ export interface ProjectEscrow extends BaseContract {
   ): TypedContractMethod<
     [taskId: BigNumberish],
     [
-      [bigint, string, bigint, bigint, bigint, bigint, bigint] & {
+      [bigint, string, bigint, bigint, bigint, bigint, bigint, bigint] & {
         projectId: bigint;
         worker: string;
         amount: bigint;
@@ -865,6 +1031,7 @@ export interface ProjectEscrow extends BaseContract {
         createdAt: bigint;
         completedAt: bigint;
         approvalCount: bigint;
+        hashrate: bigint;
       }
     ],
     "view"
@@ -896,6 +1063,12 @@ export interface ProjectEscrow extends BaseContract {
   getFunction(
     nameOrSignature: "paused"
   ): TypedContractMethod<[], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "platformFeePercentage"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "platformFeeRecipient"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "processRefund"
   ): TypedContractMethod<[projectId: BigNumberish], [void], "nonpayable">;
@@ -940,6 +1113,16 @@ export interface ProjectEscrow extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "setPlatformFee"
+  ): TypedContractMethod<
+    [newFeePercentage: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "setPlatformFeeRecipient"
+  ): TypedContractMethod<[newRecipient: AddressLike], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "supportsInterface"
   ): TypedContractMethod<[interfaceId: BytesLike], [boolean], "view">;
   getFunction(
@@ -950,7 +1133,7 @@ export interface ProjectEscrow extends BaseContract {
   ): TypedContractMethod<
     [arg0: BigNumberish],
     [
-      [bigint, string, bigint, bigint, bigint, bigint, bigint] & {
+      [bigint, string, bigint, bigint, bigint, bigint, bigint, bigint] & {
         projectId: bigint;
         worker: string;
         amount: bigint;
@@ -958,6 +1141,7 @@ export interface ProjectEscrow extends BaseContract {
         createdAt: bigint;
         completedAt: bigint;
         approvalCount: bigint;
+        hashrate: bigint;
       }
     ],
     "view"
@@ -966,6 +1150,13 @@ export interface ProjectEscrow extends BaseContract {
     nameOrSignature: "unpause"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
+    nameOrSignature: "updateTaskHashrate"
+  ): TypedContractMethod<
+    [taskId: BigNumberish, newHashrate: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
     nameOrSignature: "upgradeToAndCall"
   ): TypedContractMethod<
     [newImplementation: AddressLike, data: BytesLike],
@@ -973,6 +1164,13 @@ export interface ProjectEscrow extends BaseContract {
     "payable"
   >;
 
+  getEvent(
+    key: "HashrateUpdated"
+  ): TypedContractEvent<
+    HashrateUpdatedEvent.InputTuple,
+    HashrateUpdatedEvent.OutputTuple,
+    HashrateUpdatedEvent.OutputObject
+  >;
   getEvent(
     key: "Initialized"
   ): TypedContractEvent<
@@ -1000,6 +1198,13 @@ export interface ProjectEscrow extends BaseContract {
     PaymentReleasedEvent.InputTuple,
     PaymentReleasedEvent.OutputTuple,
     PaymentReleasedEvent.OutputObject
+  >;
+  getEvent(
+    key: "PlatformFeeCollected"
+  ): TypedContractEvent<
+    PlatformFeeCollectedEvent.InputTuple,
+    PlatformFeeCollectedEvent.OutputTuple,
+    PlatformFeeCollectedEvent.OutputObject
   >;
   getEvent(
     key: "ProjectCancelled"
@@ -1065,6 +1270,13 @@ export interface ProjectEscrow extends BaseContract {
     TaskCompletedEvent.OutputObject
   >;
   getEvent(
+    key: "TaskStatusUpdated"
+  ): TypedContractEvent<
+    TaskStatusUpdatedEvent.InputTuple,
+    TaskStatusUpdatedEvent.OutputTuple,
+    TaskStatusUpdatedEvent.OutputObject
+  >;
+  getEvent(
     key: "Unpaused"
   ): TypedContractEvent<
     UnpausedEvent.InputTuple,
@@ -1080,6 +1292,17 @@ export interface ProjectEscrow extends BaseContract {
   >;
 
   filters: {
+    "HashrateUpdated(uint256,uint256)": TypedContractEvent<
+      HashrateUpdatedEvent.InputTuple,
+      HashrateUpdatedEvent.OutputTuple,
+      HashrateUpdatedEvent.OutputObject
+    >;
+    HashrateUpdated: TypedContractEvent<
+      HashrateUpdatedEvent.InputTuple,
+      HashrateUpdatedEvent.OutputTuple,
+      HashrateUpdatedEvent.OutputObject
+    >;
+
     "Initialized(uint64)": TypedContractEvent<
       InitializedEvent.InputTuple,
       InitializedEvent.OutputTuple,
@@ -1122,6 +1345,17 @@ export interface ProjectEscrow extends BaseContract {
       PaymentReleasedEvent.InputTuple,
       PaymentReleasedEvent.OutputTuple,
       PaymentReleasedEvent.OutputObject
+    >;
+
+    "PlatformFeeCollected(uint256,address,uint256,uint256)": TypedContractEvent<
+      PlatformFeeCollectedEvent.InputTuple,
+      PlatformFeeCollectedEvent.OutputTuple,
+      PlatformFeeCollectedEvent.OutputObject
+    >;
+    PlatformFeeCollected: TypedContractEvent<
+      PlatformFeeCollectedEvent.InputTuple,
+      PlatformFeeCollectedEvent.OutputTuple,
+      PlatformFeeCollectedEvent.OutputObject
     >;
 
     "ProjectCancelled(uint256,address)": TypedContractEvent<
@@ -1221,6 +1455,17 @@ export interface ProjectEscrow extends BaseContract {
       TaskCompletedEvent.InputTuple,
       TaskCompletedEvent.OutputTuple,
       TaskCompletedEvent.OutputObject
+    >;
+
+    "TaskStatusUpdated(uint256,uint8)": TypedContractEvent<
+      TaskStatusUpdatedEvent.InputTuple,
+      TaskStatusUpdatedEvent.OutputTuple,
+      TaskStatusUpdatedEvent.OutputObject
+    >;
+    TaskStatusUpdated: TypedContractEvent<
+      TaskStatusUpdatedEvent.InputTuple,
+      TaskStatusUpdatedEvent.OutputTuple,
+      TaskStatusUpdatedEvent.OutputObject
     >;
 
     "Unpaused(address)": TypedContractEvent<

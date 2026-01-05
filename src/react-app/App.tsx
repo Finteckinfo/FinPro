@@ -9,6 +9,7 @@ import ProtectedRoute from "@/react-app/components/ProtectedRoute";
 import { NetworkBanner } from "@/react-app/components/NetworkBanner";
 import { MultiChainWalletProvider, useMultiChainWallet } from "@/react-app/context/MultiChainWalletContext";
 import { useWallet } from "@/react-app/context/WalletContext";
+import { SubscriptionProvider } from "@/react-app/context/SubscriptionContext";
 import { useTelegramAuth, useTelegramUserSync } from "@/react-app/hooks/useTelegramAuth";
 import { toast, Toaster } from "react-hot-toast";
 
@@ -41,46 +42,50 @@ export default function App() {
   return (
     <Router>
       <MultiChainWalletProvider>
-        <TelegramSyncWrapper>
-          <Toaster position="top-center" />
-          <NetworkBanner />
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <HomePage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/projects/:id"
-              element={
-                <ProtectedRoute>
-                  <ProjectDetailPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/tasks/:id"
-              element={
-                <ProtectedRoute>
-                  <TaskRedirect />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/swap"
-              element={
-                <ProtectedRoute>
-                  <TokenSwap />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </TelegramSyncWrapper>
+        <SubscriptionProvider>
+          <TelegramSyncWrapper>
+            <Toaster position="top-center" />
+            <NetworkBanner />
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <HomePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/projects/:id"
+                element={
+                  <ProtectedRoute>
+                    <ProjectDetailPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tasks/:id"
+                element={
+                  <ProtectedRoute>
+                    <TaskRedirect />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/swap"
+                element={
+                  <ProtectedRoute>
+                    <TokenSwap />
+                  </ProtectedRoute>
+                }
+              />
+            </Routes>
+          </TelegramSyncWrapper>
+        </SubscriptionProvider>
       </MultiChainWalletProvider>
     </Router>
   );
 }
+
+

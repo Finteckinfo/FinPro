@@ -13,6 +13,7 @@ interface WalletContextType {
     isConnected: boolean;
     isMobile: boolean;
     connect: () => Promise<void>;
+    openInWalletApp: () => void;
     disconnect: () => void;
     switchNetwork: (targetChainId: number) => Promise<void>;
     connectToLocal: () => Promise<boolean>;
@@ -158,6 +159,12 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const openInWalletApp = () => {
+        if (typeof window === 'undefined') return;
+        const url = window.location.href.replace(/^https?:\/\//, '');
+        window.location.href = `https://metamask.app.link/dapp/${url}`;
+    };
+
     const disconnect = () => {
         setAccount(null);
         setProvider(null);
@@ -206,6 +213,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         isConnected: !!account,
         isMobile,
         connect,
+        openInWalletApp,
         disconnect,
         switchNetwork,
         connectToLocal,
@@ -217,6 +225,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         error,
         isMobile,
         connect,
+        openInWalletApp,
         disconnect,
         switchNetwork,
         connectToLocal

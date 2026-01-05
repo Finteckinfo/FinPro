@@ -1,10 +1,13 @@
 import { useState } from 'react';
-import { X, Sparkles, ArrowRight, DollarSign } from 'lucide-react';
+import { X, Sparkles, ArrowRight, DollarSign, Zap } from 'lucide-react';
 import { supabase } from '@/react-app/lib/supabase';
 import { useWallet } from '@/react-app/hooks/useWallet';
 import { useContract, parseEther } from '@/react-app/hooks/useWallet';
 import { useTonWallet } from '@/react-app/hooks/useTonWallet';
+import { useSubscription } from '@/react-app/context/SubscriptionContext';
 import { FIN_TOKEN_ABI, PROJECT_ESCROW_ABI, CONTRACT_ADDRESSES } from '@/react-app/lib/contracts';
+import { useGaslessContractCall } from '@/react-app/hooks/useGaslessTransaction';
+import { APP_CONFIG } from '@/react-app/lib/config';
 
 interface CreateProjectModalProps {
   isOpen: boolean;
@@ -14,6 +17,7 @@ interface CreateProjectModalProps {
 
 export default function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProjectModalProps) {
   const { account, provider, chainId } = useWallet();
+  const { checkProjectLimit, subscription } = useSubscription();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -21,6 +25,7 @@ export default function CreateProjectModal({ isOpen, onClose, onSuccess }: Creat
     start_date: new Date().toISOString().split('T')[0],
     end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
   });
+  const [useGasless, setUseGasless] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -28,6 +33,7 @@ export default function CreateProjectModal({ isOpen, onClose, onSuccess }: Creat
   const finToken = useContract(CONTRACT_ADDRESSES.finToken, FIN_TOKEN_ABI);
   const projectEscrow = useContract(CONTRACT_ADDRESSES.projectEscrow, PROJECT_ESCROW_ABI);
   const { storeProjectOnTon, tonAddress } = useTonWallet();
+  const { callContract } = useGaslessContractCall(APP_CONFIG.accountAbstraction);
 
   if (!isOpen) return null;
 
@@ -39,6 +45,13 @@ export default function CreateProjectModal({ isOpen, onClose, onSuccess }: Creat
     try {
       if (!account || !provider || !finToken || !projectEscrow) {
         throw new Error('Wallet connection or contract initialization failed');
+      }
+
+      // 0. Check Project Limit (Subscription Tier)
+      setLoadingStep('Verifying Project Eligibility...');
+      const canCreate = await checkProjectLimit();
+      if (!canCreate) {
+        throw new Error(`Project Limit Reached: Your current tier (${subscription?.tier_name}) is limited to ${subscription?.max_projects} active projects. Please upgrade to Pro for unlimited access.`);
       }
 
       const amount = parseEther(formData.total_funds.toString());
@@ -65,18 +78,40 @@ export default function CreateProjectModal({ isOpen, onClose, onSuccess }: Creat
         throw new Error('Insufficient FIN Balance: You do not have enough FIN tokens to fund this project. Please mint some tokens first.');
       }
 
-      // 1. Approve FIN Token
-      setLoadingStep('Authorizing Treasury Transfer...');
-      const approveTx = await finToken.approve(CONTRACT_ADDRESSES.projectEscrow, amount);
-      await approveTx.wait();
+      // 1. Authorize Token Transfer
+      setLoadingStep(useGasless ? 'Authorizing Treasury (Gasless)...' : 'Authorizing Treasury Transfer...');
+      if (useGasless) {
+        await callContract(account, {
+          contractAddress: CONTRACT_ADDRESSES.finToken,
+          functionName: 'approve',
+          args: [CONTRACT_ADDRESSES.projectEscrow, amount],
+          abi: FIN_TOKEN_ABI
+        }, '');
+      } else {
+        const approveTx = await finToken.approve(CONTRACT_ADDRESSES.projectEscrow, amount);
+        await approveTx.wait();
+      }
 
       // 2. Fund Project On-chain
-      setLoadingStep('Initializing Protocol Registry...');
-      const fundTx = await projectEscrow.fundProject(amount);
-      const receipt = await fundTx.wait();
+      setLoadingStep(useGasless ? 'Initializing Protocol (Gasless)...' : 'Initializing Protocol Registry...');
+      let receipt;
+      if (useGasless) {
+        await callContract(account, {
+          contractAddress: CONTRACT_ADDRESSES.projectEscrow,
+          functionName: 'fundProject',
+          args: [amount],
+          abi: PROJECT_ESCROW_ABI
+        }, '');
+
+        setLoadingStep('Indexing Registry Data...');
+        await new Promise(resolve => setTimeout(resolve, 3000));
+      } else {
+        const fundTx = await projectEscrow.fundProject(amount);
+        receipt = await fundTx.wait();
+      }
 
       // 3. Extract On-chain Project ID
-      const event = receipt.logs
+      const event = receipt?.logs
         .map((log: any) => {
           try {
             return projectEscrow.interface.parseLog(log);
@@ -265,6 +300,25 @@ export default function CreateProjectModal({ isOpen, onClose, onSuccess }: Creat
                 className="w-full px-6 py-4 bg-black/20 border border-white/5 rounded-[22px] focus:border-blue-500/30 outline-none transition-all text-white font-medium"
               />
             </div>
+          </div>
+
+          <div className="flex items-center justify-between p-6 bg-blue-500/5 border border-blue-500/10 rounded-[28px]">
+            <div className="flex items-center gap-4">
+              <div className="p-2 bg-blue-500/10 rounded-lg">
+                <Zap className="w-4 h-4 text-blue-400" />
+              </div>
+              <div>
+                <span className="text-sm font-bold text-white block">Gasless Mode</span>
+                <span className="text-[10px] text-gray-500">Fund using FIN (No ETH required)</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setUseGasless(!useGasless)}
+              className={`w-12 h-6 rounded-full p-1 transition-all ${useGasless ? 'bg-blue-500' : 'bg-white/10'}`}
+            >
+              <div className={`w-4 h-4 rounded-full bg-white transition-all transform ${useGasless ? 'translate-x-6' : 'translate-x-0'}`} />
+            </button>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 pt-6">

@@ -3,14 +3,18 @@ import { Plus, Sparkles, TrendingUp, Briefcase, Wallet, Settings } from 'lucide-
 import { useProjects } from '@/react-app/hooks/useProjects';
 import ProjectCard from '@/react-app/components/ProjectCard';
 import CreateProjectModal from '@/react-app/components/CreateProjectModal';
+import SubscriptionModal from '@/react-app/components/SubscriptionModal';
 import WalletConnect from '@/react-app/components/WalletConnect';
 import { Navigation } from '@/react-app/components/Navigation';
 import { useWallet } from '@/react-app/hooks/useWallet';
+import { useSubscription } from '@/react-app/context/SubscriptionContext';
 
 export default function HomePage() {
   const { projects, loading, error, refetch } = useProjects();
   const { connectToLocal, chainId } = useWallet();
+  const { subscription } = useSubscription();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
 
   // Calculate dashboard stats based on new schema
   const totalReleased = projects.reduce((acc, p) => acc + (p.released_funds || 0), 0);
@@ -111,6 +115,23 @@ export default function HomePage() {
                   </div>
                 </button>
               )}
+              <button
+                onClick={() => setIsSubscriptionModalOpen(true)}
+                className="w-full flex items-center justify-between p-4 bg-indigo-500/5 hover:bg-indigo-500/10 border border-indigo-500/20 rounded-2xl transition-all group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-indigo-500 text-white rounded-xl">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <div className="text-left">
+                    <span className="block font-black text-white text-xs leading-none">Tier: {subscription?.tier_name}</span>
+                    <span className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">Manage Plan</span>
+                  </div>
+                </div>
+                <div className="w-8 h-8 flex items-center justify-center rounded-full bg-indigo-500/20 text-indigo-400 group-hover:translate-x-1 transition-transform">
+                  ↑
+                </div>
+              </button>
               <WalletConnect />
             </div>
           </div>
@@ -158,6 +179,11 @@ export default function HomePage() {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSuccess={refetch}
+      />
+
+      <SubscriptionModal
+        isOpen={isSubscriptionModalOpen}
+        onClose={() => setIsSubscriptionModalOpen(false)}
       />
     </div>
   );

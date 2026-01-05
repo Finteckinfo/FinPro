@@ -102,12 +102,13 @@ export default function SubtaskCard({ subtask, onStatusChange, onReview, isOwner
           </div>
         )}
 
-        {subtask.status === 'rejected' && (
+        {(subtask.status === 'pending' || subtask.status === 'in_progress') && isOwner && (
           <button
-            onClick={() => onStatusChange(subtask.id, 'in_progress')}
-            className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-xl text-sm font-black hover:bg-blue-600 transition-all"
+            onClick={() => onStatusChange(subtask.id, 'cancelled')}
+            className="flex items-center gap-2 px-6 py-3 bg-red-500/10 text-red-500 border border-red-500/20 rounded-xl text-sm font-black hover:bg-red-500 hover:text-white transition-all"
           >
-            Revise Stream
+            Cancel Stream
+            <XCircle className="w-4 h-4" />
           </button>
         )}
       </div>

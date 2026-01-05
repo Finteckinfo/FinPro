@@ -4,7 +4,7 @@ import { Wallet, Shield, Sparkles, CheckCircle, Lock, ArrowRight } from 'lucide-
 import { useWallet } from '@/react-app/hooks/useWallet';
 
 export default function LoginPage() {
-  const { account, loading, error, connect, isConnected, isMobile } = useWallet();
+  const { account, loading, error, connect, openInWalletApp, isConnected, isMobile } = useWallet();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -12,11 +12,6 @@ export default function LoginPage() {
       navigate('/');
     }
   }, [isConnected, account, navigate]);
-
-  const openWalletApp = () => {
-    const url = window.location.href.replace(/^https?:\/\//, '');
-    window.location.href = `https://metamask.app.link/dapp/${url}`;
-  };
 
   return (
     <div className="min-h-screen bg-[#050B18] flex items-center justify-center p-4 relative overflow-hidden">
@@ -94,7 +89,7 @@ export default function LoginPage() {
                   <p className="text-red-400 text-sm text-center font-bold mb-3">{error}</p>
                   {isMobile && !window.ethereum && (
                     <button
-                      onClick={openWalletApp}
+                      onClick={openInWalletApp}
                       className="w-full py-3 bg-red-500 text-white rounded-xl text-sm font-bold transition-all hover:bg-red-600 shadow-lg shadow-red-500/20"
                     >
                       Open in Wallet App
@@ -105,12 +100,12 @@ export default function LoginPage() {
 
               <div className="space-y-6">
                 <button
-                  onClick={connect}
+                  onClick={isMobile && !window.ethereum ? openInWalletApp : connect}
                   disabled={loading}
                   className="w-full group relative flex items-center justify-center gap-3 px-8 py-5 bg-gradient-to-r from-[#0D99FF] to-[#0066FF] text-white rounded-[24px] font-black text-lg hover:shadow-[0_12px_40px_rgba(13,153,255,0.4)] hover:scale-[1.02] transition-all active:scale-[0.98] disabled:opacity-50 border border-white/10"
                 >
                   <Wallet className="w-6 h-6" />
-                  <span>{loading ? 'Authorizing...' : 'Connect Wallet'}</span>
+                  <span>{loading ? 'Authorizing...' : isMobile && !window.ethereum ? 'Launch MetaMask' : 'Connect Wallet'}</span>
                   <ArrowRight className="w-5 h-5 absolute right-8 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                 </button>
 

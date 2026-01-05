@@ -337,7 +337,7 @@ export interface TokenPaymaster extends BaseContract {
       signature: BytesLike
     ],
     [string],
-    "view"
+    "nonpayable"
   >;
 
   verifiedSigners: TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
@@ -402,7 +402,7 @@ export interface TokenPaymaster extends BaseContract {
       signature: BytesLike
     ],
     [string],
-    "view"
+    "nonpayable"
   >;
   getFunction(
     nameOrSignature: "verifiedSigners"

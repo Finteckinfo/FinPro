@@ -43,12 +43,24 @@ const config: HardhatUserConfig = {
             accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
             chainId: 137,
         },
+        base: {
+            url: process.env.BASE_RPC_URL || "https://base-mainnet.g.alchemy.com/v2/YOUR_KEY",
+            accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+            chainId: 8453,
+        },
+        baseSepolia: {
+            url: process.env.BASE_SEPOLIA_RPC_URL || "https://base-sepolia.g.alchemy.com/v2/YOUR_KEY",
+            accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+            chainId: 84532,
+        },
     },
     etherscan: {
         apiKey: {
             sepolia: process.env.ETHERSCAN_API_KEY || "",
             mainnet: process.env.ETHERSCAN_API_KEY || "",
             polygon: process.env.POLYGONSCAN_API_KEY || "",
+            base: process.env.BASESCAN_API_KEY || "",
+            baseSepolia: process.env.BASESCAN_API_KEY || "",
         },
     },
     gasReporter: {

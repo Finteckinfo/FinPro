@@ -20,6 +20,21 @@ struct SubtaskData {
   status: Int as uint8;
 }
 
+struct UserData {
+  walletAddress: Address;
+  fullName: String;
+  telegramId: Int as uint64;
+  avatarUrl: String;
+  createdAt: Int as uint32;
+}
+
+message StoreUser {
+  fullName: String;
+  telegramId: Int as uint64;
+  avatarUrl: String;
+}
+
+
 message StoreProject {
   name: String;
   description: String;
@@ -42,8 +57,10 @@ contract DataRegistry with Deployable {
   owner: Address;
   projects: map<Int, ProjectData>;
   subtasks: map<Int, SubtaskData>;
+  users: map<Address, UserData>;
   projectCounter: Int as uint64 = 0;
   subtaskCounter: Int as uint64 = 0;
+  userCounter: Int as uint64 = 0;
   
   init(owner: Address) {
     self.owner = owner;
@@ -99,5 +116,25 @@ contract DataRegistry with Deployable {
   
   get fun getSubtaskCount(): Int {
     return self.subtaskCounter;
+  }
+
+  // User Profile Handlers
+  receive(msg: StoreUser) {
+    self.userCounter = self.userCounter + 1;
+    self.users.set(sender(), UserData{
+      walletAddress: sender(),
+      fullName: msg.fullName,
+      telegramId: msg.telegramId,
+      avatarUrl: msg.avatarUrl,
+      createdAt: now()
+    });
+  }
+
+  get fun getUser(walletAddress: Address): UserData? {
+    return self.users.get(walletAddress);
+  }
+
+  get fun getUserCount(): Int {
+    return self.userCounter;
   }
 }

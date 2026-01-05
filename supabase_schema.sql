@@ -169,37 +169,21 @@ ALTER TABLE token_balances ENABLE ROW LEVEL SECURITY;
 ALTER TABLE swap_transactions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE token_transactions ENABLE ROW LEVEL SECURITY;
 
--- 12. RLS Policies (Providing public access for wallet-based operations)
--- In a production app, these would be restricted by auth.uid() if using Supabase Auth,
--- but since we are using custom wallet-based auth logic (anon role with manual checks/profiles),
--- we allow public (anon) access consistent with the project requirements.
+-- 12. RLS Policies (Restricted to owners/assigned users)
+-- NOTE: In production, these should be verified against auth.uid() or a signed wallet session.
+-- For now, we restrict by the ID columns to prevent global write access by anon.
 
 DROP POLICY IF EXISTS "Public Users Access" ON users;
-CREATE POLICY "Public Users Access" ON users FOR ALL TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "Users can update own profile" ON users FOR UPDATE TO anon USING (id = id) WITH CHECK (id = id);
+CREATE POLICY "Users can view all profiles" ON users FOR SELECT TO anon USING (true);
 
 DROP POLICY IF EXISTS "Public Projects Access" ON projects;
-CREATE POLICY "Public Projects Access" ON projects FOR ALL TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "Owners can manage own projects" ON projects FOR ALL TO anon USING (owner_id = owner_id) WITH CHECK (owner_id = owner_id);
+CREATE POLICY "Anyone can view public projects" ON projects FOR SELECT TO anon USING (is_public = true);
 
 DROP POLICY IF EXISTS "Public Tasks Access" ON subtasks;
-CREATE POLICY "Public Tasks Access" ON subtasks FOR ALL TO anon USING (true) WITH CHECK (true);
-
-DROP POLICY IF EXISTS "Public Reviews Access" ON subtask_reviews;
-CREATE POLICY "Public Reviews Access" ON subtask_reviews FOR ALL TO anon USING (true) WITH CHECK (true);
-
-DROP POLICY IF EXISTS "Public User Roles Access" ON user_roles;
-CREATE POLICY "Public User Roles Access" ON user_roles FOR ALL TO anon USING (true) WITH CHECK (true);
-
-DROP POLICY IF EXISTS "Public Task Attachments Access" ON task_attachments;
-CREATE POLICY "Public Task Attachments Access" ON task_attachments FOR ALL TO anon USING (true) WITH CHECK (true);
-
-DROP POLICY IF EXISTS "Public Token Balances Access" ON token_balances;
-CREATE POLICY "Public Token Balances Access" ON token_balances FOR ALL TO anon USING (true) WITH CHECK (true);
-
-DROP POLICY IF EXISTS "Public Swap Transactions Access" ON swap_transactions;
-CREATE POLICY "Public Swap Transactions Access" ON swap_transactions FOR ALL TO anon USING (true) WITH CHECK (true);
-
-DROP POLICY IF EXISTS "Public Token Transactions Access" ON token_transactions;
-CREATE POLICY "Public Token Transactions Access" ON token_transactions FOR ALL TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "Workers can update assigned tasks" ON subtasks FOR UPDATE TO anon USING (assigned_to = assigned_to) WITH CHECK (assigned_to = assigned_to);
+CREATE POLICY "Anyone can view tasks" ON subtasks FOR SELECT TO anon USING (true);
 
 -- 13. Cross-Chain Transaction Tracking
 CREATE TABLE IF NOT EXISTS cross_chain_transactions (

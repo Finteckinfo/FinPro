@@ -22,31 +22,31 @@ const PROJECT_ESCROW_ABI = [
 ];
 
 async function main() {
-    console.log('🚀 Starting FinPro Integration Test\n');
+    console.log('[INFO] Starting FinPro Integration Test\n');
 
     try {
         // Connect to Anvil
         const provider = new ethers.JsonRpcProvider('http://localhost:8545');
         const network = await provider.getNetwork();
-        console.log(`✓ Connected to network: ${network.name} (Chain ID: ${network.chainId})`);
+        console.log(`[OK] Connected to network: ${network.name} (Chain ID: ${network.chainId})`);
 
         // Get deployer account (first Anvil account)
         const signer = await provider.getSigner(0);
         const address = await signer.getAddress();
         const balance = await provider.getBalance(address);
-        console.log(`✓ Signer account: ${address}`);
-        console.log(`✓ Account balance: ${ethers.formatEther(balance)} ETH\n`);
+        console.log(`[OK] Signer account: ${address}`);
+        console.log(`[OK] Account balance: ${ethers.formatEther(balance)} ETH\n`);
 
         // Test FIN Token
-        console.log('📋 Testing FIN Token...');
+        console.log('[TEST] Testing FIN Token...');
         const finToken = new ethers.Contract(CONTRACTS.finToken, FIN_TOKEN_ABI, signer);
         const totalSupply = await finToken.totalSupply();
         const userBalance = await finToken.balanceOf(address);
-        console.log(`✓ Total Supply: ${ethers.formatEther(totalSupply)} FIN`);
-        console.log(`✓ User Balance: ${ethers.formatEther(userBalance)} FIN\n`);
+        console.log(`[OK] Total Supply: ${ethers.formatEther(totalSupply)} FIN`);
+        console.log(`[OK] User Balance: ${ethers.formatEther(userBalance)} FIN\n`);
 
         // Test Project Escrow - Fund a project
-        console.log('📋 Testing Project Escrow...');
+        console.log('[TEST] Testing Project Escrow...');
         const projectEscrow = new ethers.Contract(
             CONTRACTS.projectEscrow,
             PROJECT_ESCROW_ABI,
@@ -58,40 +58,40 @@ async function main() {
         console.log(`Approving ${ethers.formatEther(fundAmount)} FIN for escrow...`);
         const approveTx = await finToken.approve(CONTRACTS.projectEscrow, fundAmount);
         await approveTx.wait();
-        console.log('✓ Approval confirmed');
+        console.log('[OK] Approval confirmed');
 
         // Fund a project
         console.log('Funding a new project with 1000 FIN...');
         const fundTx = await projectEscrow.fundProject(fundAmount);
         const fundReceipt = await fundTx.wait();
-        console.log('✓ Project funded successfully');
+        console.log('[OK] Project funded successfully');
 
         // Get the project ID from the transaction receipt
         const logs = fundReceipt?.logs || [];
-        console.log(`✓ Transaction logs: ${logs.length} events emitted`);
+        console.log(`[OK] Transaction logs: ${logs.length} events emitted`);
 
         // Verify project was created
         try {
             const project = await projectEscrow.getProject(1n);
-            console.log(`✓ Project created:`);
+            console.log(`[OK] Project created:`);
             console.log(`  - Employer: ${project.employer}`);
             console.log(`  - Total Funded: ${ethers.formatEther(project.totalFunded)} FIN`);
             console.log(`  - Status: ${project.status}`);
         } catch (e) {
-            console.log(`⚠️  Could not fetch project details (may be expected)`);
+            console.log(`[WARN] Could not fetch project details (may be expected)`);
         }
 
-        console.log('\n✅ All integration tests passed!');
-        console.log('\n📊 System Status:');
-        console.log(`  - Anvil Blockchain: ✓ Running on port 8545`);
-        console.log(`  - Smart Contracts: ✓ Deployed and functional`);
-        console.log(`  - FIN Token: ✓ Operational`);
-        console.log(`  - Project Escrow: ✓ Operational`);
-        console.log(`  - Vite Dev Server: ✓ Running on port 5174`);
+        console.log('\n[SUCCESS] All integration tests passed!');
+        console.log('\n[STATUS] System Status:');
+        console.log(`  - Anvil Blockchain: [OK] Running on port 8545`);
+        console.log(`  - Smart Contracts: [OK] Deployed and functional`);
+        console.log(`  - FIN Token: [OK] Operational`);
+        console.log(`  - Project Escrow: [OK] Operational`);
+        console.log(`  - Vite Dev Server: [OK] Running on port 5174`);
 
         process.exit(0);
     } catch (error) {
-        console.error('\n❌ Integration test failed:');
+        console.error('\n[ERROR] Integration test failed:');
         console.error(error);
         process.exit(1);
     }

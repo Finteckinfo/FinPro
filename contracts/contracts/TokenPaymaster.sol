@@ -61,12 +61,15 @@ contract TokenPaymaster is Ownable {
         bytes32 userOpHash,
         uint256 maxCost,
         bytes calldata signature
-    ) external view returns (bytes memory context) {
+    ) external onlyEntryPoint returns (bytes memory context) {
         bytes32 messageHash = userOpHash.toEthSignedMessageHash();
         address signer = ECDSA.recover(messageHash, signature);
 
-        require(verifiedSigners[signer], "Invalid signature");
-        require(!usedNonces[userOpHash], "Nonce already used");
+        require(verifiedSigners[signer], "TokenPaymaster: invalid signature");
+        require(!usedNonces[userOpHash], "TokenPaymaster: nonce already used");
+        
+        // Mark nonce as used immediately to prevent re-submission within same block/bundle
+        usedNonces[userOpHash] = true;
 
         return abi.encode(account, maxCost, userOpHash);
     }
@@ -80,8 +83,7 @@ contract TokenPaymaster is Ownable {
         uint256 chargedAmount = (actualGasCost * exchangeRate) / 1e18;
         require(chargedAmount <= maxCost, "Gas cost exceeded");
 
-        // CEI Pattern: Update state and emit event before internal/external calls
-        usedNonces[userOpHash] = true;
+        // CEI Pattern: Emit event before internal/external calls
         emit PaymasterCharged(account, chargedAmount, actualGasCost);
         
         bool success = acceptedToken.transferFrom(account, address(this), chargedAmount);
