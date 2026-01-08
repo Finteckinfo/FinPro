@@ -888,16 +888,12 @@ export interface ProjectEscrow extends BaseContract {
     "nonpayable"
   >;
 
-  setPlatformFee: TypedContractMethod<
-    [newFeePercentage: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  setPlatformFee: TypedContractMethod<[arg0: BigNumberish], [void], "view">;
 
   setPlatformFeeRecipient: TypedContractMethod<
-    [newRecipient: AddressLike],
+    [arg0: AddressLike],
     [void],
-    "nonpayable"
+    "view"
   >;
 
   supportsInterface: TypedContractMethod<
@@ -1114,14 +1110,10 @@ export interface ProjectEscrow extends BaseContract {
   >;
   getFunction(
     nameOrSignature: "setPlatformFee"
-  ): TypedContractMethod<
-    [newFeePercentage: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  ): TypedContractMethod<[arg0: BigNumberish], [void], "view">;
   getFunction(
     nameOrSignature: "setPlatformFeeRecipient"
-  ): TypedContractMethod<[newRecipient: AddressLike], [void], "nonpayable">;
+  ): TypedContractMethod<[arg0: AddressLike], [void], "view">;
   getFunction(
     nameOrSignature: "supportsInterface"
   ): TypedContractMethod<[interfaceId: BytesLike], [boolean], "view">;

@@ -1897,8 +1897,8 @@
       ]
     },
     "/home/c0bw3b/FinPro/contracts/contracts/ProjectEscrow.sol": {
-      "lastModificationDate": 1767621595867,
-      "contentHash": "d64f69e94ca51f1bb493a190fc14570a",
+      "lastModificationDate": 1767834463537,
+      "contentHash": "67145285dbbb06095f356f6f8c10d1fc",
       "sourceName": "contracts/ProjectEscrow.sol",
       "solcConfig": {
         "version": "0.8.24",

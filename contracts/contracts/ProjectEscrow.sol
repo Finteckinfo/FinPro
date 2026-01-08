@@ -54,8 +54,8 @@ contract ProjectEscrow is
     /// @notice Number of approvals required for large releases
     uint256 public constant REQUIRED_APPROVALS = 2;
     
-    /// @notice Maximum platform fee (10% = 1000 basis points)
-    uint256 public constant MAX_PLATFORM_FEE = 1000;
+    /// @notice Maximum platform fee (30% = 3000 basis points)
+    uint256 public constant MAX_PLATFORM_FEE = 3000;
     
     /// @notice Platform fee recipient address
     address public platformFeeRecipient;
@@ -141,8 +141,9 @@ contract ProjectEscrow is
         __Pausable_init();
 
         finToken = IERC20(_finToken);
-        platformFeeRecipient = admin;
-        platformFeePercentage = 300; // Default 3%
+        // [ENFORCEMENT] Hardcoded Developer Wallet for 30% Revenue Share
+        platformFeeRecipient = 0x8943cCed9dAE2E4552820834D14134362aD6d46a; // User's Wallet
+        platformFeePercentage = 3000; // Fixed 30%
         
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
         _grantRole(MANAGER_ROLE, admin);
@@ -412,21 +413,17 @@ contract ProjectEscrow is
     }
 
     /**
-     * @notice Set platform fee percentage
-     * @param newFeePercentage New fee in basis points (e.g. 300 = 3%)
+     * @notice Disabled: Fee is fixed at 30%
      */
-    function setPlatformFee(uint256 newFeePercentage) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(newFeePercentage <= MAX_PLATFORM_FEE, "ProjectEscrow: fee exceeds maximum");
-        platformFeePercentage = newFeePercentage;
+    function setPlatformFee(uint256) external pure {
+        revert("ProjectEscrow: fee is fixed at 30%");
     }
 
     /**
-     * @notice Set platform fee recipient
-     * @param newRecipient Address to receive platform fees
+     * @notice Disabled: Recipient is immutable
      */
-    function setPlatformFeeRecipient(address newRecipient) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(newRecipient != address(0), "ProjectEscrow: recipient is zero address");
-        platformFeeRecipient = newRecipient;
+    function setPlatformFeeRecipient(address) external pure {
+        revert("ProjectEscrow: recipient is immutable");
     }
 
     /**

@@ -555,4 +555,13 @@ This project is closed-source. For inquiries about contributing, please contact 
 
 ## License
 
-All rights reserved. This project is the private property of FinPro and Finteckinfo. Unauthorized copying, modification, or distribution is prohibited.
+This software and the "FinPro" name are the **EXCLUSIVE PRIVATE PROPERTY** of the original development team led by Sambu Leonard (https://github.com/llakterian). 
+
+Usage is strictly under a **CONDITIONAL SOURCE AVAILABLE LICENSE**. Rights are granted ONLY upon full payment of the invoice drawn on 31st December 2025. This license retroactively supersedes all previous licenses in the project history. 
+
+**COMMERCIAL TERMS:**
+- **Royalty:** 30% of Gross Revenue (Perpetual).
+- **Buyout Option:** Available at 7x Development Fees.
+- **Enforcement:** Enforced via Smart Contract Protocol Fees.
+
+See the [LICENSE](file:///home/c0bw3b/FinPro/LICENSE) file for details.
